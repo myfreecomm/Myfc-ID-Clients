@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import urllib2
+import json
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
-from myfc_id_client.models import Identity
+from models import Identity
 
 
 class MyfcidAPIBackend(object):
@@ -53,7 +55,7 @@ class MyfcidAPIBackend(object):
         uri = '%s/%s' % (settings.AUTH_API['HOST'], settings.AUTH_API['PATH'])
 
         # Setup an url opener to handle authentication
-        opener = setup_urlopener(uri, user=email, password=password)
+        opener = setup_urlopener(uri, user, password)
 
         # Request the data
         handle = urllib2.urlopen(uri)
