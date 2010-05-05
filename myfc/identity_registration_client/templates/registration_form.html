@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Myfc ID :: Registo{% endblock %}
+
+{% block header %}<h2><em>Crie seu Myfc ID via API</em></h2>{% endblock %}
+
+{% block mainwrapper %}
+    <form method="POST" action=".">
+    {{ form.as_p }}
+    <input type="SUBMIT"/>
+    {% csrf_token %}
+    </form>
+
+    <a href="{% url auth_login %}">Já tenho um Myfc ID</a>
+
+{% endblock mainwrapper %}
