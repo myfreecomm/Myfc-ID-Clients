@@ -1,4 +1,5 @@
 #coding UTF-8
+import json
 from mock import patch_object, Mock
 from httplib2 import Http
 
@@ -17,9 +18,9 @@ def create_post(**kwargs):
     post_data.update(kwargs)
     return post_data
 
-def mock_response():
+def mock_response(status_code):
     response = Mock()
-    response.status = 200
+    response.status = status_code
     return response
 
 mocked_user_json = """{
@@ -37,11 +38,21 @@ mocked_user_json = """{
     "email": "giuseppe@rocca.com"
 }"""
 
+mocked_form_errors = """{
+    "email":["usuario existente"]
+}"""
+
 class ApiRegistrationTest(TestCase):
 
-    @patch_object(Http, 'request', Mock(return_value=(mock_response(),
+    @patch_object(Http, 'request', Mock(return_value=(mock_response(200),
                                                       mocked_user_json)))
     def test_successful_api_registration(self):
-
         response = self.client.post(reverse('register_account'), create_post())
         self.assertEquals(200, response.status_code)
+        self.assertEquals(json.loads(response.content), json.loads(mocked_user_json))
+
+    @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
+                                                      mocked_form_errors)))
+    def test_conflict_error_on_api_registration(self):
+        response = self.client.post(reverse('register_account'), create_post())
+        self.assertTrue('errorlist' in response.content)

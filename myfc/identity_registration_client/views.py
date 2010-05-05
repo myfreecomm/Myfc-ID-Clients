@@ -29,7 +29,7 @@ def register_identity(request):
 
     if response.status == 409:
         content = json.loads(content)
-        form._errors.update(**content)
+        form._errors = content
         context = RequestContext(request, {'form': form,})
         return render_to_response('registration_form.html', context)
 
