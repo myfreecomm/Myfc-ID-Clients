@@ -85,7 +85,8 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.contenttypes',
-    'identity_auth_client'
+    'identity_auth_client',
+    'identity_registration_client'
 )
 
 AUTH_API = {
