@@ -29,6 +29,9 @@ class MyfcidAPIBackend(object):
             # Set this user's backend 
             identity.backend = "%s.%s" % (MyfcidAPIBackend.__module__, 'MyfcidAPIBackend')
 
+            # Append additional user data to a temporary attribute
+            identity.user_data = user_data
+
         return identity
             
 
