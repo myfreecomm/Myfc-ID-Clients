@@ -1,10 +1,12 @@
 # Django settings for simple_project project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 PROJECT_PATH = os.path.realpath(
-    os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
+    os.path.dirname(__file__)
+)
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -14,8 +16,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '%s/simple.sqlite',      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',     # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': '%s/simple.sqlite' % PROJECT_PATH,  # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -77,9 +79,17 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    '%s/templates' % PROJECT_PATH,
 )
 
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.sessions',
+    'django.contrib.contenttypes',
+    'identity_auth_client'
 )
+
+AUTH_API = {
+    'HOST': 'http://localhost:8001',
+    'PATH': 'accounts/api/auth/',
+}
