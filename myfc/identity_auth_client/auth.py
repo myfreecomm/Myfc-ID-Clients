@@ -18,10 +18,13 @@ class MyfcidAPIBackend(object):
         # Fetch user data 
         response_content = self.fetch_user_data(email, password)
 
-        if response_content:
-            # Deserialize data
+        # Deserialize data
+        try:
             user_data = json.loads(response_content)
+        except (TypeError, ValueError):
+            user_data = None
 
+        if user_data:
             # Create an updated Identity instance for this user
             identity, created = Identity.objects.get_or_create(email=user_data['email'])
             self._update_user(identity, user_data)
@@ -36,7 +39,12 @@ class MyfcidAPIBackend(object):
             
 
     def get_user(self, user_id):
-        return Identity.objects.get(userid)
+        try:
+            user = Identity.objects.get(id=user_id)
+        except Identity.DoesNotExist:
+            user = None
+
+        return user
 
 
     def _update_user(self, user, user_data):
