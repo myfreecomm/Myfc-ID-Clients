@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import urllib2
 import json
+import httplib2
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
@@ -55,31 +55,28 @@ class MyfcidAPIBackend(object):
 
     def fetch_user_data(self, user, password):
 
-        def setup_urlopener(uri, user, password):
-            passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-            passman.add_password(None, uri, user, password)
-            authhandler = urllib2.HTTPBasicAuthHandler(passman)
-            opener = urllib2.build_opener(authhandler)
-            urllib2.install_opener(opener)
-
         # Build the API uri
         uri = '%s/%s' % (settings.AUTH_API['HOST'], settings.AUTH_API['PATH'])
 
-        # Setup an url opener to handle authentication
-        opener = setup_urlopener(uri, user, password)
+        # Setup httplib2 for this request
+        h = httplib2.Http()
+        h.add_credentials(user, password)
 
         # Request the data
-        handle = urllib2.urlopen(uri)
-        status_code = handle.getcode()
+        try:
+            response, content = h.request(
+                uri, method='GET',
+                headers={'cache-control':'no-cache'}
+            )
 
-        # If the request is successful, read response data
-        if status_code == 200:
-            response_content = handle.read()
-        else:
+            # If the request is successful, read response data
+            if response.status != 200:
+                raise ValueError
+
+            response_content = content
+        except (ValueError, AttributeError, httplib2.HttpLib2Error):
             response_content = None
 
-        handle.close()
-        
         return response_content
 
     
