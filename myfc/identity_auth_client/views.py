@@ -14,7 +14,13 @@ from django.views.decorators.cache import never_cache
 def login(request, template_name='registration/login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           authentication_form=AuthenticationForm):
-    "Displays the login form and handles the login action."
+    """
+    Displays the login form and handles the login action.
+
+    Shameless copy of the default django view, extracting
+    additional user data from the authenticated user and adding
+    it to the session.
+    """
     redirect_to = request.REQUEST.get(redirect_field_name, '')
     if request.method == "POST":
         form = authentication_form(data=request.POST)
@@ -29,6 +35,7 @@ def login(request, template_name='registration/login.html',
             # Insert additional user data in his session
             try:
                 request.session['user_data'] = user.user_data
+                del(user.user_data)
             except AttributeError:
                 request.session['user_data'] = {}
 
