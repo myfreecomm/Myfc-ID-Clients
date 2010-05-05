@@ -93,3 +93,10 @@ AUTH_API = {
     'HOST': 'http://localhost:8001',
     'PATH': 'accounts/api/auth/',
 }
+
+REGISTRATION_API = {
+    'HOST': 'http://localhost:8001',
+    'PATH': 'accounts/api/register/',
+    'USER': 'client',
+    'PASSWORD': 'magickey'
+}
