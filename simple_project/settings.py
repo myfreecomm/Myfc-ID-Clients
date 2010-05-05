@@ -83,7 +83,6 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.contenttypes',
     'identity_auth_client'
