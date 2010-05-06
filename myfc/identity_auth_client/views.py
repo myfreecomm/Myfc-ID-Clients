@@ -55,4 +55,3 @@ def login(request, template_name='registration/login.html',
         'site': current_site,
         'site_name': current_site.name,
     }, context_instance=RequestContext(request))
-

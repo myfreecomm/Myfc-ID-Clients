@@ -85,10 +85,18 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.contenttypes',
-    'identity_auth_client'
+    'identity_auth_client',
+    'identity_registration_client'
 )
 
 AUTH_API = {
     'HOST': 'http://localhost:8001',
     'PATH': 'accounts/api/auth/',
+}
+
+REGISTRATION_API = {
+    'HOST': 'http://localhost:8001',
+    'PATH': 'accounts/api/register/',
+    'USER': 'client',
+    'PASSWORD': 'magickey'
 }
