@@ -36,9 +36,9 @@ class RegistrationForm(forms.Form):
                                                                maxlength=75)),
                              label=_("Email address"))
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
-                                label=_("Password"))
+                                label=_("Password"), min_length=6, max_length=50)
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
-                                label=_("Password (again)"))
+                                label=_("Password (again)"), min_length=6, max_length=50)
     tos = forms.BooleanField(widget=forms.CheckboxInput(attrs=attrs_dict),
                              label=_(u'I have read and agree to the Terms of Service'),
                              error_messages={'required': _("You must agree to the terms to register")})
