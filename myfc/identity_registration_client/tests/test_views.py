@@ -1,4 +1,4 @@
-#coding UTF-8
+#coding: UTF-8
 import json
 from mock import patch_object, Mock
 from httplib2 import Http
@@ -42,6 +42,8 @@ mocked_form_errors = """{
     "email":["usuario existente"]
 }"""
 
+corrupted_form_errors = """ { "email": [" """
+
 class ApiRegistrationTest(TestCase):
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(200),
@@ -55,4 +57,13 @@ class ApiRegistrationTest(TestCase):
                                                       mocked_form_errors)))
     def test_conflict_error_on_api_registration(self):
         response = self.client.post(reverse('register_account'), create_post())
-        self.assertTrue('errorlist' in response.content)
+        form_errors = response.context['form'].errors
+        self.assertEquals({u'email': [u'usuario existente']}, form_errors)
+
+    @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
+                                                      corrupted_form_errors)))
+    def test_corrupted_errors_returned_on_api_registration(self):
+        response = self.client.post(reverse('register_account'), create_post())
+        form_errors = response.context['form'].errors
+        self.assertEquals({'__all__':[u"Ops! Erro na transmissão dos dados. Tente de novo."]},
+                           form_errors)
