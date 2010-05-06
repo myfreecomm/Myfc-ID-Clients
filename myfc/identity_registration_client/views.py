@@ -15,6 +15,19 @@ def new_identity(request):
 
 def register_identity(request):
     form = RegistrationForm(request.POST)
+    status = 400
+
+    if form.is_valid():
+        status, content, form = invoke_api(form)
+
+    if status == 200:
+        return HttpResponse(content)
+    else:
+        context = RequestContext(request, {'form': form,})
+        return render_to_response('registration_form.html', context)
+
+
+def invoke_api(form):
     registration_data = json.dumps(form.data)
 
     api_user = settings.REGISTRATION_API['USER']
@@ -38,8 +51,4 @@ def register_identity(request):
             form._errors = {'__all__':
                         [u"Ops! Erro na transmissão dos dados. Tente de novo."]}
 
-        context = RequestContext(request, {'form': form,})
-
-        return render_to_response('registration_form.html', context)
-
-    return HttpResponse(content)
+    return (response.status, content, form)

@@ -90,13 +90,13 @@ INSTALLED_APPS = (
 )
 
 AUTH_API = {
-    'HOST': 'http://localhost:8001',
+    'HOST': 'http://192.168.1.50:8001',
     'PATH': 'accounts/api/auth/',
 }
 
 REGISTRATION_API = {
-    'HOST': 'http://localhost:8001',
-    'PATH': 'accounts/api/register/',
-    'USER': 'client',
-    'PASSWORD': 'magickey'
+    'HOST': 'http://192.168.1.50:8001',
+    'PATH': 'accounts/api/create/',
+    'USER': 'myfc_client',
+    'PASSWORD': 'magic_key'
 }

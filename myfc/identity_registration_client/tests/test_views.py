@@ -1,6 +1,6 @@
 #coding: UTF-8
 import json
-from mock import patch_object, Mock
+from mock import patch_object, Mock, patch
 from httplib2 import Http
 
 from django.test import TestCase
@@ -67,3 +67,14 @@ class ApiRegistrationTest(TestCase):
         form_errors = response.context['form'].errors
         self.assertEquals({'__all__':[u"Ops! Erro na transmissão dos dados. Tente de novo."]},
                            form_errors)
+
+    @patch_object(views, 'invoke_api', Mock())
+    def test_form_renderization_because_of_empty_fields(self):
+        empty_post_data = {'first_name':'',
+                    'password1':'',
+                    'password2':'',
+                    'last_name':'',
+                    'email':'',
+                    'tos':False}
+        response = self.client.post(reverse('register_account'), empty_post_data)
+        self.assertFalse(views.invoke_api.called)
