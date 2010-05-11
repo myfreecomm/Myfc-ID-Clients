@@ -6,5 +6,5 @@ urlpatterns = patterns('',
      route(r'^registration/',
             POST=register_identity,
             GET= new_identity,
-            name='register_account'),
+            name='registration_register'),
 )

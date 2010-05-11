@@ -89,6 +89,8 @@ INSTALLED_APPS = (
     'identity_registration_client'
 )
 
+LOGIN_REDIRECT_URL = '/client-app/profile/'
+
 AUTH_API = {
     'HOST': 'http://192.168.1.50:8001',
     'PATH': 'accounts/api/auth/',
