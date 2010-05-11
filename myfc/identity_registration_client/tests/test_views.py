@@ -49,21 +49,21 @@ class ApiRegistrationTest(TestCase):
     @patch_object(Http, 'request', Mock(return_value=(mock_response(200),
                                                       mocked_user_json)))
     def test_successful_api_registration(self):
-        response = self.client.post(reverse('register_account'), create_post())
+        response = self.client.post(reverse('registration_register'), create_post())
         self.assertEquals(200, response.status_code)
         self.assertEquals(json.loads(response.content), json.loads(mocked_user_json))
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
                                                       mocked_form_errors)))
     def test_conflict_error_on_api_registration(self):
-        response = self.client.post(reverse('register_account'), create_post())
+        response = self.client.post(reverse('registration_register'), create_post())
         form_errors = response.context['form'].errors
         self.assertEquals({u'email': [u'usuario existente']}, form_errors)
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
                                                       corrupted_form_errors)))
     def test_corrupted_errors_returned_on_api_registration(self):
-        response = self.client.post(reverse('register_account'), create_post())
+        response = self.client.post(reverse('registration_register'), create_post())
         form_errors = response.context['form'].errors
         self.assertEquals({'__all__':[u"Ops! Erro na transmissão dos dados. Tente de novo."]},
                            form_errors)
@@ -76,5 +76,5 @@ class ApiRegistrationTest(TestCase):
                     'last_name':'',
                     'email':'',
                     'tos':False}
-        response = self.client.post(reverse('register_account'), empty_post_data)
+        response = self.client.post(reverse('registration_register'), empty_post_data)
         self.assertFalse(views.invoke_api.called)
