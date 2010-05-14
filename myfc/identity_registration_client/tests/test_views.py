@@ -9,12 +9,12 @@ from django.core.urlresolvers import reverse
 from identity_registration_client import views
 
 def create_post(**kwargs):
-    post_data = {'first_name':'giuseppe',
-                'password1':'1234567',
-                'password2':'1234567',
-                'last_name':'rocca',
-                'email':'giuseppe@rocca.com',
-                'tos':True}
+    post_data = {
+        'password':'1234567',
+        'password2':'1234567',
+        'email':'giuseppe@rocca.com',
+    }
+                
     post_data.update(kwargs)
     return post_data
 
@@ -24,11 +24,11 @@ def mock_response(status_code):
     return response
 
 mocked_user_json = """{
-    "last_name": "rocca",
+    "last_name": null,
     "services": [],
     "timezone": null,
     "nickname": null,
-    "first_name": "giuseppe",
+    "first_name": null,
     "language": null,
     "session_token": "ce5a0d017d5fc09af55482daad763617",
     "country": null,
@@ -70,11 +70,10 @@ class ApiRegistrationTest(TestCase):
 
     @patch_object(views, 'invoke_api', Mock())
     def test_form_renderization_because_of_empty_fields(self):
-        empty_post_data = {'first_name':'',
-                    'password1':'',
+        empty_post_data = {
+                    'password':'',
                     'password2':'',
-                    'last_name':'',
                     'email':'',
-                    'tos':False}
+                    }
         response = self.client.post(reverse('registration_register'), empty_post_data)
         self.assertFalse(views.invoke_api.called)

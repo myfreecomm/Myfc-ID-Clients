@@ -28,20 +28,13 @@ class RegistrationForm(forms.Form):
     registration backend.
 
     """
-    first_name = forms.CharField(widget=forms.TextInput(attrs=dict(attrs_dict, maxlength=50)),
-                                label=_("First Name"))
-    last_name = forms.CharField(widget=forms.TextInput(attrs=dict(attrs_dict, maxlength=100)),
-                                label=_("Last Name"))
     email = forms.EmailField(widget=forms.TextInput(attrs=dict(attrs_dict,
                                                                maxlength=75)),
                              label=_("Email address"))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
+    password = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
                                 label=_("Password"), min_length=6, max_length=50)
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
                                 label=_("Password (again)"), min_length=6, max_length=50)
-    tos = forms.BooleanField(widget=forms.CheckboxInput(attrs=attrs_dict),
-                             label=_(u'I have read and agree to the Terms of Service'),
-                             error_messages={'required': _("You must agree to the terms to register")})
 
     def clean(self):
         """
@@ -51,7 +44,7 @@ class RegistrationForm(forms.Form):
         field.
 
         """
-        if 'password1' in self.cleaned_data and 'password2' in self.cleaned_data:
-            if self.cleaned_data['password1'] != self.cleaned_data['password2']:
+        if 'password' in self.cleaned_data and 'password2' in self.cleaned_data:
+            if self.cleaned_data['password'] != self.cleaned_data['password2']:
                 raise forms.ValidationError(_("The two password fields didn't match."))
         return self.cleaned_data
