@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from identity_registration_client.forms import RegistrationForm
+from identity_client.forms import RegistrationForm
 
 
 __all__ = ['TestApiRegistrationForm']

@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from identity_auth_client.models import Identity
+from identity_client.models import Identity
 
 __all__ = ['TestIdentityModel', ]
 

@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.conf import settings
 from django.http import HttpResponse
 
-from identity_registration_client.forms import RegistrationForm
+from identity_client.forms import RegistrationForm
 
 def new_identity(request):
     context = RequestContext(request, {'form': RegistrationForm(),})

@@ -6,7 +6,8 @@ from httplib2 import Http
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from identity_registration_client import views
+from identity_client import views
+from identity_client.views import registration as registration_views
 
 def create_post(**kwargs):
     post_data = {
@@ -68,7 +69,7 @@ class ApiRegistrationTest(TestCase):
         self.assertEquals({'__all__':[u"Ops! Erro na transmissão dos dados. Tente de novo."]},
                            form_errors)
 
-    @patch_object(views, 'invoke_api', Mock())
+    @patch_object(registration_views, 'invoke_api', Mock())
     def test_form_renderization_because_of_empty_fields(self):
         empty_post_data = {
                     'password':'',
@@ -76,4 +77,4 @@ class ApiRegistrationTest(TestCase):
                     'email':'',
                     }
         response = self.client.post(reverse('registration_register'), empty_post_data)
-        self.assertFalse(views.invoke_api.called)
+        self.assertFalse(registration_views.invoke_api.called)
