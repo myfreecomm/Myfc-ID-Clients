@@ -16,6 +16,7 @@ class TestIdentityModel(TestCase):
             first_name='Teste',
             last_name='Sobrenome',
             email=self.email,
+            uuid='16fd2706-8baf-433b-82eb-8c7fada847da',
         )
 
 
@@ -58,6 +59,7 @@ class TestIdentityModel(TestCase):
             NotImplementedError, 
             self.identity.set_unusable_password, 
         )
+
 
 
     def test_has_usable_password_always_false(self):

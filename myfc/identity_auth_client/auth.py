@@ -15,7 +15,7 @@ class MyfcidAPIBackend(object):
     def authenticate(self, email=None, password=None):
         identity = None
 
-        # Fetch user data 
+        # Fetch user data
         response_content = self.fetch_user_data(email, password)
 
         # Deserialize data
@@ -25,18 +25,21 @@ class MyfcidAPIBackend(object):
             user_data = None
 
         if user_data:
-            # Create an updated Identity instance for this user
-            identity, created = Identity.objects.get_or_create(email=user_data['email'])
-            self._update_user(identity, user_data)
-
-            # Set this user's backend 
-            identity.backend = "%s.%s" % (MyfcidAPIBackend.__module__, 'MyfcidAPIBackend')
-
-            # Append additional user data to a temporary attribute
-            identity.user_data = user_data
-
+            identity = self.create_local_identity(user_data)
         return identity
-            
+
+
+    def create_local_identity(self, user_data):
+         # Create an updated Identity instance for this user
+        identity, created = Identity.objects.get_or_create(uuid=user_data['uuid'])
+        self._update_user(identity, user_data)
+
+        # Set this user's backend
+        identity.backend = "%s.%s" % (MyfcidAPIBackend.__module__, 'MyfcidAPIBackend')
+
+        # Append additional user data to a temporary attribute
+        identity.user_data = user_data
+        return identity
 
     def get_user(self, user_id):
         try:
@@ -48,6 +51,7 @@ class MyfcidAPIBackend(object):
 
 
     def _update_user(self, user, user_data):
+        user.email = user_data['email']
         user.first_name = user_data['first_name']
         user.last_name = user_data['last_name']
         user.save()
@@ -79,7 +83,7 @@ class MyfcidAPIBackend(object):
 
         return response_content
 
-    
+
 def get_user(userid=None):
     """
     Returns a User object from an id (User.id). Django's equivalent takes

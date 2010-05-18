@@ -7,15 +7,16 @@ from django.utils.translation import ugettext_lazy as _
 
 class Identity(models.Model):
     """
-    Myfc ID Users within the Django authentication system are represented by 
+    Myfc ID Users within the Django authentication system are represented by
     this model.
 
     email is required. Other fields are optional.
     """
-    first_name = models.CharField(_('first name'), max_length=50, blank=True)
-    last_name = models.CharField(_('last name'), max_length=100, blank=True)
-    email = models.EmailField(_('e-mail address'), blank=True, unique=True)
-    is_active = models.BooleanField(_('active'), default=True, 
+    first_name = models.CharField(_('first name'), max_length=50, null=True)
+    last_name = models.CharField(_('last name'), max_length=100, null=True)
+    email = models.EmailField(_('e-mail address'), unique=True)
+    uuid = models.CharField(_('universally unique id'), max_length=36, unique=True)
+    is_active = models.BooleanField(_('active'), default=True,
         help_text=_("Designates whether this user should be treated as active. Unselect this instead of deleting accounts.")
     )
     last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now)

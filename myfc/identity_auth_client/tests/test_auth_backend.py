@@ -21,7 +21,8 @@ mocked_user_json = """{
     "cpf": null, 
     "gender": null, 
     "birth_date": "2010-05-04", 
-    "email": "jd@123.com"
+    "email": "jd@123.com",
+    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
 }"""
 
 mocked_user_corrupted = """{
@@ -79,7 +80,8 @@ class TestMyfcidApiBackend(TestCase):
 
         # Create a user
         user = Identity(
-            email=mocked_user_data['email'],
+            uuid=mocked_user_data['uuid'],
+            email='user@domain.com',
             first_name='First',
             last_name='Last',
         )
@@ -95,6 +97,7 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(identity.first_name, mocked_user_data['first_name'])
         self.assertEquals(identity.last_name, mocked_user_data['last_name'])
         self.assertEquals(identity.email, mocked_user_data['email'])
+        self.assertEquals(identity.uuid, mocked_user_data['uuid'])
 
 
     def test_corrupted_api_response(self):
