@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import AnonymousUser
 
 from identity_auth_client.models import Identity
-from identity_auth_client.auth import MyfcidAPIBackend, get_user
+from identity_auth_client.backend import MyfcidAPIBackend, get_user
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser']
 
