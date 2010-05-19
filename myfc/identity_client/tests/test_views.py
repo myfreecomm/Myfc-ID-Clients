@@ -7,7 +7,6 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from identity_client import views
-from identity_client.views import registration as registration_views
 
 def create_post(**kwargs):
     post_data = {
@@ -36,7 +35,8 @@ mocked_user_json = """{
     "cpf": null,
     "gender": null,
     "birth_date": "2010-05-04",
-    "email": "giuseppe@rocca.com"
+    "email": "giuseppe@rocca.com",
+    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
 }"""
 
 mocked_form_errors = """{
@@ -45,14 +45,13 @@ mocked_form_errors = """{
 
 corrupted_form_errors = """ { "email": [" """
 
-class ApiRegistrationTest(TestCase):
+class IdentityRegistrationTest(TestCase):
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(200),
                                                       mocked_user_json)))
     def test_successful_api_registration(self):
         response = self.client.post(reverse('registration_register'), create_post())
-        self.assertEquals(200, response.status_code)
-        self.assertEquals(json.loads(response.content), json.loads(mocked_user_json))
+        self.assertEquals(302, response.status_code)
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
                                                       mocked_form_errors)))
@@ -69,7 +68,7 @@ class ApiRegistrationTest(TestCase):
         self.assertEquals({'__all__':[u"Ops! Erro na transmissão dos dados. Tente de novo."]},
                            form_errors)
 
-    @patch_object(registration_views, 'invoke_api', Mock())
+    @patch_object(views, 'invoke_registration_api', Mock())
     def test_form_renderization_because_of_empty_fields(self):
         empty_post_data = {
                     'password':'',
@@ -77,4 +76,4 @@ class ApiRegistrationTest(TestCase):
                     'email':'',
                     }
         response = self.client.post(reverse('registration_register'), empty_post_data)
-        self.assertFalse(registration_views.invoke_api.called)
+        self.assertFalse(views.invoke_registration_api.called)
