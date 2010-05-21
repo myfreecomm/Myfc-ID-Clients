@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import httplib2
-import json 
+import json
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -42,7 +42,9 @@ def register_identity(request, template_name='registration_form.html',
 @never_cache
 def login_or_register(request, template_name='login_or_register.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
-          action_form=LoginOrRegisterForm):
+          action_form=LoginOrRegisterForm, extra_context={}):
+
+    context = extra_context
 
     redirect_to = request.REQUEST.get(redirect_field_name, '')
 
@@ -66,10 +68,15 @@ def login_or_register(request, template_name='login_or_register.html',
                     else:
                         raise ValueError
                 except ValueError:
-                    return render_to_response(template_name, {
+                    context.update({
                         'form': form,
                         redirect_field_name: redirect_to,
-                    }, context_instance=RequestContext(request))
+                    })
+                    return render_to_response(
+                        template_name,
+                        context,
+                        context_instance=RequestContext(request)
+                    )
 
             else:
                 # login
@@ -98,12 +105,17 @@ def login_or_register(request, template_name='login_or_register.html',
     else:
         current_site = RequestSite(request)
 
-    return render_to_response(template_name, {
+    context.update({
         'form': form,
         redirect_field_name: redirect_to,
         'site': current_site,
         'site_name': current_site.name,
-    }, context_instance=RequestContext(request))
+    })
+    return render_to_response(
+        template_name,
+        context,
+        context_instance=RequestContext(request)
+    )
 
 
 def invoke_registration_api(form):
