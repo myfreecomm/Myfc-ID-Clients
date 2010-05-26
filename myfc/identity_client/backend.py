@@ -60,7 +60,10 @@ class MyfcidAPIBackend(object):
     def fetch_user_data(self, user, password):
 
         # Build the API uri
-        uri = '%s/%s' % (settings.AUTH_API['HOST'], settings.AUTH_API['PATH'])
+        uri = '%s/%s' % (
+            settings.AUTH_API['HOST'], 
+            settings.AUTH_API['PATH'], 
+        )
 
         # Setup httplib2 for this request
         h = httplib2.Http()
@@ -70,7 +73,11 @@ class MyfcidAPIBackend(object):
         try:
             response, content = h.request(
                 uri, method='GET',
-                headers={'cache-control':'no-cache'}
+                headers={
+                    'content-type': 'application/json',
+                    'cache-control': 'no-cache',
+                    'user-agent': 'myfc_id client'
+                }
             )
 
             # If the request is successful, read response data

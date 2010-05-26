@@ -113,14 +113,19 @@ def invoke_registration_api(form):
     api_password = settings.REGISTRATION_API['PASSWORD']
     api_url = "%s/%s" % (
         settings.REGISTRATION_API['HOST'],
-        settings.REGISTRATION_API['PATH']
+        settings.REGISTRATION_API['PATH'],
     )
 
     http = httplib2.Http()
     http.add_credentials(api_user, api_password)
     response, content = http.request(api_url,
-                                "POST", body=registration_data,
-                                headers={'content-type':'application/json'})
+        "POST", body=registration_data,
+        headers={
+            'content-type': 'application/json',
+            'user-agent': 'myfc_id client',
+            'cache-control': 'no-cache'
+        }
+    )
 
     if response.status == 409:
         try:
