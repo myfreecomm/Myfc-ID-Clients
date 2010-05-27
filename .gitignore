@@ -3,7 +3,7 @@
 *~
 *.bak
 *.kpf
-*.swp
+*swp
 *.sqlite
 *.log
 .DS_Store
@@ -13,3 +13,11 @@ devel.py
 docs/sphinx/build
 /templates/appdata/financedesktop_login.html
 /pip-log.txt
+ecommerce.db
+bin
+lib
+build
+share
+include
+.Python
+distribute*.tar.gz
