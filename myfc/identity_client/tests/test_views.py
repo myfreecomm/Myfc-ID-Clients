@@ -26,6 +26,7 @@ def create_post(**kwargs):
         'password':'1234567',
         'password2':'1234567',
         'email':'giuseppe@rocca.com',
+        'tos': True, 
     }
                 
     post_data.update(kwargs)

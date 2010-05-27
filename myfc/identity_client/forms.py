@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import ugettext_lazy as _
 from django import forms
+from django.contrib.localflavor.br import forms as br_forms
 from backend import MyfcidAPIBackend
 
 
@@ -17,17 +18,39 @@ class RegistrationForm(forms.Form):
     registration backend.
 
     """
-    email = forms.EmailField(label=_("Email"), max_length=75, required=True)
+    first_name = forms.CharField(
+        label=_('First Name'), max_length=50, required=False
+    )
+    last_name = forms.CharField(
+        label=_('Last Name'), max_length=100, required=False
+    )
+    email = forms.EmailField(
+        label=_("Email Address"), max_length=75, required=True
+    )
+
     password = forms.CharField(
         label=_("Password"),
-        widget=forms.PasswordInput, 
+        widget=forms.PasswordInput,
         min_length=6, max_length=50
     )
     password2 = forms.CharField(
         label=_("Password (again)"),
-        widget=forms.PasswordInput, 
+        widget=forms.PasswordInput,
         min_length=6, max_length=50
     )
+
+    cpf = br_forms.BRCPFField(
+        required=False,
+        label=_("CPF")
+    )
+    tos = forms.BooleanField(
+        label=_(u'I have read and agree to the Terms of Service'),
+        required=True,
+        error_messages={
+            'required': _("You must agree to the terms to register")
+        }
+    )
+
 
     def clean(self):
         """
@@ -41,6 +64,7 @@ class RegistrationForm(forms.Form):
             if self.cleaned_data['password'] != self.cleaned_data['password2']:
                 raise forms.ValidationError(_("The two password fields didn't match."))
         return self.cleaned_data
+
 
 
 class IdentityAuthenticationForm(forms.Form):
