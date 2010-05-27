@@ -63,6 +63,7 @@ corrupted_form_errors = """ { "email": [" """
 
 class IdentityRegistrationTest(TestCase):
 
+
     @patch_object(Http, 'request', Mock(return_value=(mock_response(200),
                                                       mocked_user_json)))
     def test_successful_api_registration(self):
@@ -74,12 +75,14 @@ class IdentityRegistrationTest(TestCase):
             expected_user_data['uuid']
         )
 
+
     @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
                                                       mocked_form_errors)))
     def test_conflict_error_on_api_registration(self):
         response = self.client.post(reverse('registration_register'), create_post())
         form_errors = response.context['form'].errors
         self.assertEquals({u'email': [u'usuario existente']}, form_errors)
+
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
                                                       corrupted_form_errors)))
@@ -98,7 +101,7 @@ class IdentityRegistrationTest(TestCase):
                     }
         response = self.client.post(reverse('registration_register'), empty_post_data)
         self.assertFalse(views.invoke_registration_api.called)
-        
+
 
 class IdentityLoginTest(TestCase):
 
