@@ -3,7 +3,7 @@
 
 {% block header %}<h2><em>Login via API</em></h2>{% endblock %}
 
-{% block mainwrapper %}
+{% block content %}
 
     <div class="login">
         {% if form.errors %}
@@ -32,4 +32,4 @@
 
     <a href="{% url registration_register %}">Ainda não tenho um Myfc ID</a>
 
-{% endblock mainwrapper %}
+{% endblock content %}

@@ -3,7 +3,7 @@
 
 {% block header %}<h2><em>Crie seu Myfc ID via API</em></h2>{% endblock %}
 
-{% block mainwrapper %}
+{% block content %}
     <form method="POST" action=".">
     {{ form.as_p }}
     <input type="SUBMIT"/>
@@ -12,4 +12,4 @@
 
     <a href="{% url auth_login %}">Já tenho um Myfc ID</a>
 
-{% endblock mainwrapper %}
+{% endblock content %}
