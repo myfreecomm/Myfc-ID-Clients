@@ -91,12 +91,12 @@ INSTALLED_APPS = (
 LOGIN_REDIRECT_URL = '/client-app/profile/'
 
 AUTH_API = {
-    'HOST': 'http://127.0.0.1:8001',
+    'HOST': 'http://stage.myfc-id.myfreecomm.com.br',
     'PATH': 'accounts/api/auth/',
 }
 
 REGISTRATION_API = {
-    'HOST': 'http://127.0.0.1:8001',
+    'HOST': 'http://stage.myfc-id.myfreecomm.com.br',
     'PATH': 'accounts/api/create/',
     'USER': 'myfc_client',
     'PASSWORD': 'magic_key'

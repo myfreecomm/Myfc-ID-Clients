@@ -5,8 +5,21 @@ from httplib2 import Http
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from identity_client import views
+from identity_client.models import Identity
+from identity_client.forms import IdentityAuthenticationForm
+
+from identity_client import forms
+from identity_client.tests.backend_mock import MyfcidAPIBackendMock
+
+# Mockando backend para os testes
+forms.MyfcidAPIBackend = MyfcidAPIBackendMock
+
+
+__all__ = ["IdentityRegistrationTest", "IdentityLoginTest"]
+
 
 def create_post(**kwargs):
     post_data = {
@@ -45,6 +58,8 @@ mocked_form_errors = """{
 
 corrupted_form_errors = """ { "email": [" """
 
+
+
 class IdentityRegistrationTest(TestCase):
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(200),
@@ -52,6 +67,11 @@ class IdentityRegistrationTest(TestCase):
     def test_successful_api_registration(self):
         response = self.client.post(reverse('registration_register'), create_post())
         self.assertEquals(302, response.status_code)
+        expected_user_data = json.loads(mocked_user_json)
+        self.assertEquals(
+            self.client.session['user_data']['uuid'], 
+            expected_user_data['uuid']
+        )
 
     @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
                                                       mocked_form_errors)))
@@ -77,3 +97,25 @@ class IdentityRegistrationTest(TestCase):
                     }
         response = self.client.post(reverse('registration_register'), empty_post_data)
         self.assertFalse(views.invoke_registration_api.called)
+        
+
+class IdentityLoginTest(TestCase):
+
+    def test_successful_login(self):
+        response = self.client.post(
+            reverse('auth_login'), 
+            dict(email='jalim.habei@myfreecomm.com.br', password='1234567')
+        )
+        self.assertTrue('_auth_user_id' in self.client.session)
+
+
+    def test_add_userdata_to_session_after_login(self):
+        response = self.client.post(
+            reverse('auth_login'), 
+            {'email': 'jalim.habei@myfreecomm.com.br', 'password':'1234567'}
+        )
+        self.assertEquals(
+            self.client.session['user_data'], {}
+        )
+        
+        

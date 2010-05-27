@@ -3,25 +3,25 @@ from django.conf.urls.defaults import *
 from django.contrib.auth import views as auth_views
 
 from shortcuts import route
-from views import simple_login, login_or_register, register_identity
-from forms import IdentityAuthenticationForm 
+from views import login, show_login
+from views import new_identity, register 
+from forms import IdentityAuthenticationForm, RegistrationForm 
 
 urlpatterns = patterns('',
-            url(r'^simple-login/$',
-                simple_login,
-                {'authentication_form': IdentityAuthenticationForm},
-                name='auth_simple_login'
-            ),
-            url(r'^login/$',
-                login_or_register,
+            route(r'^login/$',                
+                GET=show_login,
+                POST=login,
+                kwargs={'authentication_form': IdentityAuthenticationForm},
                 name='auth_login'
             ),
-            url(r'^logout/$',
+            route(r'^registration/',
+                GET=new_identity,
+                POST=register, 
+                kwargs={'registration_form': RegistrationForm},
+                name='registration_register'
+            ),
+             url(r'^logout/$',
                 auth_views.logout_then_login,
                 name='auth_logout'
-            ),
-            url(r'^registration/',
-                register_identity,
-                name='registration_register'
             ),
 )

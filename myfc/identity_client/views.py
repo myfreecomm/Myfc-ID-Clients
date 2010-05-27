@@ -4,7 +4,6 @@ import json
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render_to_response
 from django.contrib.sites.models import Site, RequestSite
@@ -13,90 +12,90 @@ from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 
 from identity_client.backend import MyfcidAPIBackend
-from identity_client.forms import LoginOrRegisterForm, RegistrationForm
+from identity_client.forms import RegistrationForm
+from identity_client.decorators import required_method
+from identity_client.forms import IdentityAuthenticationForm as AuthenticationForm
 
-#__all__ = ['simple_login', 'register_identity', 'login_or_register']
+__all__ = ["new_identity", "register", "login", "show_login"]
 
-
-def simple_login(request, template_name='login.html',
+@required_method("GET")
+def new_identity(request,template_name='registration_form.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
-          authentication_form=AuthenticationForm):
+          registration_form=RegistrationForm):
+    
+    form = registration_form()
+    return handle_redirect_to(request, template_name, redirect_field_name, form) 
 
-    return login_or_register(
-        request, template_name=template_name,
-        redirect_field_name=redirect_field_name,
-        action_form=authentication_form
-    )
 
-def register_identity(request, template_name='registration_form.html',
+@required_method("POST")
+def register(request, template_name='registration_form.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           registration_form=RegistrationForm):
 
-    return login_or_register(
-        request, template_name=template_name,
-        redirect_field_name=redirect_field_name,
-        action_form=registration_form
-    )
+    form = registration_form(data=request.POST)
+    if form.is_valid():
+        # Registro
+        status, content, form = invoke_registration_api(form)
+        if status == 200:
+            content = json.loads(content)
+            user = MyfcidAPIBackend().create_local_identity(content)
+            return login_user(request, user, redirect_field_name)
+    
+    return handle_redirect_to(request, template_name, redirect_field_name, form) 
 
-@csrf_protect
-@never_cache
-def login_or_register(request, template_name='login_or_register.html',
+
+@required_method("GET")
+def show_login(request, template_name='login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
-          action_form=LoginOrRegisterForm, extra_context={}):
+          authentication_form=AuthenticationForm):
+   
+    form = authentication_form()
+    return handle_redirect_to(request, template_name, redirect_field_name, form) 
 
-    context = extra_context
+
+@required_method("POST")
+def login(request, template_name='login.html',
+          redirect_field_name=REDIRECT_FIELD_NAME,
+          authentication_form=AuthenticationForm):
+    
+    form = authentication_form(data=request.POST)
+    if form.is_valid():
+        user = form.get_user()
+        result = login_user(request, user, redirect_field_name)
+    else:
+        result = handle_redirect_to(request, template_name, redirect_field_name, form) 
+
+    return result
+
+
+#======================================
+
+
+def login_user(request, user, redirect_field_name):
+    # Efetuar login
+    from django.contrib.auth import login as django_login
+    django_login(request, user)
+    # Adicionar dados adicionais do usuário à sessão
+    try:
+        request.session['user_data'] = user.user_data
+        del(user.user_data)
+    except AttributeError:
+        request.session['user_data'] = {}
+
+    if request.session.test_cookie_worked():
+        request.session.delete_test_cookie()
+
+    # Redirecionar usuário para a pagina desejada
+    redirect_to = request.REQUEST.get(redirect_field_name, '')
+    if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
+        redirect_to = settings.LOGIN_REDIRECT_URL
+
+    return HttpResponseRedirect(redirect_to)
+
+
+def handle_redirect_to(request, template_name, redirect_field_name, form):
 
     redirect_to = request.REQUEST.get(redirect_field_name, '')
-
-    if request.method == "POST":
-        form = action_form(data=request.POST)
-        if form.is_valid():
-            # Light security check -- make sure redirect_to isn't garbage.
-            if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
-                redirect_to = settings.LOGIN_REDIRECT_URL
-
-            if ('password2' in form.cleaned_data) and \
-             (form.cleaned_data['password'] == form.cleaned_data['password2']):
-                # Registro
-                status = 400
-
-                try:
-                    status, content, form = invoke_registration_api(form)
-                    if status == 200:
-                        content = json.loads(content)
-                        user = MyfcidAPIBackend().create_local_identity(content)
-                    else:
-                        raise ValueError
-                except ValueError:
-                    context.update({
-                        'form': form,
-                        redirect_field_name: redirect_to,
-                    })
-                    return render_to_response(
-                        template_name,
-                        context,
-                        context_instance=RequestContext(request)
-                    )
-
-            else:
-                # login
-                user = form.get_user()
-
-            # Insert additional user data in his session
-            from django.contrib.auth import login
-            login(request, user)
-            try:
-                request.session['user_data'] = user.user_data
-                del(user.user_data)
-            except AttributeError:
-                request.session['user_data'] = {}
-
-            if request.session.test_cookie_worked():
-                request.session.delete_test_cookie()
-            return HttpResponseRedirect(redirect_to)
-
-    else:
-        form = action_form()
 
     request.session.set_test_cookie()
 
@@ -104,13 +103,13 @@ def login_or_register(request, template_name='login_or_register.html',
         current_site = Site.objects.get_current()
     else:
         current_site = RequestSite(request)
-
-    context.update({
+ 
+    context = {
         'form': form,
         redirect_field_name: redirect_to,
         'site': current_site,
         'site_name': current_site.name,
-    })
+    }
     return render_to_response(
         template_name,
         context,

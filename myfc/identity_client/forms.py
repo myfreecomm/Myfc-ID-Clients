@@ -65,7 +65,7 @@ class IdentityAuthenticationForm(forms.Form):
     def clean(self):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
-
+        
         if email and password:
             self.user_cache = MyfcidAPIBackend().authenticate(email=email,
                                                              password=password)
@@ -78,50 +78,6 @@ class IdentityAuthenticationForm(forms.Form):
         if self.request:
             if not self.request.session.test_cookie_worked():
                 raise forms.ValidationError(_("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in."))
-
-        return self.cleaned_data
-
-    def get_user_id(self):
-        if self.user_cache:
-            return self.user_cache.id
-        return None
-
-    def get_user(self):
-        return self.user_cache
-
-
-class LoginOrRegisterForm(IdentityAuthenticationForm):
-
-    email = forms.EmailField(label=_("Email"), max_length=75, required=True)
-    password = forms.CharField(
-        label=_("Password"),
-        widget=forms.PasswordInput, 
-        min_length=6, max_length=50
-    )
-    password2 = forms.CharField(
-        label=_("Password (again)"),
-        widget=forms.PasswordInput, 
-        min_length=6, max_length=50,
-        required=False
-    )
-    new_user = forms.BooleanField(label=_(u'New User?'), required=False)
-
-    def clean(self):
-        """
-        Verifiy that the values entered into the two password fields
-        match. Note that an error here will end up in
-        ``non_field_errors()`` because it doesn't apply to a single
-        field.
-        """
-        if self.cleaned_data['new_user']:
-            if self.cleaned_data['password'] != self.cleaned_data['password2']:
-                raise forms.ValidationError(
-                    _("The two password fields didn't match.")
-                )
-        else:
-            self.cleaned_data = super(LoginOrRegisterForm, self).clean()
-
-        del(self.cleaned_data['new_user'])
 
         return self.cleaned_data
 
