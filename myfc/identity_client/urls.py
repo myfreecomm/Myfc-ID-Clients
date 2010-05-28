@@ -21,7 +21,8 @@ urlpatterns = patterns('',
                 name='registration_register'
             ),
              url(r'^logout/$',
-                auth_views.logout_then_login,
+                auth_views.logout,
+                {'template_name': 'logout.html'},
                 name='auth_logout'
             ),
 )
