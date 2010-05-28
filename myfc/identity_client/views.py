@@ -22,6 +22,9 @@ __all__ = ["new_identity", "register", "login", "show_login"]
 def new_identity(request,template_name='registration_form.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           registration_form=RegistrationForm, **kwargs):
+   
+    if request.user.is_authenticated():
+        return redirect_logged_user(request, redirect_field_name)
     
     form = registration_form()
     return handle_redirect_to(
@@ -32,7 +35,7 @@ def new_identity(request,template_name='registration_form.html',
 @required_method("POST")
 def register(request, template_name='registration_form.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
-          registration_form=RegistrationForm):
+          registration_form=RegistrationForm, **kwargs):
 
     form = registration_form(data=request.POST)
     if form.is_valid():
@@ -41,10 +44,11 @@ def register(request, template_name='registration_form.html',
         if status == 200:
             content = json.loads(content)
             user = MyfcidAPIBackend().create_local_identity(content)
-            return login_user(request, user, redirect_field_name)
+            login_user(request, user)
+            return redirect_logged_user(request, redirect_field_name)
     
     return handle_redirect_to(
-        request, template_name, redirect_field_name, form
+        request, template_name, redirect_field_name, form, **kwargs
     ) 
 
 
@@ -53,6 +57,9 @@ def show_login(request, template_name='login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           authentication_form=AuthenticationForm, **kwargs):
    
+    if request.user.is_authenticated():
+        return redirect_logged_user(request, redirect_field_name)
+
     form = authentication_form()
     return handle_redirect_to(
         request, template_name, redirect_field_name, form, **kwargs
@@ -62,15 +69,16 @@ def show_login(request, template_name='login.html',
 @required_method("POST")
 def login(request, template_name='login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
-          authentication_form=AuthenticationForm):
+          authentication_form=AuthenticationForm, **kwargs):
     
     form = authentication_form(data=request.POST)
     if form.is_valid():
         user = form.get_user()
-        result = login_user(request, user, redirect_field_name)
+        login_user(request, user)
+        result = redirect_logged_user(request, redirect_field_name)
     else:
         result = handle_redirect_to(
-            request, template_name, redirect_field_name, form
+            request, template_name, redirect_field_name, form, **kwargs
         ) 
 
     return result
@@ -79,7 +87,7 @@ def login(request, template_name='login.html',
 #======================================
 
 
-def login_user(request, user, redirect_field_name):
+def login_user(request, user):
     # Efetuar login
     from django.contrib.auth import login as django_login
     django_login(request, user)
@@ -93,6 +101,8 @@ def login_user(request, user, redirect_field_name):
     if request.session.test_cookie_worked():
         request.session.delete_test_cookie()
 
+
+def redirect_logged_user(request, redirect_field_name):
     # Redirecionar usuário para a pagina desejada
     redirect_to = request.REQUEST.get(redirect_field_name, '')
     if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
