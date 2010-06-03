@@ -15,6 +15,7 @@ from identity_client.backend import MyfcidAPIBackend
 from identity_client.forms import RegistrationForm
 from identity_client.decorators import required_method
 from identity_client.forms import IdentityAuthenticationForm as AuthenticationForm
+from identity_client.utils import prepare_form_errors
 
 __all__ = ["new_identity", "register", "login", "show_login"]
 
@@ -160,10 +161,12 @@ def invoke_registration_api(form):
 
     if response.status == 409:
         try:
-            content = json.loads(content)
-            form._errors = content
+            error_dict = json.loads(content)
         except ValueError:
-            form._errors = {'__all__':
-                        [u"Ops! Erro na transmissão dos dados. Tente de novo."]}
+            error_dict = {
+                '__all__': [u"Ops! Erro na transmissão dos dados. Tente de novo."]
+            }
+
+        form._errors = prepare_form_errors(error_dict)
 
     return (response.status, content, form)
