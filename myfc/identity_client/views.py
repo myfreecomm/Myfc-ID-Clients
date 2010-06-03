@@ -141,11 +141,11 @@ def handle_redirect_to(request, template_name, redirect_field_name, form, **kwar
 def invoke_registration_api(form):
     registration_data = json.dumps(form.data)
 
-    api_user = settings.REGISTRATION_API['USER']
-    api_password = settings.REGISTRATION_API['PASSWORD']
+    api_user = settings.MYFC_ID['API_USER']
+    api_password = settings.MYFC_ID['API_PASSWORD']
     api_url = "%s/%s" % (
-        settings.REGISTRATION_API['HOST'],
-        settings.REGISTRATION_API['PATH'],
+        settings.MYFC_ID['HOST'],
+        settings.MYFC_ID['REGISTRATION_API'],
     )
 
     http = httplib2.Http()

@@ -90,14 +90,10 @@ INSTALLED_APPS = (
 
 LOGIN_REDIRECT_URL = '/client-app/profile/'
 
-AUTH_API = {
-    'HOST': 'http://stage.myfc-id.myfreecomm.com.br',
-    'PATH': 'accounts/api/auth/',
-}
-
-REGISTRATION_API = {
-    'HOST': 'http://stage.myfc-id.myfreecomm.com.br',
-    'PATH': 'accounts/api/create/',
-    'USER': 'myfc_client',
-    'PASSWORD': 'magic_key'
+MYFC_ID={
+    'HOST':'http://stage.myfc-id.myfreecomm.com.br',
+    'AUTH_API':'accounts/api/auth/',
+    'REGISTRATION_API':'accounts/api/create/',
+    'API_USER': 'myfc_client',
+    'API_PASSWORD': 'magic_key',
 }
