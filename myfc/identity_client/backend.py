@@ -61,8 +61,8 @@ class MyfcidAPIBackend(object):
 
         # Build the API uri
         uri = '%s/%s' % (
-            settings.AUTH_API['HOST'], 
-            settings.AUTH_API['PATH'], 
+            settings.MYFC_ID['HOST'], 
+            settings.MYFC_ID['AUTH_API'], 
         )
 
         # Setup httplib2 for this request

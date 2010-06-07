@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from mock import patch_object, Mock
+from httplib2 import Http
 
 from django.test import TestCase
 import json
@@ -7,7 +9,7 @@ from django.contrib.auth.models import AnonymousUser
 from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
 
-__all__ = ['TestMyfcidApiBackend', 'TestGetUser']
+__all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 
 mocked_user_json = """{
     "last_name": "Doe", 
@@ -131,3 +133,31 @@ class TestGetUser(TestCase):
     def test_invalid_user(self):
         user = get_user(userid=42)
         self.assertTrue(isinstance(user, AnonymousUser))
+
+################# Fetch User Data tests #####################
+def mock_response(status):
+    mocked_response = Mock()
+    mocked_response.status = status
+
+    return mocked_response
+
+mocked_httplib2_request_success = Mock(
+    return_value=(mock_response(200), mocked_user_json)
+)
+mocked_httplib2_request_failure = Mock(
+    return_value=(mock_response(500), mocked_user_json)
+)
+
+class TestFetchUserData(TestCase):    
+
+    @patch_object(Http, "request", mocked_httplib2_request_success)
+    def test_fetch_user_data_with_success(self):
+        api_backend = MyfcidAPIBackend()
+        response_content = api_backend.fetch_user_data('user@email.com', 's3nH4')
+        self.assertEquals(response_content, mocked_user_json)
+    
+    @patch_object(Http, "request", mocked_httplib2_request_failure)
+    def test_fetch_user_data_failure(self):
+        api_backend = MyfcidAPIBackend()
+        response_content = api_backend.fetch_user_data('user@email.com', 's3nH4')
+        self.assertEquals(response_content, None)
