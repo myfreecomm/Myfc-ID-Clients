@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.contenttypes',
     'identity_client',
+    'sso_consumer',
 )
 
 LOGIN_REDIRECT_URL = '/client-app/profile/'
@@ -96,4 +97,13 @@ MYFC_ID={
     'REGISTRATION_API':'accounts/api/create/',
     'API_USER': 'myfc_client',
     'API_PASSWORD': 'magic_key',
+}
+
+SSO = {
+    'SLUG':'sso-sample',
+    'HOST':'http://dhcp48:8000',
+    'REQUEST_TOKEN_PATH':'sso/initiate',
+    'AUTHORIZATION_PATH':'sso/authorize',
+    'CONSUMER_TOKEN':'wQtxYCrydx',
+    'CONSUMER_SECRET':'x5IvUAJtHIV4q0gvkzsojC5HcpHirTXI',
 }
