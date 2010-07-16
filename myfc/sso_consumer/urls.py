@@ -6,6 +6,6 @@ from shortcuts import route
 
 urlpatterns = patterns('',
     url(r'^$', 'sso_consumer.views.request_token', name='request_token'),
-    url(r'^callback/$', 'sso_consumer.views.callback', name='callback'),
+    url(r'^callback/$', 'sso_consumer.views.request_access_token', name='callback'),
 
 )
