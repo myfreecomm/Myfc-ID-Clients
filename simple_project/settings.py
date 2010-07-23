@@ -105,6 +105,7 @@ SSO = {
     'REQUEST_TOKEN_PATH':'sso/initiate',
     'AUTHORIZATION_PATH':'sso/authorize',
     'ACCESS_TOKEN_PATH':'sso/token',
+    'FETCH_USER_DATA_PATH':'sso/fetchuserdata',
     'CONSUMER_TOKEN':'wQtxYCrydx',
     'CONSUMER_SECRET':'x5IvUAJtHIV4q0gvkzsojC5HcpHirTXI',
 }
