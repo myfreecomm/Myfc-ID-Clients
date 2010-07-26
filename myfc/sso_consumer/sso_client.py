@@ -22,7 +22,11 @@ class SSOClient(oauth.Client):
 
         return token
 
-    def call_oauth_provider(self, url, headers):
+    def call_oauth_provider(self, url, oauth_request):
+        headers = oauth_request.to_header()
+        #XXX: Por algum motivo o ouath2 tira o scope dos headers
+        headers['Authorization'] = '%s, scope="%s"' %(headers['Authorization'], oauth_request['scope'])
+
         try:
             http = httplib2.Http()
             response, content = http.request(url,
@@ -34,22 +38,14 @@ class SSOClient(oauth.Client):
         return response, content
 
     def fetch_request_token(self, oauth_request):
-        headers = oauth_request.to_header()
-        #XXX: Por algum motivo o ouath2 tira o scope dos headers
-        headers['Authorization'] = '%s, scope="%s"' %(headers['Authorization'], oauth_request['scope'])
-
         response, content = self.call_oauth_provider(self.request_token_url,
-                                                     headers=headers)
+                                                     oauth_request)
 
         return self.create_token(content)
 
     def fetch_access_token(self, oauth_request):
-        headers = oauth_request.to_header()
-        #XXX: Por algum motivo o ouath2 tira o scope dos headers
-        headers['Authorization'] = '%s, scope="%s"' %(headers['Authorization'], oauth_request['scope'])
-
         response, content = self.call_oauth_provider(self.access_token_url,
-                                                     headers=headers)
+                                                     oauth_request)
 
         return self.create_token(content)
 
