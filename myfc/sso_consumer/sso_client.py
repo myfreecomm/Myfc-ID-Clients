@@ -38,12 +38,8 @@ class SSOClient(oauth.Client):
         #XXX: Por algum motivo o ouath2 tira o scope dos headers
         headers['Authorization'] = '%s, scope="%s"' %(headers['Authorization'], oauth_request['scope'])
 
-        try:
-            http = httplib2.Http()
-            response, content = http.request(self.request_token_url,
-                                             method="POST", headers=headers)
-        except AttributeError:
-            raise httplib2.HttpLib2Error
+        response, content = self.call_oauth_provider(self.request_token_url,
+                                                     headers=headers)
 
         return self.create_token(content)
 
