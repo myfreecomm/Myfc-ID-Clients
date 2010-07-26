@@ -90,7 +90,7 @@ class SSOClientRequestToken(TestCase):
         self.assertEqual(OAUTH_REQUEST_TOKEN, request_token.key)
         self.assertEqual(OAUTH_REQUEST_TOKEN_SECRET, request_token.secret)
 
-    @patch_object(Http, 'request', Mock(return_value=(401, 'invalid token')))
+    @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid token')))
     def test_fetch_request_token_fails_on_invalid_token(self):
         consumer = oauth.Consumer('wrongtoken',
                                    settings.SSO['CONSUMER_SECRET'])
