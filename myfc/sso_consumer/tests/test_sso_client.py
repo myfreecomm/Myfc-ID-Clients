@@ -44,7 +44,7 @@ def create_signed_oauth_request(consumer, sso_client):
     oauth_request.sign_request(plaintext_signature, consumer, None)
 
     #XXX: nao sabemos como passar o callback sem hack
-    oauth_request['oauth_callback'] = 'http://example-callback.com'
+    oauth_request['oauth_callback'] = 'http://callback.example.com'
 
     return oauth_request
 
