@@ -48,6 +48,20 @@ def create_signed_oauth_request(consumer, sso_client):
 
     return oauth_request
 
+def build_access_token_request(oauth_token, oauth_verifier):
+    sso_client = SSOClient()
+
+    secret = OAUTH_REQUEST_TOKEN_SECRET
+    token = oauth.Token(key=oauth_token, secret=secret)
+    token.set_verifier(oauth_verifier)
+
+    consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
+                               settings.SSO['CONSUMER_SECRET'])
+    signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
+    oauth_request = oauth.Request.from_consumer_and_token(consumer, token=token,
+                 http_url=sso_client.access_token_url, parameters={'scope':'sso-sample'})
+
+    return oauth_request
 
 
 class SSOClientRequestToken(TestCase):
@@ -94,26 +108,12 @@ class SSOClientAccessToken(TestCase):
     def setUp(self):
         self.sso_client = SSOClient()
 
-    def build_access_token_request(self, oauth_token, oauth_verifier):
-
-        secret = OAUTH_REQUEST_TOKEN_SECRET
-        token = oauth.Token(key=oauth_token, secret=secret)
-        token.set_verifier(oauth_verifier)
-
-        consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
-                                   settings.SSO['CONSUMER_SECRET'])
-        signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
-        oauth_request = oauth.Request.from_consumer_and_token(consumer, token=token,
-                     http_url=self.sso_client.access_token_url, parameters={'scope':'sso-sample'})
-
-        return oauth_request
-
     @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
     def test_fetch_access_token_succeeded(self):
         oauth_token = OAUTH_REQUEST_TOKEN
         oauth_verifier = 'dummyoauthverifier'
 
-        oauth_request = self.build_access_token_request(oauth_token, oauth_verifier)
+        oauth_request = build_access_token_request(oauth_token, oauth_verifier)
 
         access_token = self.sso_client.fetch_access_token(oauth_request)
 
@@ -124,7 +124,7 @@ class SSOClientAccessToken(TestCase):
         oauth_token = OAUTH_REQUEST_TOKEN
         invalid_oauth_verifier = 'invalidoauthverifier'
 
-        oauth_request = self.build_access_token_request(oauth_token, invalid_oauth_verifier)
+        oauth_request = build_access_token_request(oauth_token, invalid_oauth_verifier)
 
         access_token = self.sso_client.fetch_access_token(oauth_request)
 
@@ -135,7 +135,7 @@ class SSOClientAccessToken(TestCase):
         invalid_oauth_token = 'invalidtoken'
         oauth_verifier = 'dummyoauthverifier'
 
-        oauth_request = self.build_access_token_request(invalid_oauth_token, oauth_verifier)
+        oauth_request = build_access_token_request(invalid_oauth_token, oauth_verifier)
 
         access_token = self.sso_client.fetch_access_token(oauth_request)
 
