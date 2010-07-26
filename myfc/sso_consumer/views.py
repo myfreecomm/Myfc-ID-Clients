@@ -5,12 +5,14 @@ import json
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
 from sso_client import SSOClient
 
 
+# TODO: remover duplicação de código
 
 
 def request_token(request):
@@ -22,6 +24,9 @@ def request_token(request):
     #XXX: nao sabemos como passar o callback sem hack
     oauth_request['oauth_callback'] = request.build_absolute_uri(reverse('sso_consumer:callback'))
     request_token = client.fetch_request_token(oauth_request)
+
+    if not request_token:
+        return HttpResponseServerError()
 
     session = request.session.get('request_token', {})
     session[request_token.key] = request_token.secret
