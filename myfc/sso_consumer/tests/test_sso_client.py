@@ -16,6 +16,12 @@ OAUTH_REQUEST_TOKEN_SECRET = 'dummyrequesttokensecret'
 OAUTH_ACCESS_TOKEN = 'dummyaccesstoken'
 OAUTH_ACCESS_TOKEN_SECRET = 'dummyaccesstokensecret'
 
+def mocked_response(status, content):
+    response = Mock()
+    response.status = status
+
+    return response, content
+
 def mocked_request_token():
     response = Mock()
     response.status = 200
@@ -119,7 +125,7 @@ class SSOClientAccessToken(TestCase):
 
         self.assertEqual(OAUTH_ACCESS_TOKEN, access_token.key)
 
-    @patch_object(Http, 'request', Mock(return_value=(401, 'invalid verifier')))
+    @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid verifier')))
     def test_fetch_access_token_fails_on_invalid_verifier(self):
         oauth_token = OAUTH_REQUEST_TOKEN
         invalid_oauth_verifier = 'invalidoauthverifier'
@@ -130,7 +136,7 @@ class SSOClientAccessToken(TestCase):
 
         self.assertEqual(access_token, None)
 
-    @patch_object(Http, 'request', Mock(return_value=(401, 'invalid token')))
+    @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid token')))
     def test_fetch_access_token_fails_on_invalid_token(self):
         invalid_oauth_token = 'invalidtoken'
         oauth_verifier = 'dummyoauthverifier'
