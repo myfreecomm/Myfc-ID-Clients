@@ -2,6 +2,7 @@
 import oauth2 as oauth
 from mock import patch_object, Mock
 from httplib2 import Http, HttpLib2Error
+import json
 
 from django.test import TestCase
 from django.conf import settings
@@ -9,7 +10,9 @@ from django.conf import settings
 from sso_consumer.views import SSOClient
 
 
-__all__ = ['SSOClientRequestToken', 'SSOClientAccessToken']
+__all__ = ['SSOClientRequestToken', 'SSOClientAccessToken',
+            'SSOClientAccessUserData']
+
 
 OAUTH_REQUEST_TOKEN = 'dummyrequesttoken'
 OAUTH_REQUEST_TOKEN_SECRET = 'dummyrequesttokensecret'
@@ -146,3 +149,48 @@ class SSOClientAccessToken(TestCase):
         access_token = self.sso_client.fetch_access_token(oauth_request)
 
         self.assertEqual(access_token, None)
+
+
+mocked_user_json = """{
+    "last_name": null,
+    "services": [],
+    "timezone": null,
+    "nickname": null,
+    "first_name": null,
+    "language": null,
+    "session_token": "ce5a0d017d5fc09af55482daad763617",
+    "country": null,
+    "cpf": null,
+    "gender": null,
+    "birth_date": "2010-05-04",
+    "email": "giuseppe@rocca.com",
+    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
+}"""
+
+class SSOClientAccessUserData(TestCase):
+
+    @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
+    def setUp(self):
+        self.sso_client = SSOClient()
+        oauth_token = OAUTH_REQUEST_TOKEN
+        oauth_verifier = 'dummyoauthverifier'
+
+        oauth_request = build_access_token_request(oauth_token, oauth_verifier)
+
+        self.access_token = self.sso_client.fetch_access_token(oauth_request)
+
+    @patch_object(Http, 'request', Mock(return_value=mocked_response(200, mocked_user_json)))
+    def test_access_user_data(self):
+        consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'], settings.SSO['CONSUMER_SECRET'])
+        signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
+
+        oauth_request = oauth.Request.from_consumer_and_token(
+                                                            consumer,
+                                                            token=self.access_token,
+                                                            http_url=self.sso_client.user_data_url,
+                                                            parameters={'scope':'sso-sample'}
+                                                            )
+        oauth_request.sign_request(signature_method_plaintext, consumer, self.access_token)
+
+        user_data = json.loads(self.sso_client.access_user_data(oauth_request))
+
