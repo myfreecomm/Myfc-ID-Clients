@@ -16,6 +16,16 @@ class SSOClient(oauth.Client):
         self.access_token_url = '%(HOST)s/%(ACCESS_TOKEN_PATH)s' % settings.SSO
         self.user_data_url = '%(HOST)s/%(FETCH_USER_DATA_PATH)s' % settings.SSO
 
+    def create_token(self, string):
+        """
+        Creates an request/access token from a given string
+        """
+        try:
+            token = oauth.Token.from_string(string)
+        except ValueError:
+            token = None
+
+        return token
 
     def fetch_request_token(self, oauth_request):
         headers = oauth_request.to_header()
@@ -29,12 +39,7 @@ class SSOClient(oauth.Client):
         except AttributeError:
             raise httplib2.HttpLib2Error
 
-        try:
-            token = oauth.Token.from_string(content)
-        except ValueError:
-            return None
-
-        return token
+        return self.create_token(content)
 
     def fetch_access_token(self, oauth_request):
         headers = oauth_request.to_header()
@@ -42,7 +47,8 @@ class SSOClient(oauth.Client):
         headers['Authorization'] = '%s, scope="%s"' %(headers['Authorization'], oauth_request['scope'])
         con = httplib2.Http()
         response, content = con.request(self.access_token_url, method="POST", headers=headers)
-        return oauth.Token.from_string(content)
+
+        return self.create_token(content)
 
     def access_user_data(self, oauth_request):
         headers = {'Content-Type' :'application/x-www-form-urlencoded'}
