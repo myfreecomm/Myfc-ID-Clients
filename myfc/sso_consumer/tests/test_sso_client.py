@@ -7,7 +7,7 @@ import json
 from django.test import TestCase
 from django.conf import settings
 
-from sso_consumer.views import SSOClient
+from sso_consumer.sso_client import SSOClient
 
 
 __all__ = ['SSOClientRequestToken', 'SSOClientAccessToken',
