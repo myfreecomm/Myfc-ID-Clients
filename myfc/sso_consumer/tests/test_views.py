@@ -42,6 +42,17 @@ class SSOConsumerViewsTestCase(TestCase):
         self.assertEqual(response['Location'],
             authorization_url + '?oauth_token=' + OAUTH_REQUEST_TOKEN)
 
+
+        session = self.client.session
+
+        self.assertTrue('request_token' in session)
+        self.assertTrue(OAUTH_REQUEST_TOKEN in session['request_token'])
+        self.assertEqual(
+                        session['request_token'][OAUTH_REQUEST_TOKEN],
+                        OAUTH_REQUEST_TOKEN_SECRET
+                        )
+
+
     @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid token')))
     def test_request_token_fails_on_invalid_token(self):
         response = self.client.get(reverse('sso_consumer:request_token'), {})
