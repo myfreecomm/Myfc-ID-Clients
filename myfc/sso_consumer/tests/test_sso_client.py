@@ -194,3 +194,7 @@ class SSOClientAccessUserData(TestCase):
 
         user_data = json.loads(self.sso_client.access_user_data(oauth_request))
 
+        #TODO: Change the test to assert if the user is logged in
+        self.assertTrue("uuid" in user_data)
+        self.assertTrue("email" in user_data)
+
