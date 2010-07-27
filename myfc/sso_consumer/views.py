@@ -2,6 +2,7 @@
 
 import oauth2 as oauth
 import json
+from httplib2 import HttpLib2Error
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
@@ -23,7 +24,13 @@ def request_token(request):
     oauth_request.sign_request(signature_method_plaintext, consumer, None)
     #XXX: nao sabemos como passar o callback sem hack
     oauth_request['oauth_callback'] = request.build_absolute_uri(reverse('sso_consumer:callback'))
-    request_token = client.fetch_request_token(oauth_request)
+
+    try:
+        request_token = client.fetch_request_token(oauth_request)
+    except HttpLib2Error:
+        http_response_bad_gateway = HttpResponseServerError(status=502)
+
+        return http_response_bad_gateway
 
     if not request_token:
         return HttpResponseServerError()

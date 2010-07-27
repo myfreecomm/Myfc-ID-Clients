@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from httplib2 import Http
+from httplib2 import Http, HttpLib2Error
 from mock import Mock, patch_object
 
 from django.conf import settings
@@ -48,4 +48,10 @@ class SSOConsumerViewsTestCase(TestCase):
 
         self.assertEqual(response.status_code, 500)
 
-    # TODO: test_request_token_fails_on_broken_server => status code 502
+    @patch_object(Http, 'request', Mock(side_effect=HttpLib2Error))
+    def test_request_token_fails_on_broken_oauth_provider(self):
+
+        response = self.client.get(reverse('sso_consumer:request_token'), {})
+
+        self.assertEqual(response.status_code, 502)
+
