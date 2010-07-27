@@ -110,6 +110,16 @@ def access_protected_resources(access_token):
                     )
     oauth_request.sign_request(signature_method_plaintext, consumer, access_token)
 
-    user_data = json.loads(client.access_user_data(oauth_request))
+    try:
+        user_data = client.access_user_data(oauth_request)
+    except HttpLib2Error:
+        http_response_bad_gateway = HttpResponseServerError(status=502)
+
+        return http_response_bad_gateway
+
+    try:
+        user_data = json.loads(user_data)
+    except ValueError:
+        return HttpResponseServerError()
 
     return render_to_response('user_data.html', user_data)
