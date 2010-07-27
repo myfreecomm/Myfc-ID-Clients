@@ -9,9 +9,9 @@ from django.test import TestCase
 
 from mock_helpers import *
 
-__all__ = ['SSOConsumerViewsTestCase']
+__all__ = ['SSOFetchRequestTokenView']
 
-class SSOConsumerViewsTestCase(TestCase):
+class SSOFetchRequestTokenView(TestCase):
 
     @patch_object(Http, 'request', Mock(return_value=mocked_request_token()))
     def test_request_token_success(self):
