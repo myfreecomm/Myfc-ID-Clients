@@ -36,10 +36,11 @@ class SSOConsumerViewsTestCase(TestCase):
     def test_request_token_success(self):
         response = self.client.get(reverse('sso_consumer:request_token'), {})
 
+        authorization_url = '%(HOST)s/%(AUTHORIZATION_PATH)s' % settings.SSO
+
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'],
-            '%(HOST)s/%(AUTHORIZATION_PATH)s?oauth_token=' % settings.SSO
-            + OAUTH_REQUEST_TOKEN)
+            authorization_url + '?oauth_token=' + OAUTH_REQUEST_TOKEN)
 
     @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid token')))
     def test_request_token_fails_on_invalid_token(self):
