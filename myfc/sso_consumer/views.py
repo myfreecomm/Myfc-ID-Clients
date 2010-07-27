@@ -22,7 +22,7 @@ def _add_request_token_to_session(token, session):
     session['request_token'] = request_tokens
     session.save()
 
-def _create_signed_oauth_request(sso_client):
+def _create_signed_oauth_request(url, **kwargs):
 
     consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
                               settings.SSO['CONSUMER_SECRET'])
@@ -31,8 +31,9 @@ def _create_signed_oauth_request(sso_client):
 
     oauth_request = oauth.Request.from_consumer_and_token(
                                             consumer,
-                                            http_url=sso_client.request_token_url,
-                                            parameters={'scope':'sso-sample'}
+                                            http_url=url,
+                                            parameters={'scope':'sso-sample'},
+                                            **kwargs
                                             )
 
     oauth_request.sign_request(signature_method_plaintext, consumer, None)
@@ -43,7 +44,7 @@ def _create_signed_oauth_request(sso_client):
 def fetch_request_token(request):
     sso_client = SSOClient()
 
-    oauth_request = _create_signed_oauth_request(sso_client)
+    oauth_request = _create_signed_oauth_request(sso_client.request_token_url)
 
     #XXX: nao sabemos como passar o callback sem hack
     oauth_request['oauth_callback'] = request.build_absolute_uri(
@@ -81,11 +82,9 @@ def fetch_access_token(request):
     token.set_verifier(oauth_verifier)
 
     client = SSOClient()
-    consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'], settings.SSO['CONSUMER_SECRET'])
-    signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
-    oauth_request = oauth.Request.from_consumer_and_token(consumer, token=token,
-                     http_url=client.access_token_url, parameters={'scope':'sso-sample'})
-    oauth_request.sign_request(signature_method_plaintext, consumer, token)
+
+    oauth_request = _create_signed_oauth_request(client.access_token_url,
+                                                 token=token)
 
     try:
         access_token = client.fetch_access_token(oauth_request)
