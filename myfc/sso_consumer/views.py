@@ -7,6 +7,7 @@ from httplib2 import HttpLib2Error
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseServerError
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
@@ -71,6 +72,10 @@ def fetch_access_token(request):
     oauth_token = request.GET.get('oauth_token')
     oauth_verifier = request.GET.get('oauth_verifier')
     request_token = request.session.get('request_token')
+
+    if not request_token:
+        return HttpResponseBadRequest()
+
     secret = request_token[oauth_token]
     token = oauth.Token(key=oauth_token, secret=secret)
     token.set_verifier(oauth_verifier)
@@ -81,7 +86,16 @@ def fetch_access_token(request):
     oauth_request = oauth.Request.from_consumer_and_token(consumer, token=token,
                      http_url=client.access_token_url, parameters={'scope':'sso-sample'})
     oauth_request.sign_request(signature_method_plaintext, consumer, token)
-    access_token = client.fetch_access_token(oauth_request)
+
+    try:
+        access_token = client.fetch_access_token(oauth_request)
+    except HttpLib2Error:
+        http_response_bad_gateway = HttpResponseServerError(status=502)
+
+        return http_response_bad_gateway
+
+    if not access_token:
+        return HttpResponseServerError()
 
     return access_protected_resources(access_token)
 
