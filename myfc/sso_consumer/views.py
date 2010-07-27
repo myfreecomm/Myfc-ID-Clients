@@ -21,7 +21,7 @@ def _add_request_token_to_session(token, session):
     session['request_token'] = request_tokens
     session.save()
 
-def request_token(request):
+def fetch_request_token(request):
     client = SSOClient()
     consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'], settings.SSO['CONSUMER_SECRET'])
     signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
@@ -48,7 +48,7 @@ def request_token(request):
     return response
 
 
-def request_access_token(request):
+def fetch_access_token(request):
     oauth_token = request.GET.get('oauth_token')
     oauth_verifier = request.GET.get('oauth_verifier')
 
