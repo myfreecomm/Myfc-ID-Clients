@@ -51,7 +51,7 @@ class SSOFetchRequestTokenView(TestCase):
         self.assertEqual(response.status_code, 502)
 
     @patch_object(Http, 'request', Mock(return_value=mocked_response(200, 'corrupted_data')))
-    def test_request_token_fails_on_invalid_token(self):
+    def test_request_token_fails_on_corrupted_data(self):
         response = self.client.get(reverse('sso_consumer:request_token'), {})
 
         self.assertEqual(response.status_code, 500)
