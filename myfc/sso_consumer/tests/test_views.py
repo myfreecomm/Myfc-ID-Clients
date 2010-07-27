@@ -7,28 +7,9 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from mock_helpers import *
+
 __all__ = ['SSOConsumerViewsTestCase']
-
-# FIXME: duplicated from test_sso_client.py, refactor
-OAUTH_REQUEST_TOKEN = 'dummyrequesttoken'
-OAUTH_REQUEST_TOKEN_SECRET = 'dummyrequesttokensecret'
-
-# FIXME: duplicated from test_sso_client.py, refactor
-def mocked_response(status, content):
-    response = Mock()
-    response.status = status
-
-    return response, content
-
-# FIXME: duplicated from test_sso_client.py, refactor
-def mocked_request_token():
-    response = Mock()
-    response.status = 200
-    content = '&'.join(['oauth_token_secret=%s' % OAUTH_REQUEST_TOKEN_SECRET,
-               'oauth_token=%s' % OAUTH_REQUEST_TOKEN,
-               'oauth_callback_confirmed=true'])
-
-    return response, content
 
 class SSOConsumerViewsTestCase(TestCase):
 

@@ -6,41 +6,13 @@ import json
 
 from django.test import TestCase
 from django.conf import settings
+from mock_helpers import *
 
 from sso_consumer.sso_client import SSOClient
 
 
 __all__ = ['SSOClientRequestToken', 'SSOClientAccessToken',
             'SSOClientAccessUserData']
-
-
-OAUTH_REQUEST_TOKEN = 'dummyrequesttoken'
-OAUTH_REQUEST_TOKEN_SECRET = 'dummyrequesttokensecret'
-OAUTH_ACCESS_TOKEN = 'dummyaccesstoken'
-OAUTH_ACCESS_TOKEN_SECRET = 'dummyaccesstokensecret'
-
-def mocked_response(status, content):
-    response = Mock()
-    response.status = status
-
-    return response, content
-
-def mocked_request_token():
-    response = Mock()
-    response.status = 200
-    content = '&'.join(['oauth_token_secret=%s' % OAUTH_REQUEST_TOKEN_SECRET,
-               'oauth_token=%s' % OAUTH_REQUEST_TOKEN,
-               'oauth_callback_confirmed=true'])
-
-    return response, content
-
-def mocked_access_token():
-    response = Mock()
-    response.status = 200
-    content = '&'.join(['oauth_token_secret=%s' % OAUTH_ACCESS_TOKEN_SECRET,
-               'oauth_token=%s' % OAUTH_ACCESS_TOKEN])
-
-    return response, content
 
 def create_signed_oauth_request(consumer, sso_client):
 
