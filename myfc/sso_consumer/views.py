@@ -15,6 +15,11 @@ from sso_client import SSOClient
 
 # TODO: remover duplicação de código
 
+def _add_request_token_to_session(token, session):
+    request_tokens = session.get('request_token', {})
+    request_tokens[token.key] = token.secret
+    session['request_token'] = request_tokens
+    session.save()
 
 def request_token(request):
     client = SSOClient()
@@ -35,10 +40,7 @@ def request_token(request):
     if not request_token:
         return HttpResponseServerError()
 
-    session = request.session.get('request_token', {})
-    session[request_token.key] = request_token.secret
-    request.session['request_token'] = session
-    request.session.save()
+    _add_request_token_to_session(request_token, request.session)
 
     url = '%(HOST)s/%(AUTHORIZATION_PATH)s?oauth_token=%%s' % settings.SSO
     response = HttpResponseRedirect(url % request_token.key)
