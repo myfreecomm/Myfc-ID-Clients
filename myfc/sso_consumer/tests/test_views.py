@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from httplib2 import Http, HttpLib2Error
-from mock import Mock, patch_object
+from mock import Mock, patch_object, patch
 
+from django.http import HttpResponse
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.contrib.sessions.backends.db import SessionStore
 
 from mock_helpers import *
 
-__all__ = ['SSOFetchRequestTokenView']
+__all__ = ['SSOFetchRequestTokenView', 'SSOFetchAccessToken']
 
 class SSOFetchRequestTokenView(TestCase):
 
@@ -52,3 +54,23 @@ class SSOFetchRequestTokenView(TestCase):
         response = self.client.get(reverse('sso_consumer:request_token'), {})
 
         self.assertEqual(response.status_code, 500)
+
+
+request_token_session = {OAUTH_REQUEST_TOKEN: OAUTH_REQUEST_TOKEN_SECRET}
+
+class SSOFetchAccessToken(TestCase):
+
+    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
+    @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
+    @patch('sso_consumer.views.access_protected_resources', Mock(return_value=HttpResponse('protected stuff')))
+    def test_fetch_access_token_succeeded(self):
+
+        response = self.client.get(reverse('sso_consumer:callback'),
+                                   {'oauth_token': OAUTH_REQUEST_TOKEN,
+                                    'oauth_verifier': 'niceverifier'}
+                                  )
+
+        from sso_consumer.views import access_protected_resources
+        self.assertTrue(access_protected_resources.called)
+
+

@@ -70,8 +70,8 @@ def fetch_request_token(request):
 def fetch_access_token(request):
     oauth_token = request.GET.get('oauth_token')
     oauth_verifier = request.GET.get('oauth_verifier')
-
-    secret = request.session['request_token'][oauth_token]
+    request_token = request.session.get('request_token')
+    secret = request_token[oauth_token]
     token = oauth.Token(key=oauth_token, secret=secret)
     token.set_verifier(oauth_verifier)
 
