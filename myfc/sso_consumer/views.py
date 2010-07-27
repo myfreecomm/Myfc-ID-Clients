@@ -21,17 +21,36 @@ def _add_request_token_to_session(token, session):
     session['request_token'] = request_tokens
     session.save()
 
-def fetch_request_token(request):
-    client = SSOClient()
-    consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'], settings.SSO['CONSUMER_SECRET'])
+def _create_signed_oauth_request(sso_client):
+
+    consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
+                              settings.SSO['CONSUMER_SECRET'])
+
     signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
-    oauth_request = oauth.Request.from_consumer_and_token(consumer, http_url=client.request_token_url, parameters={'scope':'sso-sample'})
+
+    oauth_request = oauth.Request.from_consumer_and_token(
+                                            consumer,
+                                            http_url=sso_client.request_token_url,
+                                            parameters={'scope':'sso-sample'}
+                                            )
+
     oauth_request.sign_request(signature_method_plaintext, consumer, None)
+
+    return oauth_request
+
+
+def fetch_request_token(request):
+    sso_client = SSOClient()
+
+    oauth_request = _create_signed_oauth_request(sso_client)
+
     #XXX: nao sabemos como passar o callback sem hack
-    oauth_request['oauth_callback'] = request.build_absolute_uri(reverse('sso_consumer:callback'))
+    oauth_request['oauth_callback'] = request.build_absolute_uri(
+                                                reverse('sso_consumer:callback')
+                                                )
 
     try:
-        request_token = client.fetch_request_token(oauth_request)
+        request_token = sso_client.fetch_request_token(oauth_request)
     except HttpLib2Error:
         http_response_bad_gateway = HttpResponseServerError(status=502)
 
