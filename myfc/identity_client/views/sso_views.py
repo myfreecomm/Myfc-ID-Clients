@@ -11,7 +11,7 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
-from sso_client import SSOClient
+from identity_client.sso_client import SSOClient
 
 
 # TODO: remover duplicação de código

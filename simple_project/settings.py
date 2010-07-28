@@ -86,7 +86,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.contenttypes',
     'identity_client',
-    'sso_consumer',
 )
 
 LOGIN_REDIRECT_URL = '/client-app/profile/'
