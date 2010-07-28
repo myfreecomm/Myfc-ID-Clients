@@ -127,6 +127,7 @@ class SSOFetchAccessToken(TestCase):
         self.assertEqual(response.status_code, 500)
 
     @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
+    @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
     @patch('oauth2.Request.sign_request')
     def test_oauth_request_is_correctly_signed(self, sign_request_mock):
         response = self.client.get(reverse('sso_consumer:callback'),
