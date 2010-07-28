@@ -203,6 +203,7 @@ class AccessUserData(TestCase):
 
     @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch_object(Http, 'request', Mock(return_value=mocked_response(200, mocked_user_json)))
     @patch('oauth2.Request.sign_request')
     def test_oauth_request_user_data_is_correctly_signed(self, sign_request_mock):
         response = self.client.get(reverse('sso_consumer:callback'),
