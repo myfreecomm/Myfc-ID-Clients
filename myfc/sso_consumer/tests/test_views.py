@@ -16,6 +16,9 @@ from sso_consumer.sso_client import SSOClient
 __all__ = ['SSOFetchRequestTokenView', 'SSOFetchAccessToken',
            'AccessUserData']
 
+def assertCalledWithParameterType(method, arg_number, arg_type):
+    assert type(method.call_args[0][arg_number]) == arg_type
+
 class SSOFetchRequestTokenView(TestCase):
 
     @patch_object(Http, 'request', Mock(return_value=mocked_request_token()))
@@ -200,3 +203,17 @@ class AccessUserData(TestCase):
                                   )
 
         self.assertEqual(response.status_code, 500)
+
+    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
+    @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch('oauth2.Request.sign_request')
+    def test_oauth_request_user_data_is_correctly_signed(self, sign_request_mock):
+        response = self.client.get(reverse('sso_consumer:callback'),
+                                   {'oauth_token': OAUTH_REQUEST_TOKEN,
+                                    'oauth_verifier': 'niceverifier'}
+                                  )
+        from oauth2 import Token
+
+        assertCalledWithParameterType(sign_request_mock,
+                                      arg_number=2,
+                                      arg_type=Token)

@@ -104,14 +104,11 @@ def fetch_access_token(request):
 def access_protected_resources(access_token):
 
     client = SSOClient()
-    consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'], settings.SSO['CONSUMER_SECRET'])
-    signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
-    oauth_request = oauth.Request.from_consumer_and_token(
-                        consumer, token=access_token,
-                        http_url=client.user_data_url,
-                        parameters={'scope':'sso-sample'}
-                    )
-    oauth_request.sign_request(signature_method_plaintext, consumer, access_token)
+    oauth_request = _create_signed_oauth_request(
+                            client.user_data_url,
+                            token=access_token,
+                            signature_token=access_token,
+                        )
 
     try:
         user_data = client.access_user_data(oauth_request)
