@@ -3,6 +3,7 @@
 from httplib2 import Http, HttpLib2Error
 from mock import Mock, patch_object, patch
 from oauth2 import Token
+import json
 
 from django.http import HttpResponse
 from django.conf import settings
@@ -64,12 +65,31 @@ class SSOFetchRequestTokenView(TestCase):
 
 request_token_session = {OAUTH_REQUEST_TOKEN: OAUTH_REQUEST_TOKEN_SECRET}
 
+#TODO: remover duplicação
+mocked_user_json = """{
+    "last_name": null,
+    "services": [],
+    "timezone": null,
+    "nickname": null,
+    "first_name": null,
+    "language": null,
+    "session_token": "ce5a0d017d5fc09af55482daad763617",
+    "country": null,
+    "cpf": null,
+    "gender": null,
+    "birth_date": "2010-05-04",
+    "email": "giuseppe@rocca.com",
+    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
+}"""
+
 class SSOFetchAccessToken(TestCase):
 
     @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
-    @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
-    def test_fetch_access_token_succeeded(self):
+    @patch('identity_client.views.sso_views.fetch_user_data')
+    def test_fetch_access_token_succeeded(self, fetch_user_data_mock):
+
+        fetch_user_data_mock.return_value = json.loads(mocked_user_json)
 
         response = self.client.get(reverse('sso_consumer:callback'),
                                    {'oauth_token': OAUTH_REQUEST_TOKEN,
@@ -143,22 +163,6 @@ class SSOFetchAccessToken(TestCase):
 
 dummy_access_token = Token(OAUTH_ACCESS_TOKEN, OAUTH_ACCESS_TOKEN_SECRET)
 
-#TODO: remover duplicação
-mocked_user_json = """{
-    "last_name": null,
-    "services": [],
-    "timezone": null,
-    "nickname": null,
-    "first_name": null,
-    "language": null,
-    "session_token": "ce5a0d017d5fc09af55482daad763617",
-    "country": null,
-    "cpf": null,
-    "gender": null,
-    "birth_date": "2010-05-04",
-    "email": "giuseppe@rocca.com",
-    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
-}"""
 
 corrupted_user_data =  """{
     "last_name": null,

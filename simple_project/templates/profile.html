@@ -3,7 +3,7 @@
 
 {% block header %}<h2><em>Identity information for {{ user.get_full_name }} (Requested via API)</em></h2>{% endblock %}
 
-{% block mainwrapper %}
+{% block content %}
     <a href="{#% url associate_accounts %#}">Associar minha MyfcID com minha conta no FinanceDesktop</a>
     <ul>
         <li>First Name: {{ user.first_name }}</li>
@@ -20,4 +20,4 @@
 
     <a href="{% url auth_logout %}">Logout</a>
 
-{% endblock mainwrapper %}
+{% endblock content %}
