@@ -12,7 +12,8 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
 from identity_client.sso_client import SSOClient
-
+from identity_client.backend import MyfcidAPIBackend
+from identity_client.views.client_views import login_user
 
 def handle_api_exception(view):
     def func(*args, **kwargs):
@@ -103,7 +104,12 @@ def fetch_access_token(request):
     if user_data is None:
         return HttpResponseServerError()
 
-    return render_to_response('user_data.html', user_data)
+    myfc_id_backend = MyfcidAPIBackend()
+    identity = myfc_id_backend.create_local_identity(user_data)
+
+    login_user(request, identity)
+
+    return HttpResponseRedirect(reverse('user_profile'))
 
 def fetch_user_data(access_token):
 
