@@ -63,6 +63,9 @@ request_token_session = {OAUTH_REQUEST_TOKEN: OAUTH_REQUEST_TOKEN_SECRET}
 
 class SSOFetchAccessToken(TestCase):
 
+    def assertCalledWithParameterType(self, method, arg_number, arg_type):
+        self.assertEqual(type(method.call_args[0][arg_number]), arg_type)
+
     @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
     @patch('sso_consumer.views.access_protected_resources', Mock(return_value=HttpResponse('protected stuff')))
@@ -122,6 +125,19 @@ class SSOFetchAccessToken(TestCase):
         self.assertFalse(access_protected_resources.called)
 
         self.assertEqual(response.status_code, 500)
+
+    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
+    @patch('oauth2.Request.sign_request')
+    def test_oauth_request_is_correctly_signed(self, sign_request_mock):
+        response = self.client.get(reverse('sso_consumer:callback'),
+                                   {'oauth_token': OAUTH_REQUEST_TOKEN,
+                                    'oauth_verifier': 'niceverifier'}
+                                  )
+        from oauth2 import Token
+
+        self.assertCalledWithParameterType(sign_request_mock,
+                                           arg_number=2,
+                                           arg_type=Token)
 
 
 dummy_access_token = Token(OAUTH_ACCESS_TOKEN, OAUTH_ACCESS_TOKEN_SECRET)
