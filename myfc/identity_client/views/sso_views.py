@@ -99,9 +99,13 @@ def fetch_access_token(request):
     if not access_token:
         return HttpResponseServerError()
 
-    return access_protected_resources(access_token)
+    user_data = fetch_user_data(access_token)
+    if user_data is None:
+        return HttpResponseServerError()
 
-def access_protected_resources(access_token):
+    return render_to_response('user_data.html', user_data)
+
+def fetch_user_data(access_token):
 
     client = SSOClient()
     oauth_request = _create_signed_oauth_request(
@@ -115,6 +119,6 @@ def access_protected_resources(access_token):
     try:
         user_data = json.loads(user_data)
     except ValueError:
-        return HttpResponseServerError()
+        return None
 
-    return render_to_response('user_data.html', user_data)
+    return user_data

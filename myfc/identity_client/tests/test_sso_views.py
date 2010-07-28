@@ -68,7 +68,7 @@ class SSOFetchAccessToken(TestCase):
 
     @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
-    @patch('identity_client.views.sso_views.access_protected_resources', Mock(return_value=HttpResponse('protected stuff')))
+    @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
     def test_fetch_access_token_succeeded(self):
 
         response = self.client.get(reverse('sso_consumer:callback'),
@@ -76,11 +76,11 @@ class SSOFetchAccessToken(TestCase):
                                     'oauth_verifier': 'niceverifier'}
                                   )
 
-        from identity_client.views.sso_views import access_protected_resources
-        self.assertTrue(access_protected_resources.called)
+        from identity_client.views.sso_views import fetch_user_data
+        self.assertTrue(fetch_user_data.called)
 
 
-    @patch('identity_client.views.sso_views.access_protected_resources', Mock(return_value=HttpResponse('protected stuff')))
+    @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
     @patch_object(SSOClient, 'fetch_access_token', Mock(return_value='access_token'))
     def test_fetch_access_token_fails_on_no_previous_request_token(self):
 
@@ -89,8 +89,8 @@ class SSOFetchAccessToken(TestCase):
                                     'oauth_verifier': 'niceverifier'}
                                   )
 
-        from identity_client.views.sso_views import access_protected_resources
-        self.assertFalse(access_protected_resources.called)
+        from identity_client.views.sso_views import fetch_user_data
+        self.assertFalse(fetch_user_data.called)
 
         self.assertFalse(SSOClient.fetch_access_token.called)
 
@@ -98,7 +98,7 @@ class SSOFetchAccessToken(TestCase):
 
     @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(side_effect=HttpLib2Error))
-    @patch('identity_client.views.sso_views.access_protected_resources', Mock(return_value=HttpResponse('protected stuff')))
+    @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
     def test_fetch_access_fails_if_provider_is_down(self):
 
         response = self.client.get(reverse('sso_consumer:callback'),
@@ -106,14 +106,14 @@ class SSOFetchAccessToken(TestCase):
                                     'oauth_verifier': 'niceverifier'}
                                   )
 
-        from identity_client.views.sso_views import access_protected_resources
-        self.assertFalse(access_protected_resources.called)
+        from identity_client.views.sso_views import fetch_user_data
+        self.assertFalse(fetch_user_data.called)
 
         self.assertEqual(response.status_code, 502)
 
     @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(return_value=mocked_response(200, 'corrupted data')))
-    @patch('identity_client.views.sso_views.access_protected_resources', Mock(return_value=HttpResponse('protected stuff')))
+    @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
     def test_fetch_access_fails_on_corrupted_data_returned(self):
 
         response = self.client.get(reverse('sso_consumer:callback'),
@@ -121,8 +121,8 @@ class SSOFetchAccessToken(TestCase):
                                     'oauth_verifier': 'niceverifier'}
                                   )
 
-        from identity_client.views.sso_views import access_protected_resources
-        self.assertFalse(access_protected_resources.called)
+        from identity_client.views.sso_views import fetch_user_data
+        self.assertFalse(fetch_user_data.called)
 
         self.assertEqual(response.status_code, 500)
 
