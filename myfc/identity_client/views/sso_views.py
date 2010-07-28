@@ -14,7 +14,15 @@ from django.core.urlresolvers import reverse
 from identity_client.sso_client import SSOClient
 
 
-# TODO: remover duplicação de código
+def handle_api_exception(view):
+    def func(*args, **kwargs):
+        try:
+            return view(*args, **kwargs)
+        except HttpLib2Error:
+            return HttpResponseServerError(status=502)
+    func.__name__ = view.__name__
+    func.__doc__  = view.__doc__
+    return func
 
 def _add_request_token_to_session(token, session):
     request_tokens = session.get('request_token', {})
@@ -43,6 +51,7 @@ def _create_signed_oauth_request(url, **kwargs):
     return oauth_request
 
 
+@handle_api_exception
 def fetch_request_token(request):
     sso_client = SSOClient()
 
@@ -53,12 +62,7 @@ def fetch_request_token(request):
                                                 reverse('sso_consumer:callback')
                                                 )
 
-    try:
-        request_token = sso_client.fetch_request_token(oauth_request)
-    except HttpLib2Error:
-        http_response_bad_gateway = HttpResponseServerError(status=502)
-
-        return http_response_bad_gateway
+    request_token = sso_client.fetch_request_token(oauth_request)
 
     if not request_token:
         return HttpResponseServerError()
@@ -71,6 +75,7 @@ def fetch_request_token(request):
     return response
 
 
+@handle_api_exception
 def fetch_access_token(request):
     oauth_token = request.GET.get('oauth_token')
     oauth_verifier = request.GET.get('oauth_verifier')
@@ -89,12 +94,7 @@ def fetch_access_token(request):
                                                  token=token,
                                                  signature_token=token,)
 
-    try:
-        access_token = client.fetch_access_token(oauth_request)
-    except HttpLib2Error:
-        http_response_bad_gateway = HttpResponseServerError(status=502)
-
-        return http_response_bad_gateway
+    access_token = client.fetch_access_token(oauth_request)
 
     if not access_token:
         return HttpResponseServerError()
@@ -110,12 +110,7 @@ def access_protected_resources(access_token):
                             signature_token=access_token,
                         )
 
-    try:
-        user_data = client.access_user_data(oauth_request)
-    except HttpLib2Error:
-        http_response_bad_gateway = HttpResponseServerError(status=502)
-
-        return http_response_bad_gateway
+    user_data = client.access_user_data(oauth_request)
 
     try:
         user_data = json.loads(user_data)
