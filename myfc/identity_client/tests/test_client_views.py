@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from identity_client import views
+from identity_client.views import client_views
 from identity_client.models import Identity
 from identity_client.forms import IdentityAuthenticationForm
 
@@ -26,9 +26,9 @@ def create_post(**kwargs):
         'password':'1234567',
         'password2':'1234567',
         'email':'giuseppe@rocca.com',
-        'tos': True, 
+        'tos': True,
     }
-                
+
     post_data.update(kwargs)
     return post_data
 
@@ -71,7 +71,7 @@ class IdentityRegistrationTest(TestCase):
         self.assertEquals(302, response.status_code)
         expected_user_data = json.loads(mocked_user_json)
         self.assertEquals(
-            self.client.session['user_data']['uuid'], 
+            self.client.session['user_data']['uuid'],
             expected_user_data['uuid']
         )
 
@@ -92,7 +92,7 @@ class IdentityRegistrationTest(TestCase):
         self.assertEquals({'__all__':[u"Ops! Erro na transmissão dos dados. Tente de novo."]},
                            form_errors)
 
-    @patch_object(views, 'invoke_registration_api', Mock())
+    @patch_object(client_views, 'invoke_registration_api', Mock())
     def test_form_renderization_because_of_empty_fields(self):
         empty_post_data = {
                     'password':'',
@@ -100,14 +100,14 @@ class IdentityRegistrationTest(TestCase):
                     'email':'',
                     }
         response = self.client.post(reverse('registration_register'), empty_post_data)
-        self.assertFalse(views.invoke_registration_api.called)
+        self.assertFalse(client_views.invoke_registration_api.called)
 
 
 class IdentityLoginTest(TestCase):
 
     def test_successful_login(self):
         response = self.client.post(
-            reverse('auth_login'), 
+            reverse('auth_login'),
             dict(email='jalim.habei@myfreecomm.com.br', password='1234567')
         )
         self.assertTrue('_auth_user_id' in self.client.session)
@@ -115,11 +115,11 @@ class IdentityLoginTest(TestCase):
 
     def test_add_userdata_to_session_after_login(self):
         response = self.client.post(
-            reverse('auth_login'), 
+            reverse('auth_login'),
             {'email': 'jalim.habei@myfreecomm.com.br', 'password':'1234567'}
         )
         self.assertEquals(
             self.client.session['user_data'], {}
         )
-        
-        
+
+
