@@ -29,6 +29,8 @@ def _create_signed_oauth_request(url, **kwargs):
 
     signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
 
+    signature_token = kwargs.pop('signature_token', None)
+
     oauth_request = oauth.Request.from_consumer_and_token(
                                             consumer,
                                             http_url=url,
@@ -36,7 +38,7 @@ def _create_signed_oauth_request(url, **kwargs):
                                             **kwargs
                                             )
 
-    oauth_request.sign_request(signature_method_plaintext, consumer, None)
+    oauth_request.sign_request(signature_method_plaintext, consumer, signature_token)
 
     return oauth_request
 
@@ -84,7 +86,8 @@ def fetch_access_token(request):
     client = SSOClient()
 
     oauth_request = _create_signed_oauth_request(client.access_token_url,
-                                                 token=token)
+                                                 token=token,
+                                                 signature_token=token,)
 
     try:
         access_token = client.fetch_access_token(oauth_request)
