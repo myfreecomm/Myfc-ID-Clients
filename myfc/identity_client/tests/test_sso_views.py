@@ -84,7 +84,10 @@ mocked_user_json = """{
 
 class SSOFetchAccessToken(TestCase):
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
+    @patch_object(Http, 'request', Mock(return_value=mocked_request_token()))
+    def setUp(self):
+        self.client.get(reverse('sso_consumer:request_token'), {})
+
     @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
     @patch('identity_client.views.sso_views.fetch_user_data')
     def test_fetch_access_token_succeeded(self, fetch_user_data_mock):
@@ -102,7 +105,9 @@ class SSOFetchAccessToken(TestCase):
 
     @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
     @patch_object(SSOClient, 'fetch_access_token', Mock(return_value='access_token'))
-    def test_fetch_access_token_fails_on_no_previous_request_token(self):
+    @patch('django.contrib.sessions.backends.db.SessionStore.get')
+    def test_fetch_access_token_fails_on_no_previous_request_token(self, sessionget_mock):
+        sessionget_mock.return_value = None
 
         response = self.client.get(reverse('sso_consumer:callback'),
                                    {'oauth_token': OAUTH_REQUEST_TOKEN,
@@ -116,7 +121,6 @@ class SSOFetchAccessToken(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(side_effect=HttpLib2Error))
     @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
     def test_fetch_access_fails_if_provider_is_down(self):
@@ -131,7 +135,6 @@ class SSOFetchAccessToken(TestCase):
 
         self.assertEqual(response.status_code, 502)
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(return_value=mocked_response(200, 'corrupted data')))
     @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
     def test_fetch_access_fails_on_corrupted_data_returned(self):
@@ -146,7 +149,6 @@ class SSOFetchAccessToken(TestCase):
 
         self.assertEqual(response.status_code, 500)
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
     @patch('oauth2.Request.sign_request')
     def test_oauth_request_is_correctly_signed(self, sign_request_mock):
@@ -172,19 +174,23 @@ corrupted_user_data =  """{
 
 class AccessUserData(TestCase):
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
+    @patch_object(Http, 'request', Mock(return_value=mocked_request_token()))
+    def setUp(self):
+        self.client.get(reverse('sso_consumer:request_token'), {})
+
     @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_object(Http, 'request', Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_access_user_data_successfuly(self):
+
         response = self.client.get(reverse('sso_consumer:callback'),
                                    {'oauth_token': OAUTH_REQUEST_TOKEN,
                                     'oauth_verifier': 'niceverifier'}
                                   )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'user_data.html')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].endswith('/profile/'))
+        self.assertNotEqual(self.client.session.get('user_data'), None)
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_object(Http, 'request', Mock(side_effect=HttpLib2Error))
     def test_access_user_data_fails_if_myfc_id_is_down(self):
@@ -195,7 +201,6 @@ class AccessUserData(TestCase):
 
         self.assertEqual(response.status_code, 502)
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_object(Http, 'request', Mock(return_value=mocked_response(200, corrupted_user_data)))
     def test_access_user_data_fails_if_corrupted_data_is_received(self):
@@ -206,7 +211,6 @@ class AccessUserData(TestCase):
 
         self.assertEqual(response.status_code, 500)
 
-    @patch_object(SessionStore, 'get', Mock(return_value=request_token_session))
     @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_object(Http, 'request', Mock(return_value=mocked_response(200, mocked_user_json)))
     @patch('oauth2.Request.sign_request')
