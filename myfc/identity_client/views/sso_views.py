@@ -106,7 +106,6 @@ def fetch_access_token(request):
 
     myfc_id_backend = MyfcidAPIBackend()
     identity = myfc_id_backend.create_local_identity(user_data)
-
     login_user(request, identity)
 
     return HttpResponseRedirect(reverse('user_profile'))
