@@ -43,7 +43,7 @@ def _create_signed_oauth_request(url, **kwargs):
     oauth_request = oauth.Request.from_consumer_and_token(
                                             consumer,
                                             http_url=url,
-                                            parameters={'scope':'sso-sample'},
+                                            parameters={'scope': settings.SSO['SLUG']},
                                             **kwargs
                                             )
 
