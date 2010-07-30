@@ -50,7 +50,7 @@ class SSOClientRequestToken(TestCase):
     def setUp(self):
         self.sso_client = SSOClient()
 
-    @patch_object(Http, 'request', Mock(return_value=mocked_request_token()))
+    @patch_httplib2(Mock(return_value=mocked_request_token()))
     def test_fetch_request_token_succeeded(self):
         consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
                                    settings.SSO['CONSUMER_SECRET'])
@@ -62,7 +62,7 @@ class SSOClientRequestToken(TestCase):
         self.assertEqual(OAUTH_REQUEST_TOKEN, request_token.key)
         self.assertEqual(OAUTH_REQUEST_TOKEN_SECRET, request_token.secret)
 
-    @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid token')))
+    @patch_httplib2(Mock(return_value=mocked_response(401, 'invalid token')))
     def test_fetch_request_token_fails_on_invalid_token(self):
         consumer = oauth.Consumer('wrongtoken',
                                    settings.SSO['CONSUMER_SECRET'])
@@ -74,7 +74,7 @@ class SSOClientRequestToken(TestCase):
         self.assertEqual(None, request_token)
 
 
-    @patch_object(Http, 'request', Mock(side_effect=AttributeError))
+    @patch_httplib2(Mock(side_effect=AttributeError))
     def test_fetch_request_token_fails_on_communication_error(self):
         consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
                                   settings.SSO['CONSUMER_SECRET'])
@@ -89,7 +89,7 @@ class SSOClientAccessToken(TestCase):
     def setUp(self):
         self.sso_client = SSOClient()
 
-    @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
+    @patch_httplib2(Mock(return_value=mocked_access_token()))
     def test_fetch_access_token_succeeded(self):
         oauth_token = OAUTH_REQUEST_TOKEN
         oauth_verifier = 'dummyoauthverifier'
@@ -100,7 +100,7 @@ class SSOClientAccessToken(TestCase):
 
         self.assertEqual(OAUTH_ACCESS_TOKEN, access_token.key)
 
-    @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid verifier')))
+    @patch_httplib2(Mock(return_value=mocked_response(401, 'invalid verifier')))
     def test_fetch_access_token_fails_on_invalid_verifier(self):
         oauth_token = OAUTH_REQUEST_TOKEN
         invalid_oauth_verifier = 'invalidoauthverifier'
@@ -111,7 +111,7 @@ class SSOClientAccessToken(TestCase):
 
         self.assertEqual(access_token, None)
 
-    @patch_object(Http, 'request', Mock(return_value=mocked_response(401, 'invalid token')))
+    @patch_httplib2(Mock(return_value=mocked_response(401, 'invalid token')))
     def test_fetch_access_token_fails_on_invalid_token(self):
         invalid_oauth_token = 'invalidtoken'
         oauth_verifier = 'dummyoauthverifier'
@@ -141,7 +141,7 @@ mocked_user_json = """{
 
 class SSOClientAccessUserData(TestCase):
 
-    @patch_object(Http, 'request', Mock(return_value=mocked_access_token()))
+    @patch_httplib2(Mock(return_value=mocked_access_token()))
     def setUp(self):
         self.sso_client = SSOClient()
         oauth_token = OAUTH_REQUEST_TOKEN
@@ -151,7 +151,7 @@ class SSOClientAccessUserData(TestCase):
 
         self.access_token = self.sso_client.fetch_access_token(oauth_request)
 
-    @patch_object(Http, 'request', Mock(return_value=mocked_response(200, mocked_user_json)))
+    @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_access_user_data(self):
         consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'], settings.SSO['CONSUMER_SECRET'])
         signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()

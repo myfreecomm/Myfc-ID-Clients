@@ -13,6 +13,7 @@ from identity_client.forms import IdentityAuthenticationForm
 
 from identity_client import forms
 from identity_client.tests.backend_mock import MyfcidAPIBackendMock
+from identity_client.tests.mock_helpers import *
 
 # Mockando backend para os testes
 forms.MyfcidAPIBackend = MyfcidAPIBackendMock
@@ -64,8 +65,7 @@ corrupted_form_errors = """ { "email": [" """
 class IdentityRegistrationTest(TestCase):
 
 
-    @patch_object(Http, 'request', Mock(return_value=(mock_response(200),
-                                                      mocked_user_json)))
+    @patch_httplib2(Mock(return_value=(mock_response(200), mocked_user_json)))
     def test_successful_api_registration(self):
         response = self.client.post(reverse('registration_register'), create_post())
         self.assertEquals(302, response.status_code)
@@ -76,16 +76,14 @@ class IdentityRegistrationTest(TestCase):
         )
 
 
-    @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
-                                                      mocked_form_errors)))
+    @patch_httplib2(Mock(return_value=(mock_response(409), mocked_form_errors)))
     def test_conflict_error_on_api_registration(self):
         response = self.client.post(reverse('registration_register'), create_post())
         form_errors = response.context['form'].errors
         self.assertEquals({u'email': [u'usuario existente']}, form_errors)
 
 
-    @patch_object(Http, 'request', Mock(return_value=(mock_response(409),
-                                                      corrupted_form_errors)))
+    @patch_httplib2(Mock(return_value=(mock_response(409), corrupted_form_errors)))
     def test_corrupted_errors_returned_on_api_registration(self):
         response = self.client.post(reverse('registration_register'), create_post())
         form_errors = response.context['form'].errors

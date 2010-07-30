@@ -8,6 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
+from identity_client.tests.mock_helpers import *
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 
@@ -150,13 +151,13 @@ mocked_httplib2_request_failure = Mock(
 
 class TestFetchUserData(TestCase):    
 
-    @patch_object(Http, "request", mocked_httplib2_request_success)
+    @patch_httplib2(mocked_httplib2_request_success)
     def test_fetch_user_data_with_success(self):
         api_backend = MyfcidAPIBackend()
         response_content = api_backend.fetch_user_data('user@email.com', 's3nH4')
         self.assertEquals(response_content, mocked_user_json)
-    
-    @patch_object(Http, "request", mocked_httplib2_request_failure)
+
+    @patch_httplib2(mocked_httplib2_request_failure)
     def test_fetch_user_data_failure(self):
         api_backend = MyfcidAPIBackend()
         response_content = api_backend.fetch_user_data('user@email.com', 's3nH4')
