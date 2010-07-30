@@ -20,9 +20,6 @@ __all__ = ['SSOFetchRequestTokenView', 'SSOFetchAccessToken',
 def assertCalledWithParameterType(method, arg_number, arg_type):
     assert type(method.call_args[0][arg_number]) == arg_type
 
-def patch_httplib2(new):
-    return patch('httplib2.Http.request', new)
-
 
 class SSOFetchRequestTokenView(TestCase):
 
