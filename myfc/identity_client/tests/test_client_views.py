@@ -15,9 +15,6 @@ from identity_client import forms
 from identity_client.tests.backend_mock import MyfcidAPIBackendMock
 from identity_client.tests.mock_helpers import *
 
-# Mockando backend para os testes
-forms.MyfcidAPIBackend = MyfcidAPIBackendMock
-
 
 __all__ = ["IdentityRegistrationTest", "IdentityLoginTest"]
 
@@ -60,9 +57,18 @@ mocked_form_errors = """{
 
 corrupted_form_errors = """ { "email": [" """
 
+class MockedBackendTestCase(TestCase):
+    """
+    Mock, Mock, Mock on heaven's dooooorr
+    """
+    def setUp(self):
+        self.backend = forms.MyfcidAPIBackend
+        forms.MyfcidAPIBackend = MyfcidAPIBackendMock
 
+    def tearDown(self):
+        forms.MyfcidAPIBackend = self.backend
 
-class IdentityRegistrationTest(TestCase):
+class IdentityRegistrationTest(MockedBackendTestCase):
 
 
     @patch_httplib2(Mock(return_value=(mock_response(200), mocked_user_json)))
@@ -101,7 +107,7 @@ class IdentityRegistrationTest(TestCase):
         self.assertFalse(client_views.invoke_registration_api.called)
 
 
-class IdentityLoginTest(TestCase):
+class IdentityLoginTest(MockedBackendTestCase):
 
     def test_successful_login(self):
         response = self.client.post(
