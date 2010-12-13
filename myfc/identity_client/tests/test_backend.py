@@ -13,27 +13,26 @@ from identity_client.tests.mock_helpers import *
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 
 mocked_user_json = """{
-    "last_name": "Doe", 
-    "services": ["financedesktop"], 
-    "timezone": null, 
-    "nickname": null, 
-    "first_name": "John", 
-    "language": null, 
-    "session_token": "ce5a0d017d5fc09af55482daad763618", 
-    "country": null, 
-    "cpf": null, 
-    "gender": null, 
-    "birth_date": "2010-05-04", 
+    "last_name": "Doe",
+    "services": ["financedesktop"],
+    "timezone": null,
+    "nickname": null,
+    "first_name": "John",
+    "language": null,
+    "country": null,
+    "cpf": null,
+    "gender": null,
+    "birth_date": "2010-05-04",
     "email": "jd@123.com",
     "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
 }"""
 
 mocked_user_corrupted = """{
-    "last_name": "Doe", 
-    "services": ["financedesktop"], 
-    "timezone": null, 
-    "nickname": null, 
-    "first_name": "John", 
+    "last_name": "Doe",
+    "services": ["financedesktop"],
+    "timezone": null,
+    "nickname": null,
+    "first_name": "John",
     "language": n
 """
 
@@ -62,7 +61,7 @@ class TestMyfcidApiBackend(TestCase):
 
         # Checar se o backend foi setado corretamente
         self.assertEquals(
-            identity.backend, 
+            identity.backend,
             '%s.%s' % (MyfcidAPIBackend.__module__, 'MyfcidAPIBackend')
         )
 
@@ -129,7 +128,7 @@ class TestGetUser(TestCase):
 
         user = get_user(userid=identity.id)
         self.assertEquals(user, identity)
-        
+
 
     def test_invalid_user(self):
         user = get_user(userid=42)
@@ -149,7 +148,7 @@ mocked_httplib2_request_failure = Mock(
     return_value=(mock_response(500), mocked_user_json)
 )
 
-class TestFetchUserData(TestCase):    
+class TestFetchUserData(TestCase):
 
     @patch_httplib2(mocked_httplib2_request_success)
     def test_fetch_user_data_with_success(self):

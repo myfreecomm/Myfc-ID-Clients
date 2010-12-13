@@ -130,7 +130,6 @@ mocked_user_json = """{
     "nickname": null,
     "first_name": null,
     "language": null,
-    "session_token": "ce5a0d017d5fc09af55482daad763617",
     "country": null,
     "cpf": null,
     "gender": null,
