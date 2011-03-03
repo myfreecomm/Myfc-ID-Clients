@@ -23,14 +23,14 @@ __all__ = ["new_identity", "register", "login", "show_login"]
 def new_identity(request,template_name='registration_form.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           registration_form=RegistrationForm, **kwargs):
-   
+
     if request.user.is_authenticated():
         return redirect_logged_user(request, redirect_field_name)
-    
+
     form = registration_form()
     return handle_redirect_to(
         request, template_name, redirect_field_name, form, **kwargs
-    ) 
+    )
 
 
 @required_method("POST")
@@ -47,31 +47,31 @@ def register(request, template_name='registration_form.html',
             user = MyfcidAPIBackend().create_local_identity(content)
             login_user(request, user)
             return redirect_logged_user(request, redirect_field_name)
-    
+
     return handle_redirect_to(
         request, template_name, redirect_field_name, form, **kwargs
-    ) 
+    )
 
 
 @required_method("GET")
 def show_login(request, template_name='login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           authentication_form=AuthenticationForm, **kwargs):
-   
+
     if request.user.is_authenticated():
         return redirect_logged_user(request, redirect_field_name)
 
     form = authentication_form()
     return handle_redirect_to(
         request, template_name, redirect_field_name, form, **kwargs
-    ) 
+    )
 
 
 @required_method("POST")
 def login(request, template_name='login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           authentication_form=AuthenticationForm, **kwargs):
-    
+
     form = authentication_form(data=request.POST)
     if form.is_valid():
         user = form.get_user()
@@ -80,7 +80,7 @@ def login(request, template_name='login.html',
     else:
         result = handle_redirect_to(
             request, template_name, redirect_field_name, form, **kwargs
-        ) 
+        )
 
     return result
 
@@ -124,7 +124,7 @@ def handle_redirect_to(request, template_name, redirect_field_name, form, **kwar
         current_site = Site.objects.get_current()
     else:
         current_site = RequestSite(request)
- 
+
     context.update({
         'form': form,
         redirect_field_name: redirect_to,
@@ -159,7 +159,7 @@ def invoke_registration_api(form):
         }
     )
 
-    if response.status == 409:
+    if response.status in (400, 409):
         try:
             error_dict = json.loads(content)
         except ValueError:

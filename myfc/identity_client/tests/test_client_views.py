@@ -88,7 +88,7 @@ class IdentityRegistrationTest(MockedBackendTestCase):
         self.assertEquals({u'email': [u'usuario existente']}, form_errors)
 
 
-    @patch_httplib2(Mock(return_value=(mock_response(409), corrupted_form_errors)))
+    @patch_httplib2(Mock(return_value=(mock_response(400), corrupted_form_errors)))
     def test_corrupted_errors_returned_on_api_registration(self):
         response = self.client.post(reverse('registration_register'), create_post())
         form_errors = response.context['form'].errors
@@ -124,5 +124,3 @@ class IdentityLoginTest(MockedBackendTestCase):
         self.assertEquals(
             self.client.session['user_data'], {}
         )
-
-
