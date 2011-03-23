@@ -2,6 +2,14 @@
 {% block title %}Myfc ID :: Identity Information (Requested via API){% endblock %}
 
 {% block header %}<h2><em>Identity information for {{ user.get_full_name }} (Requested via API)</em></h2>{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" charset="utf-8">
+        if (window!=window.top) {
+            window.top.location = '/client-app/profile/'
+        }
+    </script>
+{% endblock %}
+
 
 {% block content %}
     <a href="{#% url associate_accounts %#}">Associar minha MyfcID com minha conta no FinanceDesktop</a>
