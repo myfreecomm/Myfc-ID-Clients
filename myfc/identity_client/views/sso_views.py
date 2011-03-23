@@ -19,17 +19,13 @@ def handle_api_exception(view):
     def func(*args, **kwargs):
         try:
             return view(*args, **kwargs)
-        except HttpLib2Error:
+        except HttpLib2Error, e:
+            print e
             return HttpResponseServerError(status=502)
     func.__name__ = view.__name__
     func.__doc__  = view.__doc__
     return func
 
-def _add_request_token_to_session(token, session):
-    request_tokens = session.get('request_token', {})
-    request_tokens[token.key] = token.secret
-    session['request_token'] = request_tokens
-    session.save()
 
 def _create_signed_oauth_request(url, **kwargs):
 
@@ -43,7 +39,7 @@ def _create_signed_oauth_request(url, **kwargs):
     oauth_request = oauth.Request.from_consumer_and_token(
                                             consumer,
                                             http_url=url,
-                                            parameters={'scope': settings.SSO['SLUG']},
+                                            parameters={'scope': 'auth:api'},
                                             **kwargs
                                             )
 
@@ -65,10 +61,17 @@ def fetch_request_token(request):
 
     request_token = sso_client.fetch_request_token(oauth_request)
 
-    if not request_token:
-        return HttpResponseServerError()
+    request.session['request_token'] = {
+        request_token.key: request_token.secret
+    }
+    request.session.save()
 
-    _add_request_token_to_session(request_token, request.session)
+    if (not request_token) or ('request_token' not in request.session):
+        print "could not fetch req token"
+        return HttpResponseServerError()
+    else:
+        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
+        print "Session %s data: %s" % (session_key, request.session.items())
 
     url = '%(HOST)s/%(AUTHORIZATION_PATH)s?oauth_token=%%s' % settings.SSO
     response = HttpResponseRedirect(url % request_token.key)
@@ -80,9 +83,12 @@ def fetch_request_token(request):
 def fetch_access_token(request):
     oauth_token = request.GET.get('oauth_token')
     oauth_verifier = request.GET.get('oauth_verifier')
-    request_token = request.session.get('request_token')
 
-    if not request_token:
+    try:
+        request_token = request.session['request_token']
+    except KeyError:
+        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
+        print "Request token not in session. Session %s data: %s" % (session_key, request.session.items())
         return HttpResponseBadRequest()
 
     secret = request_token[oauth_token]
@@ -98,10 +104,12 @@ def fetch_access_token(request):
     access_token = client.fetch_access_token(oauth_request)
 
     if not access_token:
+        print "could not fetch access token"
         return HttpResponseServerError()
 
     user_data = fetch_user_data(access_token)
     if user_data is None:
+        print "could not fetch user data"
         return HttpResponseServerError()
 
     myfc_id_backend = MyfcidAPIBackend()
