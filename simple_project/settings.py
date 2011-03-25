@@ -91,20 +91,20 @@ INSTALLED_APPS = (
 LOGIN_REDIRECT_URL = '/client-app/profile/'
 
 MYFC_ID={
-    'HOST':'http://stage.myfc-id.myfreecomm.com.br',
     'AUTH_API':'accounts/api/auth/',
     'REGISTRATION_API':'accounts/api/create/',
-    'API_USER': 'myfc_client',
-    'API_PASSWORD': 'magic_key',
+    'HOST':'http://192.168.1.48:8000',
+    'API_USER': 'bjWjKpCuc9',
+    'API_PASSWORD': '7gyRbefpuaEbMnbpAZvE7EPRx92GQVGa',
 }
 
 SSO = {
     'SLUG':'sso-sample',
-    'HOST':'http://dhcp48:8000',
     'REQUEST_TOKEN_PATH':'sso/initiate',
     'AUTHORIZATION_PATH':'sso/authorize',
     'ACCESS_TOKEN_PATH':'sso/token',
     'FETCH_USER_DATA_PATH':'sso/fetchuserdata',
-    'CONSUMER_TOKEN':'wQtxYCrydx',
-    'CONSUMER_SECRET':'x5IvUAJtHIV4q0gvkzsojC5HcpHirTXI',
+    'HOST':'http://localhost:8000',
+    'CONSUMER_TOKEN':'rG7S7fo1N9',
+    'CONSUMER_SECRET':'WcQdsxXrxbiuiAs7l2dDrsJe2xoisd3r',
 }
