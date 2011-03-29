@@ -42,6 +42,12 @@ class Identity(models.Model):
         """
         return True
 
+    def is_staff(self):
+        """
+        Always returns False.
+        """
+        return False
+
     def get_full_name(self):
         "Returns the first_name plus the last_name, with a space in between."
         full_name = u'%s %s' % (self.first_name, self.last_name)
