@@ -71,6 +71,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'identity_auth.middleware.P3PHeaderMiddleware',
 )
 
 ROOT_URLCONF = 'simple_project.urls'
@@ -108,3 +109,19 @@ SSO = {
     'CONSUMER_TOKEN':'rG7S7fo1N9',
     'CONSUMER_SECRET':'WcQdsxXrxbiuiAs7l2dDrsJe2xoisd3r',
 }
+
+
+## Marcelo
+#'HOST':'http://192.168.1.55:8000',
+#'CONSUMER_TOKEN':'g2CSsMV3Wz',
+#'CONSUMER_SECRET':'KJLJO6bcoShplFiOCOZJ982ySDkWM2jp',
+
+## localhost
+#'HOST':'http://192.168.1.48:8000',
+#'CONSUMER_TOKEN':'rG7S7fo1N9',
+#'CONSUMER_SECRET':'WcQdsxXrxbiuiAs7l2dDrsJe2xoisd3r',
+
+## producao
+#'HOST':'https://app.passaporteweb.com.br',
+#'CONSUMER_TOKEN':'mqt1rxWelk',
+#'CONSUMER_SECRET':'T4jtA0GXAXJ8Sd9FCy3C2UgGUEx6qdxu',
