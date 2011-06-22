@@ -73,8 +73,10 @@ def fetch_request_token(request):
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
         print "Session %s data: %s" % (session_key, request.session.items())
 
-    url = '%(HOST)s/%(AUTHORIZATION_PATH)s?oauth_token=%%s' % settings.SSO
-    response = HttpResponseRedirect(url % request_token.key)
+    url = '%s/%s?oauth_token=%s' % (
+        settings.SSO['HOST'], settings.SSO['AUTHORIZATION_PATH'], request_token.key
+    )
+    response = HttpResponseRedirect(url)
 
     return response
 
