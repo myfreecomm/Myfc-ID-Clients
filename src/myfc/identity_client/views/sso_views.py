@@ -29,8 +29,8 @@ def handle_api_exception(view):
 
 def _create_signed_oauth_request(url, **kwargs):
 
-    consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
-                              settings.SSO['CONSUMER_SECRET'])
+    consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'],
+                              settings.MYFC_ID['CONSUMER_SECRET'])
 
     signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
 
@@ -72,7 +72,7 @@ def fetch_request_token(request):
         print "Session %s data: %s" % (session_key, request.session.items())
 
     url = '%s/%s?oauth_token=%s' % (
-        settings.SSO['HOST'], settings.SSO['AUTHORIZATION_PATH'], request_token.key
+        settings.MYFC_ID['HOST'], settings.MYFC_ID['AUTHORIZATION_PATH'], request_token.key
     )
     response = HttpResponseRedirect(url)
 

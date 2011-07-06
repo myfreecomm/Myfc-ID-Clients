@@ -27,7 +27,7 @@ class SSOFetchRequestTokenView(TestCase):
     def test_request_token_success(self):
         response = self.client.get(reverse('sso_consumer:request_token'), {})
 
-        authorization_url = '%(HOST)s/%(AUTHORIZATION_PATH)s' % settings.SSO
+        authorization_url = '%(HOST)s/%(AUTHORIZATION_PATH)s' % settings.MYFC_ID
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'],

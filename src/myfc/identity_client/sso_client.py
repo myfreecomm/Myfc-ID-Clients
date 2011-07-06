@@ -7,9 +7,9 @@ from django.conf import settings
 class SSOClient(oauth.Client):
 
     def __init__(self):
-        self.request_token_url = '%(HOST)s/%(REQUEST_TOKEN_PATH)s' % settings.SSO
-        self.access_token_url = '%(HOST)s/%(ACCESS_TOKEN_PATH)s' % settings.SSO
-        self.user_data_url = '%(HOST)s/%(FETCH_USER_DATA_PATH)s' % settings.SSO
+        self.request_token_url = '%(HOST)s/%(REQUEST_TOKEN_PATH)s' % settings.MYFC_ID
+        self.access_token_url = '%(HOST)s/%(ACCESS_TOKEN_PATH)s' % settings.MYFC_ID
+        self.user_data_url = '%(HOST)s/%(FETCH_USER_DATA_PATH)s' % settings.MYFC_ID
 
     def create_token(self, string):
         """

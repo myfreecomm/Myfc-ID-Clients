@@ -36,8 +36,8 @@ def build_access_token_request(oauth_token, oauth_verifier):
     token = oauth.Token(key=oauth_token, secret=secret)
     token.set_verifier(oauth_verifier)
 
-    consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
-                               settings.SSO['CONSUMER_SECRET'])
+    consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'],
+                               settings.MYFC_ID['CONSUMER_SECRET'])
     signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
     oauth_request = oauth.Request.from_consumer_and_token(consumer, token=token,
                  http_url=sso_client.access_token_url, parameters={'scope':'sso-sample'})
@@ -52,8 +52,8 @@ class SSOClientRequestToken(TestCase):
 
     @patch_httplib2(Mock(return_value=mocked_request_token()))
     def test_fetch_request_token_succeeded(self):
-        consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
-                                   settings.SSO['CONSUMER_SECRET'])
+        consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'],
+                                   settings.MYFC_ID['CONSUMER_SECRET'])
 
         oauth_request = create_signed_oauth_request(consumer, self.sso_client)
 
@@ -65,7 +65,7 @@ class SSOClientRequestToken(TestCase):
     @patch_httplib2(Mock(return_value=mocked_response(401, 'invalid token')))
     def test_fetch_request_token_fails_on_invalid_token(self):
         consumer = oauth.Consumer('wrongtoken',
-                                   settings.SSO['CONSUMER_SECRET'])
+                                   settings.MYFC_ID['CONSUMER_SECRET'])
 
         oauth_request = create_signed_oauth_request(consumer, self.sso_client)
 
@@ -76,8 +76,8 @@ class SSOClientRequestToken(TestCase):
 
     @patch_httplib2(Mock(side_effect=AttributeError))
     def test_fetch_request_token_fails_on_communication_error(self):
-        consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'],
-                                  settings.SSO['CONSUMER_SECRET'])
+        consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'],
+                                  settings.MYFC_ID['CONSUMER_SECRET'])
 
         oauth_request = create_signed_oauth_request(consumer, self.sso_client)
 
@@ -152,7 +152,7 @@ class SSOClientAccessUserData(TestCase):
 
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_access_user_data(self):
-        consumer = oauth.Consumer(settings.SSO['CONSUMER_TOKEN'], settings.SSO['CONSUMER_SECRET'])
+        consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
         signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
 
         oauth_request = oauth.Request.from_consumer_and_token(
