@@ -30,7 +30,7 @@ DATABASES = {
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Sao_Paulo'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -71,7 +71,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'identity_auth.middleware.P3PHeaderMiddleware',
+    'identity_client.middleware.P3PHeaderMiddleware',
 )
 
 ROOT_URLCONF = 'simple_project.urls'
@@ -89,39 +89,23 @@ INSTALLED_APPS = (
     'identity_client',
 )
 
+APPLICATION_HOST = 'http://172.16.1.1:8000'
 LOGIN_REDIRECT_URL = '/client-app/profile/'
 
-MYFC_ID={
+MYFC_ID = {
+    'HOST':'http://192.168.1.5:8001',
+    'SLUG':'myfc-id-clients',
+    'API_USER': 'HJNjNXU1R3',
+    'API_PASSWORD': 'tskFmOZvvxW4eoqsMyx8ANqqnaPfZCbp',
+    'CONSUMER_TOKEN': 'HJNjNXU1R3',
+    'CONSUMER_SECRET': 'tskFmOZvvxW4eoqsMyx8ANqqnaPfZCbp',
     'AUTH_API':'accounts/api/auth/',
     'REGISTRATION_API':'accounts/api/create/',
-    'HOST':'http://192.168.1.48:8000',
-    'API_USER': 'bjWjKpCuc9',
-    'API_PASSWORD': '7gyRbefpuaEbMnbpAZvE7EPRx92GQVGa',
-}
-
-SSO = {
-    'SLUG':'sso-sample',
-    'REQUEST_TOKEN_PATH':'sso/initiate',
-    'AUTHORIZATION_PATH':'sso/authorize',
-    'ACCESS_TOKEN_PATH':'sso/token',
-    'FETCH_USER_DATA_PATH':'sso/fetchuserdata',
-    'HOST':'http://localhost:8000',
-    'CONSUMER_TOKEN':'rG7S7fo1N9',
-    'CONSUMER_SECRET':'WcQdsxXrxbiuiAs7l2dDrsJe2xoisd3r',
+    'REQUEST_TOKEN_PATH':'sso/initiate/',
+    'AUTHORIZATION_PATH':'sso/authorize/',
+    'ACCESS_TOKEN_PATH':'sso/token/',
+    'FETCH_USER_DATA_PATH':'sso/fetchuserdata/',
 }
 
 
-## Marcelo
-#'HOST':'http://192.168.1.55:8000',
-#'CONSUMER_TOKEN':'g2CSsMV3Wz',
-#'CONSUMER_SECRET':'KJLJO6bcoShplFiOCOZJ982ySDkWM2jp',
-
-## localhost
-#'HOST':'http://192.168.1.48:8000',
-#'CONSUMER_TOKEN':'rG7S7fo1N9',
-#'CONSUMER_SECRET':'WcQdsxXrxbiuiAs7l2dDrsJe2xoisd3r',
-
-## producao
-#'HOST':'https://app.passaporteweb.com.br',
-#'CONSUMER_TOKEN':'mqt1rxWelk',
-#'CONSUMER_SECRET':'T4jtA0GXAXJ8Sd9FCy3C2UgGUEx6qdxu',
+SSO = MYFC_ID
