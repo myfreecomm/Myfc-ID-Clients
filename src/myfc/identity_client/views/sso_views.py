@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render_to_response
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, set_script_prefix
 
 from identity_client.sso_client import SSOClient
 from identity_client.backend import MyfcidAPIBackend
@@ -54,10 +54,8 @@ def fetch_request_token(request):
 
     oauth_request = _create_signed_oauth_request(sso_client.request_token_url)
 
-    #XXX: nao sabemos como passar o callback sem hack
-    oauth_request['oauth_callback'] = request.build_absolute_uri(
-                                                reverse('sso_consumer:callback')
-                                                )
+    set_script_prefix(settings.APPLICATION_HOST)
+    oauth_request['oauth_callback'] = reverse('sso_consumer:callback')
 
     request_token = sso_client.fetch_request_token(oauth_request)
 
