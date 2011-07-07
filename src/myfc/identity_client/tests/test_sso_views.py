@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from httplib2 import Http, HttpLib2Error
-from mock import Mock, patch_object, patch
+from mock import Mock, patch
 from oauth2 import Token
 import json
 
@@ -13,9 +13,9 @@ from django.contrib.sessions.backends.db import SessionStore
 
 from mock_helpers import *
 from identity_client.sso_client import SSOClient
+from identity_client.views import sso_views
 
-__all__ = ['SSOFetchRequestTokenView', 'SSOFetchAccessToken',
-           'AccessUserData']
+__all__ = ['SSOFetchRequestTokenView', 'SSOFetchAccessToken', 'AccessUserData']
 
 def assertCalledWithParameterType(method, arg_number, arg_type):
     assert type(method.call_args[0][arg_number]) == arg_type
@@ -50,6 +50,13 @@ class SSOFetchRequestTokenView(TestCase):
 
         self.assertEqual(response.status_code, 500)
 
+    @patch.object(SSOClient, 'fetch_request_token')
+    def test_handles_malformed_request_token(self, fetch_request_token_mock):
+        fetch_request_token_mock.return_value = 'invalid_request_token'
+        response = self.client.get(reverse('sso_consumer:request_token'), {})
+
+        self.assertEqual(response.status_code, 500)
+
     @patch_httplib2(Mock(side_effect=HttpLib2Error))
     def test_request_token_fails_on_broken_oauth_provider(self):
 
@@ -66,7 +73,6 @@ class SSOFetchRequestTokenView(TestCase):
 
 request_token_session = {OAUTH_REQUEST_TOKEN: OAUTH_REQUEST_TOKEN_SECRET}
 
-#TODO: remover duplicação
 mocked_user_json = """{
     "last_name": null,
     "services": [],
@@ -82,11 +88,14 @@ mocked_user_json = """{
     "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
 }"""
 
+mocked_user_dict = json.loads(mocked_user_json)
+
 class SSOFetchAccessToken(TestCase):
 
     @patch_httplib2(Mock(return_value=mocked_request_token()))
     def setUp(self):
         self.client.get(reverse('sso_consumer:request_token'), {})
+
 
     @patch_httplib2(Mock(return_value=mocked_access_token()))
     @patch('identity_client.views.sso_views.fetch_user_data')
@@ -103,23 +112,32 @@ class SSOFetchAccessToken(TestCase):
         self.assertTrue(fetch_user_data.called)
 
 
-    @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
-    @patch_object(SSOClient, 'fetch_access_token', Mock(return_value='access_token'))
-    @patch('django.contrib.sessions.backends.db.SessionStore.get')
-    def test_fetch_access_token_fails_on_no_previous_request_token(self, sessionget_mock):
-        sessionget_mock.return_value = None
+    #@patch('django.contrib.sessions.backends.db.SessionStore.get', Mock(return_value=None))
+    @patch('identity_client.sso_client.SSOClient.fetch_access_token', Mock())
+    @patch.object(sso_views, 'fetch_user_data', Mock())
+    def test_fetch_access_token_fails_on_no_previous_request_token(self):
 
-        response = self.client.get(reverse('sso_consumer:callback'),
-                                   {'oauth_token': OAUTH_REQUEST_TOKEN,
-                                    'oauth_verifier': 'niceverifier'}
-                                  )
+        # Clean client session
+        session = self.client.session
+        del(session['request_token'])
+        session.save()
 
-        from identity_client.views.sso_views import fetch_user_data
-        self.assertFalse(fetch_user_data.called)
+        response = self.client.get(
+            reverse('sso_consumer:callback'), {
+                'oauth_token': OAUTH_REQUEST_TOKEN,
+                'oauth_verifier': 'niceverifier'
+            }
+        )
 
-        self.assertFalse(SSOClient.fetch_access_token.called)
-
+        # We consider this a bad request
         self.assertEqual(response.status_code, 400)
+
+        # No communications should have been made
+        self.assertFalse(SSOClient.fetch_access_token.called)
+        from identity_client.views.sso_views import fetch_user_data
+        self.assertFalse(sso_views.fetch_user_data.called)
+
+
 
     @patch_httplib2(Mock(side_effect=HttpLib2Error))
     @patch('identity_client.views.sso_views.fetch_user_data', Mock(return_value={'mocked_key': 'mocked value'}))
@@ -178,7 +196,7 @@ class AccessUserData(TestCase):
     def setUp(self):
         self.client.get(reverse('sso_consumer:request_token'), {})
 
-    @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_access_user_data_successfuly(self):
 
@@ -191,7 +209,7 @@ class AccessUserData(TestCase):
         self.assertTrue(response['Location'].endswith('/profile/'))
         self.assertNotEqual(self.client.session.get('user_data'), None)
 
-    @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(side_effect=HttpLib2Error))
     def test_access_user_data_fails_if_myfc_id_is_down(self):
         response = self.client.get(reverse('sso_consumer:callback'),
@@ -201,7 +219,7 @@ class AccessUserData(TestCase):
 
         self.assertEqual(response.status_code, 502)
 
-    @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(return_value=mocked_response(200, corrupted_user_data)))
     def test_access_user_data_fails_if_corrupted_data_is_received(self):
         response = self.client.get(reverse('sso_consumer:callback'),
@@ -211,7 +229,7 @@ class AccessUserData(TestCase):
 
         self.assertEqual(response.status_code, 500)
 
-    @patch_object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     @patch('oauth2.Request.sign_request')
     def test_oauth_request_user_data_is_correctly_signed(self, sign_request_mock):

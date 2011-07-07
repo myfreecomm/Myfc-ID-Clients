@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-
+import logging
 import oauth2 as oauth
 import json
 from httplib2 import HttpLib2Error
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseServerError
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse, set_script_prefix
 
@@ -20,8 +19,17 @@ def handle_api_exception(view):
         try:
             return view(*args, **kwargs)
         except HttpLib2Error, e:
-            print e
+            logging.error(
+                '%s: Error during http request: %s<%s>',
+                view.__name__,  e, type(e)
+            )
             return HttpResponseServerError(status=502)
+        except (AssertionError, ), e:
+            logging.error(
+                '%s: Unexpected status code %s<%s>',
+                view.__name__, e, type(e)
+            )
+            return HttpResponseServerError()
     func.__name__ = view.__name__
     func.__doc__  = view.__doc__
     return func
@@ -59,17 +67,19 @@ def fetch_request_token(request):
 
     request_token = sso_client.fetch_request_token(oauth_request)
 
+    if hasattr(request_token, 'key') and hasattr(request_token, 'secret'):
+        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
+        logging.info("Session %s data: %s" % (
+            session_key, request.session.items()
+        ))
+    else:
+        logging.error("could not fetch req token")
+        return HttpResponseServerError()
+
     request.session['request_token'] = {
         request_token.key: request_token.secret
     }
     request.session.save()
-
-    if (not request_token) or ('request_token' not in request.session):
-        print "could not fetch req token"
-        return HttpResponseServerError()
-    else:
-        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-        print "Session %s data: %s" % (session_key, request.session.items())
 
     url = '%s/%s?oauth_token=%s' % (
         settings.MYFC_ID['HOST'], settings.MYFC_ID['AUTHORIZATION_PATH'], request_token.key

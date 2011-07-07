@@ -1,6 +1,6 @@
 #coding: UTF-8
 import json
-from mock import patch_object, Mock, patch
+from mock import Mock, patch
 from httplib2 import Http
 
 from django.test import TestCase
@@ -95,7 +95,7 @@ class IdentityRegistrationTest(MockedBackendTestCase):
         self.assertEquals({'__all__':[u"Ops! Erro na transmissão dos dados. Tente de novo."]},
                            form_errors)
 
-    @patch_object(client_views, 'invoke_registration_api', Mock())
+    @patch.object(client_views, 'invoke_registration_api', Mock())
     def test_form_renderization_because_of_empty_fields(self):
         empty_post_data = {
                     'password':'',

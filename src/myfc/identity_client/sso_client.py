@@ -1,4 +1,5 @@
 #coding: utf-8
+import logging
 import oauth2 as oauth
 import httplib2
 
@@ -24,22 +25,25 @@ class SSOClient(oauth.Client):
 
     def call_oauth_provider(self, url, oauth_request):
         headers = oauth_request.to_header()
-        #XXX: Por algum motivo o ouath2 tira o scope dos headers
-        headers['Authorization'] = '%s, scope="%s"' %(headers['Authorization'], oauth_request['scope'])
+        headers['Authorization'] = '%s, scope="%s"' % (
+            headers['Authorization'], oauth_request['scope']
+        )
 
         try:
             http = httplib2.Http()
-            response, content = http.request(url,
-                                             method="POST",
-                                             headers=headers)
-        except AttributeError:
+            response, content = http.request(
+                url, method="POST", headers=headers
+            )
+
+        except (AttributeError, ), e:
             raise httplib2.HttpLib2Error
 
         return response, content
 
     def fetch_request_token(self, oauth_request):
-        response, content = self.call_oauth_provider(self.request_token_url,
-                                                     oauth_request)
+        response, content = self.call_oauth_provider(
+            self.request_token_url, oauth_request
+        )
 
         return self.create_token(content)
 
