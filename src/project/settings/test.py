@@ -25,3 +25,11 @@ MYFC_ID['HOST'] = 'http://192.168.1.5:8001'
 MYFC_ID['SLUG'] = 'myfc-id-clients'
 MYFC_ID['CONSUMER_TOKEN'] = 'HJNjNXU1R3'
 MYFC_ID['CONSUMER_SECRET'] = 'tskFmOZvvxW4eoqsMyx8ANqqnaPfZCbp'
+
+import logging
+logging.basicConfig(
+    level = logging.WARN,
+    format = "%(asctime)s - %(levelname)s - %(message)s",
+    filename = '/dev/null',
+    filemode = 'a',
+)
