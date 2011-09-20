@@ -54,6 +54,7 @@ class MyfcidAPIBackend(object):
         user.email = user_data['email']
         user.first_name = user_data['first_name']
         user.last_name = user_data['last_name']
+        user.is_active = user_data['is_active']
         user.save()
 
 

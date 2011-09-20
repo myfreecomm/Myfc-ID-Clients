@@ -14,6 +14,10 @@ from identity_client.sso_client import SSOClient
 from identity_client.backend import MyfcidAPIBackend
 from identity_client.views.client_views import login_user
 
+
+__all__ = ['fetch_request_token', 'fetch_access_token']
+
+
 def handle_api_exception(view):
     def func(*args, **kwargs):
         try:
@@ -127,6 +131,7 @@ def fetch_access_token(request):
     login_user(request, identity)
 
     return HttpResponseRedirect(reverse('user_profile'))
+
 
 def fetch_user_data(access_token):
 

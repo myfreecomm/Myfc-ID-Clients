@@ -24,7 +24,8 @@ mocked_user_json = """{
     "gender": null,
     "birth_date": "2010-05-04",
     "email": "jd@123.com",
-    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da"
+    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da",
+    "is_active": true
 }"""
 
 mocked_user_corrupted = """{

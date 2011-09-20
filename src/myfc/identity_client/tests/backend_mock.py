@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from uuid import uuid4
+
 from django.contrib.auth.models import AnonymousUser
 
 from identity_client.models import Identity
@@ -11,7 +13,9 @@ class MyfcidAPIBackendMock(object):
 
     def authenticate(self, email=None, password=None, **kwargs):
 
-        identity = Identity.objects.create(email=email)
+        identity = Identity.objects.create(
+            uuid=str(uuid4()), email=email
+        )
 
         # Set this user's backend
         identity.backend = "%s.%s" % (MyfcidAPIBackendMock.__module__,
