@@ -2,13 +2,13 @@
 from mock import patch_object, Mock
 from httplib2 import Http
 
-from django.test import TestCase
 import json
 from django.contrib.auth.models import AnonymousUser
 
 from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
 from identity_client.tests.mock_helpers import *
+from identity_client.test_helpers import MyfcIDTestClient as TestCase
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 

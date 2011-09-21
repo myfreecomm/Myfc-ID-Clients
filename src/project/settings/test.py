@@ -33,21 +33,11 @@ DATABASES = {
         'PORT': '',
     }
 }
+
 NOSQL_DATABASES = {
     'NAME': 'identity_client',
     'HOST': 'localhost',
 }
 
 PERSISTENCE_STRATEGY= 'mongoengine'
-
-module_name = 'identity_client.%s' % PERSISTENCE_STRATEGY
-
-persistence_settings = __import__(
-    '%s.settings' % module_name,
-    fromlist=[module_name]
-)
-
-for k, v in persistence_settings.__dict__.items():
-    if k.startswith('_'): 
-        continue
-    globals()[k] = v
+#PERSISTENCE_STRATEGY= 'django_db'

@@ -3,7 +3,6 @@ import json
 from mock import Mock, patch
 from httplib2 import Http
 
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
@@ -14,7 +13,7 @@ from identity_client.forms import IdentityAuthenticationForm
 from identity_client import forms
 from identity_client.tests.backend_mock import MyfcidAPIBackendMock
 from identity_client.tests.mock_helpers import *
-
+from identity_client.test_helpers import MyfcIDTestClient as TestCase
 
 __all__ = ["IdentityRegistrationTest", "IdentityLoginTest"]
 
