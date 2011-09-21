@@ -3,6 +3,7 @@ from common import *
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+PERSISTENCE_STRATEGY= 'django_db'
 
 DATABASES = {
     'default': {
