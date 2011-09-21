@@ -3,18 +3,6 @@ from common import *
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-PERSISTENCE_STRATEGY= 'django_db'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',     # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '%s/simple.sqlite' % PROJECT_PATH,  # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '(gy8ie&gl+0^a62hw$q#+zj+uff1o$zmm!n#)t9c4*%0v8&c)&'
@@ -34,3 +22,32 @@ logging.basicConfig(
     filename = '/dev/null',
     filemode = 'a',
 )
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '%s/simple.sqlite' % PROJECT_PATH,
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    }
+}
+NOSQL_DATABASES = {
+    'NAME': 'identity_client',
+    'HOST': 'localhost',
+}
+
+PERSISTENCE_STRATEGY= 'mongoengine'
+
+module_name = 'identity_client.%s' % PERSISTENCE_STRATEGY
+
+persistence_settings = __import__(
+    '%s.settings' % module_name,
+    fromlist=[module_name]
+)
+
+for k, v in persistence_settings.__dict__.items():
+    if k.startswith('_'): 
+        continue
+    globals()[k] = v
