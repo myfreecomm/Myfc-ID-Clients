@@ -4,7 +4,7 @@
 {% block content %}
     <center>
     <iframe
-        src="http://sandbox.app.passaporteweb.com.br/sso/widget?next_url=http://192.168.1.48:8001/sso/&display=popup"
+        src="{{ myfcid_host }}/sso/widget?next_url={{ application_host }}/sso/&display=popup"
         name="myframe" width="380" height="410" frameborder="0"
         allowtransparency="true">
     </iframe>

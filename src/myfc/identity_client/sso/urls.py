@@ -7,5 +7,5 @@ from shortcuts import route
 urlpatterns = patterns('identity_client.sso.views',
     url(r'^$', 'fetch_request_token', name='request_token'),
     url(r'^callback/$', 'fetch_access_token', name='callback'),
-
+    url(r'^iframe/$', 'render_sso_iframe', name='iframe'),
 )

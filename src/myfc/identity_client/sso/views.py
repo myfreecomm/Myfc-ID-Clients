@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 from django.core.urlresolvers import reverse, set_script_prefix
 
 from identity_client.sso.client import SSOClient
@@ -59,6 +60,19 @@ def _create_signed_oauth_request(url, **kwargs):
 
     return oauth_request
 
+
+def render_sso_iframe(request):
+    context = {
+        'myfcid_host': settings.MYFC_ID['HOST'],
+        'application_host': settings.APPLICATION_HOST,
+        'application_slug': settings.MYFC_ID['SLUG'],
+    }
+
+    return render_to_response(
+        'iframe.html', 
+        context, 
+        context_instance=RequestContext(request)
+    )
 
 @handle_api_exception
 def fetch_request_token(request):
