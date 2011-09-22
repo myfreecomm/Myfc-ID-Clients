@@ -5,7 +5,9 @@ from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
 from identity_client.models import Identity, ServiceAccount
 
-__all__ = ['TestIdentityModel', 'TestServiceAccountModel']
+__all__ = [
+    'TestIdentityModel', 'TestServiceAccountModel', 'TestServiceAccountManager'
+]
 
 
 class TestIdentityModel(TestCase):
@@ -163,3 +165,84 @@ class TestServiceAccountModel(TestCase):
         account = self.account.remove_member(self.identity)
         self.assertEqual(account, self.account)
         self.assertEqual(account.members_count, 0)
+
+
+class TestServiceAccountManager(TestCase):
+
+    def setUp(self):
+        self.email = u'teste@email.com'
+        self.identity = Identity.objects.create(
+            first_name = 'Teste',
+            last_name = 'Sobrenome',
+            email = self.email,
+            uuid = '16fd2706-8baf-433b-82eb-8c7fada847da',
+        )
+
+        self.account_name = 'Test Account'
+        self.account = ServiceAccount.objects.create(
+            name = self.account_name,
+            uuid = '16fd2706-8baf-433b-82eb-8c7fada847da',
+        )
+
+    def test_account_without_expiration_is_active(self):
+        self.assertEqual(self.account.expiration, None)
+        active_accounts = ServiceAccount.active().all()
+        self.assertEqual(len(active_accounts), 1)
+        self.assertEqual(active_accounts[0], self.account)
+
+
+    def test_account_with_expiration_in_the_future_is_active(self):
+        self.account.expiration = dt.today() + timedelta(days=2)
+        self.account.save()
+        active_accounts = ServiceAccount.active().all()
+        self.assertEqual(len(active_accounts), 1)
+        self.assertEqual(active_accounts[0], self.account)
+
+
+    def test_account_with_expiration_in_the_past_is_not_active(self):
+        self.account.expiration = dt.today() - timedelta(days=2)
+        self.account.save()
+        active_accounts = ServiceAccount.active().all()
+        self.assertEqual(len(active_accounts), 0)
+
+
+    def test_accounts_for_identity(self):
+        self.account.add_member(self.identity, roles=['user'])
+        active_accounts = ServiceAccount.for_identity(self.identity)
+        self.assertEqual(len(active_accounts), 1)
+        self.assertEqual(active_accounts[0], self.account)
+
+
+    def test_accounts_for_identity_without_accounts_associated(self):
+        active_accounts = ServiceAccount.for_identity(self.identity)
+        self.assertEqual(len(active_accounts), 0)
+
+
+    def test_accounts_for_identity_with_matching_role_in_account(self):
+        self.account.add_member(self.identity, roles=['user'])
+        active_accounts = ServiceAccount.for_identity(self.identity, role='user')
+        self.assertEqual(len(active_accounts), 1)
+        self.assertEqual(active_accounts[0], self.account)
+
+
+    def test_accounts_for_identity_without_matching_role_in_account(self):
+        self.account.add_member(self.identity, roles=['user'])
+        active_accounts = ServiceAccount.for_identity(self.identity, role='owner')
+        self.assertEqual(len(active_accounts), 0)
+
+
+    def test_accounts_for_identity_ignores_expired_accounts_by_default(self):
+        self.account.expiration = dt.today() - timedelta(days=2)
+        self.account.add_member(self.identity, roles=[])
+
+        active_accounts = ServiceAccount.for_identity(self.identity)
+        self.assertEqual(len(active_accounts), 0)
+
+
+    def test_accounts_for_identity_may_include_expired_accounts(self):
+        self.account.expiration = dt.today() - timedelta(days=2)
+        self.account.add_member(self.identity, roles=[])
+
+        active_accounts = ServiceAccount.for_identity(self.identity, include_expired=True)
+        self.assertEqual(len(active_accounts), 1)
+        self.assertEqual(active_accounts[0], self.account)

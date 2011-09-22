@@ -113,7 +113,7 @@ class ServiceAccountManager(models.Manager):
             Q(expiration=None)|Q(expiration__gte=dt.now())
         )
 
-    def for_identity(self, identity, role=None, include_expired=True):
+    def for_identity(self, identity, role=None, include_expired=False):
         if include_expired:
             qset = self.get_query_set()
         else:
