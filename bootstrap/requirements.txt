@@ -3,3 +3,5 @@ django==1.2.5
 mock
 oauth2>=1.2
 simplejson
+pymongo==1.11
+mongoengine==0.4
