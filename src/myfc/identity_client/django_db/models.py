@@ -3,6 +3,7 @@ import datetime
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -20,7 +21,6 @@ class Identity(models.Model):
     is_active = models.BooleanField(_('active'), default=True,
         help_text=_("Designates whether this user should be treated as active. Unselect this instead of deleting accounts.")
     )
-    last_login = models.DateTimeField(_('last login'), default=datetime.datetime.now)
 
     class Meta:
         verbose_name = _('identity')
@@ -104,3 +104,76 @@ class Identity(models.Model):
                       category=PendingDeprecationWarning)
         return self._message_set
     message_set = property(_get_message_set)
+
+
+class ServiceAccountManager(models.Manager):
+
+    def active(self):
+        return self.get_query_set().filter(
+            Q(expiration=None)|Q(expiration__gte=dt.now())
+        )
+
+    def for_identity(self, identity, role=None, include_expired=True):
+        if include_expired:
+            qset = self.get_query_set()
+        else:
+            qset = self.active()
+
+        if role:
+            qset = qset.filter(members__roles=role)
+
+        return qset
+
+
+class ServiceAccount(models.Model):
+    name = models.CharField(max_length=256)
+    uuid = models.CharField(max_length=36)
+    members = models.ManyToManyField(Identity, through='AccountMember')
+    expiration = models.DateField(null=True)
+
+    objects = ServiceAccountManager()
+
+    class Meta:
+        app_label = 'identity_client'
+
+
+    @property
+    def is_active(self):
+        return (self.expiration is None) or (self.expiration >= dt.now())
+
+
+    def add_member(self, identity, roles):
+        new_member = AccountMember.objects.get_or_create(identity=identity, account=self)
+        new_member.set_roles(roles)
+        new_member.save()
+
+        return new_member
+
+
+    def remove_member(self, identity):
+        member_qset = AccountMember.objects.filter(identity=identity, account=self)
+        if member_qset.exists():
+            member_qset.delete()
+
+        return self
+
+
+    def get_member(self, identity):
+        member_qset = AccountMember.objects.filter(identity=identity, account=self)
+        if member_qset.exists():
+            return member_qset[0]
+
+        return None
+
+
+class AccountMember(models.Model):
+    identity = models.ForeignKey(Identity)
+    account = models.ForeignKey(ServiceAccount)
+    roles = models.CharField(max_length=720)
+
+    class Meta:
+        app_label = 'identity_client'
+
+    def set_roles(self, roles):
+        roles = set(roles)
+        self.roles = ','.join(roles)
