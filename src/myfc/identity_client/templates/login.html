@@ -1,8 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Myfc ID :: Remote Login{% endblock %}
+{% block title %}Login via API{% endblock %}
 
-{% block content %}
+{% block navigation %}
+    <li><a href="{% url index %}">Inicio</a></li>
+    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
+    <li class="active"><a href="#">Login via API</a></li>
+    <li><a href="{% url sso_consumer:iframe %}">Login via SSO</a></li>
+    <li><a href="#">Perfil</a></li>
+    <li><a href="#">Contas</a></li>
+    <li><a href="#">Notificações</a></li>
+{% endblock navigation %}
 
+{% block content-header %}
+  <h1>Login via API</h1>
+{% endblock content-header %}
+
+{% block content-inner %}
     <div class="login">
         {% if form.errors %}
         <div class="alert-message error">
@@ -16,7 +29,6 @@
 
         <form method="post" action=".">
           <fieldset>
-            <legend>Login via API</legend>
             <div class="clearfix">
               <label for="xlInput">{{ form.email.label_tag }}</label>
               <div class="input">
@@ -42,6 +54,11 @@
           </div>
         </form>
     </div>
+{% endblock content-inner %}
 
-
-{% endblock content %}
+{% block content-aside %}
+    <dl>
+        <dt>Sobre esta operação <span class="label important">Importante</span></dt>
+        <dd>Deve-se utilizar este método de login somente em casos especiais.</dd>
+    </dl>
+{% endblock content-aside %}

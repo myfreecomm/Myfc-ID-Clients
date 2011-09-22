@@ -1,7 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Myfc ID :: SSO Login{% endblock %}
+{% block title %}Login via SSO{% endblock title %}
 
-{% block content %}
+{% block navigation %}
+    <li><a href="{% url index %}">Inicio</a></li>
+    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
+    <li><a href="{% url auth_login %}">Login via API</a></li>
+    <li class="active"><a href="#">Login via SSO</a></li>
+    <li><a href="#">Perfil</a></li>
+    <li><a href="#">Contas</a></li>
+    <li><a href="#">Notificações</a></li>
+{% endblock navigation %}
+
+{% block content-header %}
+  <h1>Login via Single Sign On</h1>
+{% endblock content-header %}
+
+{% block content-inner %}
     <center>
     <iframe
         src="{{ myfcid_host }}/sso/widget?next_url={{ application_host }}/sso/&display=popup"
@@ -9,4 +23,11 @@
         allowtransparency="true">
     </iframe>
     </center>
-{% endblock content %}
+{% endblock content-inner %}
+
+{% block content-aside %}
+    <dl>
+        <dt>Sobre esta operação <span class="label important">Importante</span></dt>
+        <dd>O Single Sign On é o melhor método de autenticação, pois permite que o usuário navegue livremente entre as aplicações que tem acesso.</dd>
+    </dl>
+{% endblock content-aside %}
