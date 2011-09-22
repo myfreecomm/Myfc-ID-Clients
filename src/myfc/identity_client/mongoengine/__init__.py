@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 import mongoengine
 
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.test.simple import TestCase as SimpleTestCase
 
 import models
+import settings
 
-__all__ = ['models', 'TestCase']
+__all__ = ['models', 'settings', 'TestCase']
+
 
 mongoengine.connect(
-    settings.NOSQL_DATABASES['NAME'],
-    host=settings.NOSQL_DATABASES['HOST']
+    django_settings.NOSQL_DATABASES['NAME'],
+    host=django_settings.NOSQL_DATABASES['HOST']
 )
+
 
 class TestCase(SimpleTestCase):
     """
@@ -27,4 +30,3 @@ class TestCase(SimpleTestCase):
             if collection == 'system.indexes':
                 continue
             self.db.drop_collection(collection)
-
