@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock title %}</title>
+    <title>Passaporte Web :: {% block title %}{% endblock title %}</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -71,10 +71,17 @@
 
     <div class="container">
 
+      <ul class="tabs">
+      {% block navigation %}
+      {% endblock navigation %}
+      </ul>
+
       <div class="content">
         {% block content %}
         <div class="page-header">
+          {% block content-header %}
           <h1>Page name <small>Supporting text or tagline</small></h1>
+          {% endblock content-header %}
         </div>
         <div class="row">
           <div class="span10">

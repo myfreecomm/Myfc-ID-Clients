@@ -164,8 +164,14 @@ def invoke_registration_api(form):
             error_dict = json.loads(content)
         except ValueError:
             error_dict = {
-                '__all__': [u"Ops! Erro na transmissão dos dados. Tente de novo."]
+                '__all__': [u"Erro na transmissão dos dados. Aguarde alguns instantes e tente novamente."]
             }
+
+        form._errors = prepare_form_errors(error_dict)
+    elif response.status in (401, 403):
+        error_dict = {
+            '__all__': [u"Erro na confuração do projeto. Credenciais incorretas ou acesso negado."]
+        }
 
         form._errors = prepare_form_errors(error_dict)
 
