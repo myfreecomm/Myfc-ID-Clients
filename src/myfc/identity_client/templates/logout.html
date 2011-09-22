@@ -3,6 +3,8 @@
 
 {% block content %}
 
-    <h2>Sua sessão foi encerrada.</h2>
+    <h1>Sua sessão foi encerrada.</h1>
+    <br/>
+    <a href="{% url auth_login %}" class="btn primary">Voltar</a>
 
 {% endblock content %}

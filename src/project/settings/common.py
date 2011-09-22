@@ -106,6 +106,8 @@ INSTALLED_APPS = (
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 P3P_COMPACT = 'CP="NON DSP COR CURa TIA"'
+
+AUTHENTICATION_BACKENDS = ('identity_client.backend.MyfcidAPIBackend',)
 LOGIN_REDIRECT_URL = '/client-app/profile/'
 APPLICATION_HOST = None
 
