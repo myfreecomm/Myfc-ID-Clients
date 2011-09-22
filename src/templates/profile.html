@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Myfc ID :: Identity Information (Requested via API){% endblock %}
+
+{% block header %}<h2><em>Identity information for {{ user.get_full_name }} (Requested via API)</em></h2>{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" charset="utf-8">
+        if (window!=window.top) {
+            window.top.location = '/client-app/profile/'
+        }
+    </script>
+{% endblock %}
+
+
+{% block content %}
+    <a href="{#% url associate_accounts %#}">Associar minha MyfcID com minha conta no FinanceDesktop</a>
+    <ul>
+        <li>First Name: {{ user.first_name }}</li>
+        <li>Last Name: {{ user.last_name }}</li>
+        <li>Email: {{ user.email }}</li>
+        <li>Nickname: {{ user_data.nickname }}</li>
+        <li>Birth date: {{ user_data.birth_date }}</li>
+        <li>Gender: {{ user_data.gender }}</li>
+        <li>Country: {{ user_data.country }}</li>
+        <li>Language: {{ user_data.language }}</li>
+        <li>Timezone: {{ user_data.timezone }}</li>
+        <li>CPF: {{ user_data.cpf }}</li>
+    </ul>
+
+    <a href="{% url auth_logout %}">Logout</a>
+
+{% endblock content %}

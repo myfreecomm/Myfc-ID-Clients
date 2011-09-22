@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 urlpatterns = patterns('django.views.generic.simple',
     url(r'^index.php$',
@@ -6,6 +8,13 @@ urlpatterns = patterns('django.views.generic.simple',
         name='iframe'
     ),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve',
+            { 'document_root': settings.MEDIA_ROOT }),
+    )
+
 
 urlpatterns += patterns('',
      (r'^accounts/', include('identity_client.urls')),

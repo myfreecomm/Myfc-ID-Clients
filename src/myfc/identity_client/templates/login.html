@@ -1,35 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Myfc ID :: Remote Login{% endblock %}
 
-{% block header %}<h2><em>Login via API</em></h2>{% endblock %}
-
 {% block content %}
 
     <div class="login">
         {% if form.errors %}
-            <p>Erro de autenticação.</p>
+        <div class="alert-message error">
+          <a class="close" href="#">×</a>
+          <p>
+            <strong>Erro!</strong>
+            Não foi possível efetuar o login, confira as informações e favor tente novamente.
+          </p>
+        </div>
         {% endif %}
 
         <form method="post" action=".">
-            <table>
-            <tr>
-                <td align="right">{{ form.email.label_tag }}</td>
-                <td align="left">{{ form.email }}</td>
-            </tr>
-            <tr>
-                <td align="right">{{ form.password.label_tag }}</td>
-                <td align="left">{{ form.password }}</td>
-            </tr>
-            <tr>
-                <td colspan="2"><input type="submit" value="Login" /></td>
-            </tr>
-            </table>
+          <fieldset>
+            <legend>Login via API</legend>
+            <div class="clearfix">
+              <label for="xlInput">{{ form.email.label_tag }}</label>
+              <div class="input">
+                  {{ form.email }}
+                  <span class="help-inline">{{ form.email.errors }}</span>
+              </div>
+            </div>
+            <div class="clearfix">
+              <label for="xlInput">{{ form.password.label_tag }}</label>
+              <div class="input">
+                  {{ form.password }}
+                  <span class="help-inline">{{ form.password.errors }}</span>
+              </div>
+            </div>
 
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}" />
+          </fieldset>
+
+          <div class="actions">
+            <input type="submit" class="btn primary" value="Login"/>
+            <a href="{% url registration_register %}" class="btn">Cadastro</a>
+          </div>
         </form>
     </div>
 
-    <a href="{% url registration_register %}">Ainda não tenho um Myfc ID</a>
 
 {% endblock content %}
