@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.conf import settings
 from mock_helpers import *
 
-from identity_client.sso_client import SSOClient
+from identity_client.sso.client import SSOClient
 
 
 __all__ = ['SSOClientRequestToken', 'SSOClientAccessToken',

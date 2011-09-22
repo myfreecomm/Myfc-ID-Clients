@@ -10,7 +10,7 @@ from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse, set_script_prefix
 
-from identity_client.sso_client import SSOClient
+from identity_client.sso.client import SSOClient
 from identity_client.backend import MyfcidAPIBackend
 from identity_client.views.client_views import login_user
 
