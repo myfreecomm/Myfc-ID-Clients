@@ -25,9 +25,12 @@ class SSOClient(oauth.Client):
 
     def call_oauth_provider(self, url, oauth_request):
         headers = oauth_request.to_header()
-        headers['Authorization'] = '%s, scope="%s"' % (
-            headers['Authorization'], oauth_request['scope']
-        )
+        headers.update({
+            'Content-Length': '0',
+            'Authorization': '%s, scope="%s"' % (
+                headers['Authorization'], oauth_request['scope']
+            ),
+        })
 
         try:
             http = httplib2.Http()
