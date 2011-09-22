@@ -232,7 +232,7 @@ class AccessUserData(TestCase):
     @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_authentication_creates_local_user(self):
-        local_users_count = Identity.objects.count()
+        Identity.objects.all().delete()
 
         response = self.client.get(
             reverse('sso_consumer:callback'), {
@@ -244,14 +244,14 @@ class AccessUserData(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response['Location'].endswith('/profile/'))
 
-        self.assertEqual(Identity.objects.count(), local_users_count+1)
+        self.assertEqual(Identity.objects.count(), 1)
 
 
     @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_authentication_creates_local_user_accounts(self):
         serviceAccountModel = get_account_module()
-        local_accounts_count = serviceAccountModel.objects.count()
+        serviceAccountModel.objects.all().delete()
 
         response = self.client.get(
             reverse('sso_consumer:callback'), {
@@ -263,4 +263,4 @@ class AccessUserData(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response['Location'].endswith('/profile/'))
 
-        self.assertEqual(serviceAccountModel.objects.count(), local_accounts_count+2)
+        self.assertEqual(serviceAccountModel.objects.count(), 2)
