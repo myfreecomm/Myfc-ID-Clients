@@ -26,7 +26,7 @@ logging.basicConfig(
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '%s/simple.sqlite' % PROJECT_PATH,
+        'NAME': '',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
