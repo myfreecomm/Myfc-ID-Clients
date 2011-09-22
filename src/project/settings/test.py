@@ -39,5 +39,5 @@ NOSQL_DATABASES = {
     'HOST': 'localhost',
 }
 
-PERSISTENCE_STRATEGY= 'mongoengine'
-#PERSISTENCE_STRATEGY= 'django_db'
+#PERSISTENCE_STRATEGY= 'mongoengine'
+PERSISTENCE_STRATEGY= 'django_db'

@@ -106,32 +106,11 @@ class Identity(models.Model):
     message_set = property(_get_message_set)
 
 
-class ServiceAccountManager(models.Manager):
-
-    def active(self):
-        return self.get_query_set().filter(
-            Q(expiration=None)|Q(expiration__gte=dt.now())
-        )
-
-    def for_identity(self, identity, role=None, include_expired=False):
-        if include_expired:
-            qset = self.get_query_set()
-        else:
-            qset = self.active()
-
-        if role:
-            qset = qset.filter(members__roles=role)
-
-        return qset
-
-
 class ServiceAccount(models.Model):
     name = models.CharField(max_length=256)
     uuid = models.CharField(max_length=36)
     members = models.ManyToManyField(Identity, through='AccountMember')
     expiration = models.DateField(null=True)
-
-    objects = ServiceAccountManager()
 
     class Meta:
         app_label = 'identity_client'
@@ -139,6 +118,23 @@ class ServiceAccount(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+    @classmethod
+    def active(cls):
+        return cls.objects.filter(
+            Q(expiration=None)|Q(expiration__gte=dt.now())
+        )
+
+
+    @classmethod
+    def for_identity(cls, identity, include_expired=False):
+        if include_expired:
+            qset = cls.objects
+        else:
+            qset = cls.active()
+
+        return qset.filter(accountmember__identity=identity)
 
 
     @property
@@ -152,6 +148,7 @@ class ServiceAccount(models.Model):
 
 
     def add_member(self, identity, roles):
+        self.save()
         new_member, created = AccountMember.objects.get_or_create(identity=identity, account=self)
         new_member.set_roles(roles)
         new_member.save()

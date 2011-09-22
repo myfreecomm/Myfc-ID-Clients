@@ -218,19 +218,6 @@ class TestServiceAccountManager(TestCase):
         self.assertEqual(len(active_accounts), 0)
 
 
-    def test_accounts_for_identity_with_matching_role_in_account(self):
-        self.account.add_member(self.identity, roles=['user'])
-        active_accounts = ServiceAccount.for_identity(self.identity, role='user')
-        self.assertEqual(len(active_accounts), 1)
-        self.assertEqual(active_accounts[0], self.account)
-
-
-    def test_accounts_for_identity_without_matching_role_in_account(self):
-        self.account.add_member(self.identity, roles=['user'])
-        active_accounts = ServiceAccount.for_identity(self.identity, role='owner')
-        self.assertEqual(len(active_accounts), 0)
-
-
     def test_accounts_for_identity_ignores_expired_accounts_by_default(self):
         self.account.expiration = dt.today() - timedelta(days=2)
         self.account.add_member(self.identity, roles=[])
