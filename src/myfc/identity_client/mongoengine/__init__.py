@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-import mongoengine
+try:
+    import mongoengine
+except ImportError:
+    import sys
+    message = u"ERRO: Você precisa instalar o pacote 'mongoengine' para utilizar esta estratégia de persistência\n"
+    sys.stdout.write(message.encode('utf-8'))
+    sys.exit(1)
 
 from django.conf import settings as django_settings
 from django.test.simple import TestCase as SimpleTestCase
