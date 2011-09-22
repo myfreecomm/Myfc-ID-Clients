@@ -8,7 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
 from identity_client.tests.mock_helpers import *
-from identity_client.test_helpers import MyfcIDTestCase as TestCase
+from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 

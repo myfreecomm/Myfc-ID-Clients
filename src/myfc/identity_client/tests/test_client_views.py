@@ -13,7 +13,7 @@ from identity_client.forms import IdentityAuthenticationForm
 from identity_client import forms
 from identity_client.tests.backend_mock import MyfcidAPIBackendMock
 from identity_client.tests.mock_helpers import *
-from identity_client.test_helpers import MyfcIDTestCase as TestCase
+from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
 
 __all__ = ["IdentityRegistrationTest", "IdentityLoginTest"]
