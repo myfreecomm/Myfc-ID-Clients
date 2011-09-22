@@ -13,7 +13,8 @@ from identity_client.forms import IdentityAuthenticationForm
 from identity_client import forms
 from identity_client.tests.backend_mock import MyfcidAPIBackendMock
 from identity_client.tests.mock_helpers import *
-from identity_client.test_helpers import MyfcIDTestClient as TestCase
+from identity_client.test_helpers import MyfcIDTestCase as TestCase
+
 
 __all__ = ["IdentityRegistrationTest", "IdentityLoginTest"]
 
@@ -56,18 +57,7 @@ mocked_form_errors = """{
 
 corrupted_form_errors = """ { "email": [" """
 
-class MockedBackendTestCase(TestCase):
-    """
-    Mock, Mock, Mock on heaven's dooooorr
-    """
-    def setUp(self):
-        self.backend = forms.MyfcidAPIBackend
-        forms.MyfcidAPIBackend = MyfcidAPIBackendMock
-
-    def tearDown(self):
-        forms.MyfcidAPIBackend = self.backend
-
-class IdentityRegistrationTest(MockedBackendTestCase):
+class IdentityRegistrationTest(TestCase):
 
 
     @patch_httplib2(Mock(return_value=(mock_response(200), mocked_user_json)))
@@ -106,21 +96,27 @@ class IdentityRegistrationTest(MockedBackendTestCase):
         self.assertFalse(client_views.invoke_registration_api.called)
 
 
-class IdentityLoginTest(MockedBackendTestCase):
+class IdentityLoginTest(TestCase):
 
+    @patch_httplib2(Mock(return_value=(mock_response(200), mocked_user_json)))
     def test_successful_login(self):
         response = self.client.post(
-            reverse('auth_login'),
-            dict(email='jalim.habei@myfreecomm.com.br', password='1234567')
+            reverse('auth_login'), {
+                'email': 'jalim.habei@myfreecomm.com.br',
+                'password':'1234567'
+            }
         )
         self.assertTrue('_auth_user_id' in self.client.session)
 
 
+    @patch_httplib2(Mock(return_value=(mock_response(200), mocked_user_json)))
     def test_add_userdata_to_session_after_login(self):
         response = self.client.post(
-            reverse('auth_login'),
-            {'email': 'jalim.habei@myfreecomm.com.br', 'password':'1234567'}
+            reverse('auth_login'), {
+                'email': 'jalim.habei@myfreecomm.com.br',
+                'password':'1234567'
+            }
         )
         self.assertEquals(
-            self.client.session['user_data'], {}
+            self.client.session['user_data'], json.loads(mocked_user_json)
         )

@@ -8,7 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
 from identity_client.tests.mock_helpers import *
-from identity_client.test_helpers import MyfcIDTestClient as TestCase
+from identity_client.test_helpers import MyfcIDTestCase as TestCase
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 
@@ -79,16 +79,16 @@ class TestMyfcidApiBackend(TestCase):
 
 
     def test_auth_updates_user(self):
+        #Identity.objects.delete()
         mocked_user_data = json.loads(mocked_user_json)
 
         # Create a user
-        user = Identity(
+        user = Identity.objects.create(
             uuid=mocked_user_data['uuid'],
             email='user@domain.com',
             first_name='First',
             last_name='Last',
         )
-        user.save()
 
         # Mockar leitura dos dados
         MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
@@ -126,9 +126,13 @@ class TestGetUser(TestCase):
 
     def test_valid_user(self):
         identity = self._create_user()
-
         user = get_user(userid=identity.id)
         self.assertEquals(user, identity)
+
+
+    def test_user_not_sent(self):
+        user = get_user(userid=None)
+        self.assertTrue(isinstance(user, AnonymousUser))
 
 
     def test_invalid_user(self):

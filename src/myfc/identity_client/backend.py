@@ -44,7 +44,7 @@ class MyfcidAPIBackend(object):
     def get_user(self, user_id):
         try:
             user = Identity.objects.get(id=user_id)
-        except Identity.DoesNotExist:
+        except Exception:
             user = None
 
         return user

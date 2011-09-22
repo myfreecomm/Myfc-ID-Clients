@@ -201,10 +201,12 @@ class AccessUserData(TestCase):
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_access_user_data_successfuly(self):
 
-        response = self.client.get(reverse('sso_consumer:callback'),
-                                   {'oauth_token': OAUTH_REQUEST_TOKEN,
-                                    'oauth_verifier': 'niceverifier'}
-                                  )
+        response = self.client.get(
+            reverse('sso_consumer:callback'), {
+                'oauth_token': OAUTH_REQUEST_TOKEN,
+                'oauth_verifier': 'niceverifier'
+            }, 
+      )
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response['Location'].endswith('/profile/'))
