@@ -1151,7 +1151,7 @@ def adjust_options(options, args):
 
 def extend_parser(parser):
     # overide default options
-    parser.set_defaults(no_site_packages=False,
+    parser.set_defaults(no_site_packages=True,
                         unzip_setuptools=False,
                         use_distribute=True)
 
