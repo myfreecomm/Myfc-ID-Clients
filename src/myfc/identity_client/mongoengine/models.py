@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime as dt
+
 from mongoengine import *
 from mongoengine.queryset import Q
 
@@ -113,6 +115,11 @@ class ServiceAccount(Document):
     members = ListField(EmbeddedDocumentField(AccountMember))
     expiration = DateTimeField(required=False)
 
+
+    def __unicode__(self):
+        return self.name
+
+
     @queryset_manager
     def active(cls, qset):
         return qset.filter(Q(expiration=None)|Q(expiration__gte=dt.now()))
@@ -134,6 +141,11 @@ class ServiceAccount(Document):
     @property
     def is_active(self):
         return (self.expiration is None) or (self.expiration >= dt.now())
+
+
+    @property
+    def members_count(self):
+        return len(self.members)
 
 
     def add_member(self, identity, roles):

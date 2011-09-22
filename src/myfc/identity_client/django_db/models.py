@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from datetime import datetime as dt
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
@@ -137,13 +137,22 @@ class ServiceAccount(models.Model):
         app_label = 'identity_client'
 
 
+    def __unicode__(self):
+        return self.name
+
+
     @property
     def is_active(self):
         return (self.expiration is None) or (self.expiration >= dt.now())
 
 
+    @property
+    def members_count(self):
+        return self.members.count()
+
+
     def add_member(self, identity, roles):
-        new_member = AccountMember.objects.get_or_create(identity=identity, account=self)
+        new_member, created = AccountMember.objects.get_or_create(identity=identity, account=self)
         new_member.set_roles(roles)
         new_member.save()
 
@@ -169,11 +178,18 @@ class ServiceAccount(models.Model):
 class AccountMember(models.Model):
     identity = models.ForeignKey(Identity)
     account = models.ForeignKey(ServiceAccount)
-    roles = models.CharField(max_length=720)
+    _roles = models.CharField(max_length=720)
 
     class Meta:
         app_label = 'identity_client'
 
     def set_roles(self, roles):
         roles = set(roles)
-        self.roles = ','.join(roles)
+        self._roles = ','.join(roles)
+
+    @property
+    def roles(self):
+        if self._roles:
+            return self._roles.split(',')
+        else:
+            return []
