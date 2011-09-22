@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime as dt
+
 from mongoengine import *
+from mongoengine.queryset import Q
 
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import SiteProfileNotAvailable
@@ -95,3 +98,79 @@ class Identity(Document):
                       category=PendingDeprecationWarning)
         return self._message_set
     message_set = property(_get_message_set)
+
+
+class AccountMember(EmbeddedDocument):
+    identity = ReferenceField(Identity, required=True)
+    roles = ListField(StringField(max_length=36))
+
+    def set_roles(self, roles):
+        roles = set(roles)
+        self.roles = list(roles)
+        
+
+class ServiceAccount(Document):
+    name = StringField(max_length=256, required=True)
+    uuid = StringField(max_length=36, required=True)
+    members = ListField(EmbeddedDocumentField(AccountMember))
+    expiration = DateTimeField(required=False)
+
+
+    def __unicode__(self):
+        return self.name
+
+
+    @queryset_manager
+    def active(cls, qset):
+        return qset.filter(Q(expiration=None)|Q(expiration__gte=dt.now()))
+
+
+    @classmethod
+    def for_identity(cls, identity, include_expired=False):
+        if include_expired:
+            qset = ServiceAccount.objects
+        else:
+            qset = ServiceAccount.active
+
+        return qset.filter(members__identity=identity)
+
+
+    @property
+    def is_active(self):
+        return (self.expiration is None) or (self.expiration >= dt.now())
+
+
+    @property
+    def members_count(self):
+        return len(self.members)
+
+
+    def add_member(self, identity, roles):
+        new_member = self.get_member(identity)
+        if new_member is None:
+            new_member = AccountMember(identity=identity)
+            self.members.append(new_member)
+
+        new_member.set_roles(roles)
+        self.save()
+
+        return new_member
+
+
+    def remove_member(self, identity):
+        member = self.get_member(identity)
+        if member is None:
+            return self
+
+        self.members.remove(member)
+        self.save()
+
+        return self
+
+
+    def get_member(self, identity):
+        for item in self.members:
+            if item.identity == identity:
+                return item
+
+        return None

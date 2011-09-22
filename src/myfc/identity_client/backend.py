@@ -4,7 +4,8 @@ import httplib2
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
-from models import Identity
+from identity_client.models import Identity
+from identity_client.signals import pre_identity_authentication
 
 
 class MyfcidAPIBackend(object):
@@ -26,6 +27,7 @@ class MyfcidAPIBackend(object):
 
         if user_data:
             identity = self.create_local_identity(user_data)
+
         return identity
 
 
@@ -39,7 +41,14 @@ class MyfcidAPIBackend(object):
 
         # Append additional user data to a temporary attribute
         identity.user_data = user_data
+
+        pre_identity_authentication.send_robust(
+            sender="identity_client.MyfcidAPIBackend.backend",
+            identity = identity,
+            user_data = user_data,
+        )
         return identity
+
 
     def get_user(self, user_id):
         try:
