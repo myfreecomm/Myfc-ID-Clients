@@ -4,22 +4,27 @@ from django.conf.urls.defaults import url
 
 
 def route_by_method(request, *args, **kwargs):
-    get_view = kwargs.pop('GET')
-    post_view = kwargs.pop('POST')
+    valid_methods = ('GET', 'POST', 'PUT', 'DELETE')
 
-    if request.method == 'GET' and get_view is not None:
-        return get_view(request, *args, **kwargs)
-    elif request.method == 'POST' and post_view is not None:
-        return post_view(request, *args, **kwargs)
-    raise Http404
+    method_views = dict(
+        (k, v) for k, v in kwargs.items() if k in valid_methods
+    )
+
+    try:
+        requested_view = method_views[request.method]
+        return requested_view(request, *args, **kwargs)
+    except KeyError:
+        raise Http404
 
 
-def route(regex, GET=None, POST=None, kwargs=None, name=None, prefix=''):
+def route(regex, GET=None, POST=None, PUT=None, DELETE=None, kwargs=None, name=None, prefix=''):
     kwargs = kwargs or {}
 
-    if 'GET' in kwargs or 'POST' in kwargs:
-        raise RuntimeError("You should not override GET or POST")
-
-    kwargs.update({'GET': GET, 'POST': POST})
+    kwargs.update({
+        'GET': GET,
+        'POST': POST,
+        'PUT': PUT,
+        'DELETE': DELETE
+    })
 
     return url(regex, route_by_method, kwargs, name, prefix)
