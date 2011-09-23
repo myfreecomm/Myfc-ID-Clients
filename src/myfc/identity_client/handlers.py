@@ -16,7 +16,9 @@ def update_identity_accounts(sender, identity, user_data, **kwargs):
                 account = serviceAccount(uuid=item['uuid'])
 
             account.name = item['name']
+            account.plan_slug = item['plan_slug']
             account.expiration = dt.strptime(item['expiration'], '%Y-%m-%d %H:%M:%S')
+            account.url = item['url']
             account.add_member(identity, item['roles'])
             account.save()
 

@@ -6,7 +6,7 @@ from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 from identity_client.models import Identity, ServiceAccount
 
 __all__ = [
-    'TestIdentityModel', 'TestServiceAccountModel', 'TestServiceAccountManager'
+    'TestIdentityModel', 'TestServiceAccountModel'
 ]
 
 
@@ -85,6 +85,7 @@ class TestServiceAccountModel(TestCase):
         self.account = ServiceAccount.objects.create(
             name = self.account_name,
             uuid = '16fd2706-8baf-433b-82eb-8c7fada847da',
+            plan_slug = 'platinum-test-plan',
         )
 
 
@@ -166,23 +167,6 @@ class TestServiceAccountModel(TestCase):
         self.assertEqual(account, self.account)
         self.assertEqual(account.members_count, 0)
 
-
-class TestServiceAccountManager(TestCase):
-
-    def setUp(self):
-        self.email = u'teste@email.com'
-        self.identity = Identity.objects.create(
-            first_name = 'Teste',
-            last_name = 'Sobrenome',
-            email = self.email,
-            uuid = '16fd2706-8baf-433b-82eb-8c7fada847da',
-        )
-
-        self.account_name = 'Test Account'
-        self.account = ServiceAccount.objects.create(
-            name = self.account_name,
-            uuid = '16fd2706-8baf-433b-82eb-8c7fada847da',
-        )
 
     def test_account_without_expiration_is_active(self):
         self.assertEqual(self.account.expiration, None)

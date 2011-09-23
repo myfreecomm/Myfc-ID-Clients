@@ -112,8 +112,10 @@ class AccountMember(EmbeddedDocument):
 class ServiceAccount(Document):
     name = StringField(max_length=256, required=True)
     uuid = StringField(max_length=36, required=True)
+    plan_slug = StringField(max_length=50, required=True)
     members = ListField(EmbeddedDocumentField(AccountMember))
     expiration = DateTimeField(required=False)
+    url = StringField(max_length=1024, required=False)
 
 
     def __unicode__(self):

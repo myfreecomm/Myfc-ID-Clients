@@ -109,8 +109,10 @@ class Identity(models.Model):
 class ServiceAccount(models.Model):
     name = models.CharField(max_length=256)
     uuid = models.CharField(max_length=36)
+    plan_slug = models.CharField(max_length=50)
     members = models.ManyToManyField(Identity, through='AccountMember')
     expiration = models.DateField(null=True)
+    url = models.CharField(max_length=1024, null=True)
 
     class Meta:
         app_label = 'identity_client'

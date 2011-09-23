@@ -37,15 +37,21 @@ mocked_user_json = """{
     "is_active": true,
     "accounts": [
         {
-            "expiration": "%s",
+            "plan_slug": "plus",
             "name": "Pessoal",
-            "roles": ["owner", "user"],
+            "roles": ["owner"],
+            "url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
+            "expiration": "%s",
+            "external_id": null,
             "uuid": "e823f8e7-962c-414f-b63f-6cf439686159"
         },
         {
-            "expiration": "%s",
+            "plan_slug": "max",
             "name": "Myfreecomm",
-            "roles": ["user", "admin"],
+            "roles": ["owner"],
+            "url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
+            "expiration": "%s",
+            "external_id": null,
             "uuid": "b39bad59-94af-4880-995a-04967b454c7a"
         }
     ]
