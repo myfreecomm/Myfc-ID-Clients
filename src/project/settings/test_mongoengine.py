@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 from test import *
 
-PERSISTENCE_STRATEGY= 'mongoengine'
+PERSISTENCE_STRATEGY= 'mongoengine_db'
