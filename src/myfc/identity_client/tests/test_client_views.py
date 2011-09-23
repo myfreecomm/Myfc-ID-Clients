@@ -1,4 +1,4 @@
-#coding: UTF-8
+# -*- coding: utf-8 -*-
 import json
 from mock import Mock, patch
 from httplib2 import Http
