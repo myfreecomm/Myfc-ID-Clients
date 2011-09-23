@@ -124,3 +124,8 @@ MYFC_ID = {
     'ACCESS_TOKEN_PATH':'sso/token/',
     'FETCH_USER_DATA_PATH':'sso/fetchuserdata/',
 }
+
+ACTIVATION_API = {
+    'TOKEN': 'activator',
+    'SECRET': 'default',
+}

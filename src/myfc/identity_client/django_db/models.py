@@ -111,7 +111,7 @@ class ServiceAccount(models.Model):
     uuid = models.CharField(max_length=36)
     plan_slug = models.CharField(max_length=50)
     members = models.ManyToManyField(Identity, through='AccountMember')
-    expiration = models.DateField(null=True)
+    expiration = models.DateTimeField(null=True)
     url = models.CharField(max_length=1024, null=True)
 
     class Meta:

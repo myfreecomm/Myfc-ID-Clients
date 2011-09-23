@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 from shortcuts import route
 from views.client_views import login, show_login
 from views.client_views import new_identity, register
-from views.account_views import activate_account
+from api import AccountActivationView
 from forms import IdentityAuthenticationForm, RegistrationForm
 
 urlpatterns = patterns('',
@@ -26,9 +26,9 @@ urlpatterns = patterns('',
         {'template_name': 'logout.html'},
         name='auth_logout'
     ),
-    route(r'^(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$',
-        PUT=activate_account,
-        kwargs={'authentication_form': IdentityAuthenticationForm},
-        name='auth_login'
+    url(r'^(?P<uuid>(\w{8}-\w{4}-\w{4}-\w{4}-\w{12}){1})/$',
+        AccountActivationView.as_view(),
+        name='account_activation'
     ),
+
 )

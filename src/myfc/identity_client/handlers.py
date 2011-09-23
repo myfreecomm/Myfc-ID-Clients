@@ -18,8 +18,13 @@ def update_identity_accounts(sender, identity, user_data, **kwargs):
 
             account.name = item['name']
             account.plan_slug = item['plan_slug']
-            account.expiration = dt.strptime(item['expiration'], '%Y-%m-%d %H:%M:%S')
             account.url = item['url']
+
+            if 'expiration' in item:
+                account.expiration = dt.strptime(item['expiration'], '%Y-%m-%d %H:%M:%S')
+            else:
+                account.expiration = None
+
             account.add_member(identity, item['roles'])
             account.save()
 

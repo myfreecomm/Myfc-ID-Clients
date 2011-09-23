@@ -38,6 +38,3 @@ NOSQL_DATABASES = {
     'NAME': 'identity_client',
     'HOST': 'localhost',
 }
-
-#PERSISTENCE_STRATEGY= 'mongoengine'
-PERSISTENCE_STRATEGY= 'django_db'
