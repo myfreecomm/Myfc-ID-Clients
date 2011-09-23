@@ -173,6 +173,38 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(accounts.count(), 2)
 
 
+    def test_auth_removes_user_from_old_accounts(self):
+        # drible da vaca
+        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
+        settings.SERVICE_ACCOUNT_MODULE = 'identity_client.ServiceAccount'
+
+        # Autenticar usuário com accounts
+        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
+        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+
+        # 2 contas devem ter sido criadas
+        serviceAccountModel = get_account_module()
+        accounts = serviceAccountModel.for_identity(identity)
+        self.assertEquals(accounts.count(), 2)
+
+        # Mockar leitura dos dados (sem accounts)
+        mocked_data = json.loads(mocked_user_json)
+        del(mocked_data['accounts'])
+        mocked_user_json_without_accounts = json.dumps(mocked_data)
+        MyfcidAPIBackend.fetch_user_data = lambda self, user, password: mocked_user_json_without_accounts
+
+        # Autenticar o mesmo usuário, desta vez sem accounts
+        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+
+        # O usuário deve ter sido dissociado das accounts
+        serviceAccountModel = get_account_module()
+        accounts = serviceAccountModel.for_identity(identity)
+        self.assertEquals(accounts.count(), 0)
+
+        # Voltar a configuração original
+        settings.SERVICE_ACCOUNT_MODULE = cache
+
+
     def test_auth_user_accounts_creation_fails_if_settings_are_wrong(self):
         # drible da vaca
         cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
