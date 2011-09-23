@@ -151,6 +151,7 @@ class AccountActivationView(View):
             account.plan_slug = data['plan_slug']
             account.expiration = data['expiration']
 
+            account.clear_members()
             for item in data['members_data']:
                 identity, created = Identity.objects.get_or_create(uuid=item['identity'])
                 account.add_member(identity, item['roles'])

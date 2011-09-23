@@ -14,10 +14,10 @@ class Identity(models.Model):
 
     email is required. Other fields are optional.
     """
+    uuid = models.CharField(_('universally unique id'), max_length=36, unique=True)
+    email = models.EmailField(_('e-mail address'), null=True)
     first_name = models.CharField(_('first name'), max_length=50, null=True)
     last_name = models.CharField(_('last name'), max_length=100, null=True)
-    email = models.EmailField(_('e-mail address'), unique=True)
-    uuid = models.CharField(_('universally unique id'), max_length=36, unique=True)
     is_active = models.BooleanField(_('active'), default=True,
         help_text=_("Designates whether this user should be treated as active. Unselect this instead of deleting accounts.")
     )
@@ -149,6 +149,14 @@ class ServiceAccount(models.Model):
         return self.members.count()
 
 
+    def get_member(self, identity):
+        member_qset = AccountMember.objects.filter(identity=identity, account=self)
+        if member_qset.exists():
+            return member_qset[0]
+
+        return None
+
+
     def add_member(self, identity, roles):
         self.save()
         new_member, created = AccountMember.objects.get_or_create(identity=identity, account=self)
@@ -166,12 +174,11 @@ class ServiceAccount(models.Model):
         return self
 
 
-    def get_member(self, identity):
-        member_qset = AccountMember.objects.filter(identity=identity, account=self)
-        if member_qset.exists():
-            return member_qset[0]
+    def clear_members(self):
+        if self.id is None:
+            return
 
-        return None
+        self.members.clear()
 
 
 class AccountMember(models.Model):

@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
+from identity_client.models import Identity
 from identity_client.utils import get_account_module
 
 
@@ -37,11 +38,18 @@ dict_mock = {
     u'service_data': {u'name': account.service_name, u'slug': account.service_slug},
     u'plan_slug': account.plan_slug,
     u'add_member_url': account.add_member_url,
-    u'members_data': [{
-        u'identity': u'e57448c4-41e6-483b-872a-9f32fd15cd63',
-        u'roles': [],
-        u'membership_details_url': u'http://testserver/organizations/api/accounts/2067c5e6-5b77-434d-a43c-abfb24981f93/members/e57448c4-41e6-483b-872a-9f32fd15cd63/',
-    }],
+    u'members_data': [
+        {
+            u'identity': u'f55afb82-e63b-11e0-b300-574391ce2a7a',
+            u'roles': ['owner'],
+            u'membership_details_url': u'http://testserver/organizations/api/accounts/2067c5e6-5b77-434d-a43c-abfb24981f93/members/e57448c4-41e6-483b-872a-9f32fd15cd63/',
+        },
+        {
+            u'identity': u'f55afb82-e63b-11e0-b300-574391ce2a7b',
+            u'roles': ['user'],
+            u'membership_details_url': u'http://testserver/organizations/api/accounts/2067c5e6-5b77-434d-a43c-abfb24981f93/members/e57448c4-41e6-483b-872a-9f32fd15cd6d/',
+        },
+    ],
 }
 
 
@@ -275,7 +283,7 @@ class TestActivateAccount(TestCase):
         self.assertEqual(serviceAccount.objects.count(), 1)
         new_account = serviceAccount.objects.get(uuid=account.uuid)
         
-        self.assertEqual(new_account.members_count, 1)
+        self.assertEqual(new_account.members_count, 2)
         
 
 
@@ -287,12 +295,16 @@ class TestUpdateAccount(TestActivateAccount):
         self.default_expiration = None
 
         serviceAccount = get_account_module()
-        previous_account = serviceAccount.objects.create(
+
+        self.previous_user = Identity.objects.create(uuid='f55afb82-e63b-11e0-b300-574391ce2a7a')
+        self.previous_account = serviceAccount.objects.create(
             uuid = account.uuid,
             name = account.name,
             plan_slug = self.default_plan,
             expiration =  self.default_expiration,
         )
+        self.previous_account.add_member(self.previous_user, [])
+        self.previous_account.save()
 
     def test_does_not_create_a_new_account(self):
         response = self.client.put(self.url, 
@@ -342,3 +354,44 @@ class TestUpdateAccount(TestActivateAccount):
         self.assertEqual(
             account.expiration, new_account.expiration.strftime(EXPIRATION_FORMAT)
         )
+
+    def test_updates_account_members_on_success(self):
+        member = self.previous_account.get_member(self.previous_user)
+        self.assertEqual(member.roles, [])
+
+        response = self.client.put(self.url, 
+            json.dumps(dict_mock), 
+            content_type = 'application/json',
+            HTTP_ACCEPT = 'application/json',
+            HTTP_AUTHORIZATION=self.auth
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        serviceAccount =  get_account_module()
+        self.assertEqual(serviceAccount.objects.count(), 1)
+        new_account = serviceAccount.objects.get(uuid=account.uuid)
+        
+        self.assertEqual(new_account.members_count, 2)
+        member = new_account.get_member(self.previous_user)
+        self.assertEqual(member.roles, ['owner'])
+
+    def test_removes_stale_account_members_on_success(self):
+        member = self.previous_account.get_member(self.previous_user)
+        self.assertEqual(member.roles, [])
+
+        local_mock = dict_mock.copy()
+        local_mock['members_data'] = {}
+
+        response = self.client.put(self.url, 
+            json.dumps(local_mock), 
+            content_type = 'application/json',
+            HTTP_ACCEPT = 'application/json',
+            HTTP_AUTHORIZATION=self.auth
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        serviceAccount =  get_account_module()
+        new_account = serviceAccount.objects.get(uuid=account.uuid)
+        self.assertEqual(new_account.members_count, 0)

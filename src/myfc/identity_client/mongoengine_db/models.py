@@ -147,6 +147,14 @@ class ServiceAccount(Document):
         return len(self.members)
 
 
+    def get_member(self, identity):
+        for item in self.members:
+            if item.identity == identity:
+                return item
+
+        return None
+
+
     def add_member(self, identity, roles):
         new_member = self.get_member(identity)
         if new_member is None:
@@ -170,9 +178,6 @@ class ServiceAccount(Document):
         return self
 
 
-    def get_member(self, identity):
-        for item in self.members:
-            if item.identity == identity:
-                return item
-
-        return None
+    def clear_members(self):
+        self.members = []
+        self.save()
