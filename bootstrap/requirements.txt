@@ -5,3 +5,4 @@ oauth2>=1.2
 simplejson
 pymongo==1.11
 mongoengine==0.4
+djangorestframework==0.2.3
