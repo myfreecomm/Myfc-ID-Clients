@@ -101,7 +101,7 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = (
     'django.contrib.sessions',
     'identity_client',
-    'example_app',
+    'developer',
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'

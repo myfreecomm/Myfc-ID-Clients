@@ -11,7 +11,7 @@ urlpatterns = patterns('django.views.generic.simple',
 
 urlpatterns += patterns('',
      (r'^accounts/', include('identity_client.urls')),
-     (r'^client-app/', include('example_app.urls')),
+     (r'^developer/', include('developer.urls')),
      (r'^sso/', include('identity_client.sso.urls', namespace='sso_consumer')),
 )
 
