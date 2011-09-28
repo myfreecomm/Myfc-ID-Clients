@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Aplicação exemplo{% endblock %}
+
+{% block navigation %}
+    <li class="active"><a href="#">Inicio</a></li>
+    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
+    <li><a href="{% url auth_login %}">Login via API</a></li>
+    <li><a href="{% url sso_consumer:iframe %}">Login via SSO</a></li>
+    <li><a href="#">Perfil</a></li>
+    <li><a href="#">Contas</a></li>
+    <li><a href="#">Notificações</a></li>
+{% endblock navigation %}
+
+{% block content-header %}
+  <h1>Integração ao Passaporte Web</h1>
+{% endblock content-header %}
+
+{% block content-inner %}
+    <section id="sobre">
+      <div class="span9">
+        <h2>Sobre esta aplicação</h2>
+        <p>
+          Esta aplicação contem exemplos e a documentação necessária para facilitar o seu trabalho na integração com o Passaporte Web.
+        </p>
+        <p>
+          Aqui você poderá testar algumas das funcionalidades disponibilizadas pelas APIs do Passaporte Web, entender como elas podem ser utilizadas pela sua aplicação e entender como será a experiência do usuário após a integração de sua aplicação.
+        </p>
+      </div>
+    </section>
+
+    <section id="funcionalidades">
+      <div class="span9">
+        <h2>Funcionalidades</h2>
+        <p> O PassaporteWeb disponibiliza uma série de funcionalidades que podem ser utilizadas pela sua aplicação. </p>
+
+        <h4> Autenticação de usuários com Single Sign On </h4>
+        <p> A autenticação de usuários com Single Sign On é implementada utilizando o protocolo OAuth (http://tools.ietf.org/html/rfc5849, http://oauth.net/, http://hueniverse.com/oauth/guide/) pois o mesmo possui implementações de bibliotecas cliente em diversas linguagens (http://oauth.net/code/) e pelo fato do protocolo ser utilizado em larga escala por diversas aplicações, se provando seguro e robusto. </p>
+
+        <p> O arquivo em anexo é um script php exemplo, que autentica o usuário utilizando a biblioteca OAuth do PHP (esta biblioteca pode ser encontrada em http://www.php.net/manual/en/intro.oauth.php). Para utilizá-lo, você precisará criar uma conta no ambiente de sandbox do PassaporteWeb (utilizado para testes e homologação de funcionalidades) e deverá alterar o valor da variável "$callback_url", que deverá apontar para a url do script de teste. </p>
+        <p> Caso o script esteja funcionando corretamente, você será redirecionado para a página de autenticação, onde deverá se autenticar e permitir o acesso da aplicação de teste aos dados do seu usuário. Após permitir o acesso você será redirecionado de volta para o script de teste, onde será exibido um objeto contendo os dados do usuário recem autenticado. </p>
+
+        <p> Em uma aplicação real você utilizaria estes dados para criar uma representação local do usuário, que seria utilizada para controle interno da aplicação. O dado que deve ser utilizado como identificador de um usuário é o valor do atributo 'uuid'. Não utilize o email do usuário como identificador, pois é bastante provável que no futuro o PassaporteWeb permita a troca do email dos usuários. </p>
+
+        <p> Um bom exemplo de como este processo de login seria apresentado ao usuário pode ser visto no MyFinance (https://app.myfinance.com.br/users/sign_in). </p> 
+
+        <h4> Barra de navegação </h4>
+
+        <p> Olhe novamente o site do MyFinance. A barra escura no topo do site é a barra de navegação do PassaporteWeb, e sua principal função é permitir que o usuário navegue entre as aplicações que tem acesso. Ela pode ser inserida em sua aplicação utilizando o trecho de código abaixo: </p>
+          <pre class="prettyprint">
+&lt;script 
+    type="text/javascript" 
+    src="http://sandbox.app.passaporteweb.com.br/navbar/faturamento_gett.js?login_url=[url do script de teste]&logout_url=[url de logout da sua aplicação]"&gt;
+&lt;/script&gt; 
+          </pre>
+
+        <p> Além da navegação entre as aplicações, a barra é utilizada para o consumo de notificações enviadas para o usuário, acesso ao perfil do usuário, login e logout da aplicação.  </p>
+
+        <h4> Cadastro de usuários </h4>
+        <p>
+
+        <p> O PassaporteWeb provê duas formas de cadastro de usuários. Na primeira, o usuário é direcionado para a página de cadastro do passaporte e efetua seu cadastro por lá. Na segunda, sua aplicação seria a responsável por exibir para o usuário o formulário de cadastro, e utilizaria uma das operações de API do passaporte. Neste último cenário você teria que se preocupar com o tratamento de erros e a explicação do usuário sobre o que é o passaporte. </p>
+
+        <ul>
+          <li> Exemplo do cadastro direcionando o usuário para o PassaporteWeb: http://www.financedesktop.com.br/cadastro </li>
+          <li> Exemplo de cadastro por api: https://app.myfinance.com.br/account/new?plan=free </li>
+        </ul>
+      </div>
+    </section>
+{% endblock content-inner %}
