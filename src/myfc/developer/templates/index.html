@@ -56,7 +56,6 @@
         <p> Além da navegação entre as aplicações, a barra é utilizada para o consumo de notificações enviadas para o usuário, acesso ao perfil do usuário, login e logout da aplicação.  </p>
 
         <h4> Cadastro de usuários </h4>
-        <p>
 
         <p> O PassaporteWeb provê duas formas de cadastro de usuários. Na primeira, o usuário é direcionado para a página de cadastro do passaporte e efetua seu cadastro por lá. Na segunda, sua aplicação seria a responsável por exibir para o usuário o formulário de cadastro, e utilizaria uma das operações de API do passaporte. Neste último cenário você teria que se preocupar com o tratamento de erros e a explicação do usuário sobre o que é o passaporte. </p>
 
@@ -64,6 +63,20 @@
           <li> Exemplo do cadastro direcionando o usuário para o PassaporteWeb: http://www.financedesktop.com.br/cadastro </li>
           <li> Exemplo de cadastro por api: https://app.myfinance.com.br/account/new?plan=free </li>
         </ul>
+
+        <h4> Notificações </h4>
+
+        <p>
+Para criar uma notificação, você tem que fazer um post p/ a url '/notifications/api/'
+O corpo é uma mensagem json, com as chaves "destination" (uuid do usuário) e "body" (corpo da mensagem, até 140 chars)
+e, você precisa se autenticar com o token e o secret de uma aplicação.
+Para listar as mensagens de um usuário você faz um get para a mesma url ('/notifications/api/'),
+autenticado como um usuário (email+senha ou token da api).
+Para contar vc envia um get p/ '/notifications/api/count/', autenticado como um usuário
+Para marcar uma mensagem como lida você envia um put para a url da mensagem (a url da mensagem está presente no objeto retornado pela api), put sem corpo
+Para todas as operações você controla o content-type que quer receber pelo header accept, application/json e application/xml são válidos
+        </p>
+
       </div>
     </section>
 {% endblock content-inner %}
