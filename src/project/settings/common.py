@@ -109,7 +109,7 @@ P3P_COMPACT = 'CP="NON DSP COR CURa TIA"'
 
 AUTHENTICATION_BACKENDS = ('identity_client.backend.MyfcidAPIBackend',)
 SERVICE_ACCOUNT_MODULE = 'identity_client.ServiceAccount'
-LOGIN_REDIRECT_URL = '/client-app/profile/'
+LOGIN_REDIRECT_URL = '/developer/profile/'
 APPLICATION_HOST = None
 
 MYFC_ID = {

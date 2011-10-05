@@ -8,7 +8,7 @@ TEMPLATE_DEBUG = DEBUG
 SECRET_KEY = '(gy8ie&gl+0^a62hw$q#+zj+uff1o$zmm!n#)t9c4*%0v8&c)&'
 
 APPLICATION_HOST = 'http://172.16.1.1:8000'
-LOGIN_REDIRECT_URL = '/client-app/profile/'
+LOGIN_REDIRECT_URL = '/developer/profile/'
 
 MYFC_ID['HOST'] = 'http://192.168.1.5:8001'
 MYFC_ID['SLUG'] = 'myfc-id-clients'

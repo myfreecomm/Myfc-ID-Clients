@@ -5,7 +5,7 @@
 {% block scripts %}
     <script type="text/javascript" charset="utf-8">
         if (window!=window.top) {
-            window.top.location = '/client-app/profile/'
+            window.top.location = '{% url user_profile %}'
         }
     </script>
 {% endblock %}
