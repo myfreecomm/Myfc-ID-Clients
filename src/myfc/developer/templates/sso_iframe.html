@@ -1,16 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Login via SSO{% endblock title %}
 
-{% block navigation %}
-    <li><a href="{% url index %}">Inicio</a></li>
-    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
-    <li><a href="{% url auth_login %}">Login via API</a></li>
-    <li class="active"><a href="#">Login via SSO</a></li>
-    <li><a href="#">Perfil</a></li>
-    <li><a href="#">Contas</a></li>
-    <li><a href="#">Notificações</a></li>
-{% endblock navigation %}
-
 {% block content-header %}
   <h1>Login via Single Sign On</h1>
 {% endblock content-header %}
@@ -104,7 +94,7 @@ try {
     $_SESSION['state'] = 2;
     $_SESSION['token'] = $access_token_info['oauth_token'];
     $_SESSION['secret'] = $access_token_info['oauth_token_secret'];
-  } 
+  }
   $oauth-&gt;setToken($_SESSION['token'],$_SESSION['secret']);
   $oauth-&gt;fetch($api_url);
   $json = json_decode($oauth-&gt;getLastResponse());
