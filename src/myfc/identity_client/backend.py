@@ -106,6 +106,7 @@ class AccountManagerAPIBackend(object):
     def fetch_user_accounts(self, uuid):
         api_user = settings.MYFC_ID['CONSUMER_TOKEN']
         api_password = settings.MYFC_ID['CONSUMER_SECRET']
+
         http = httplib2.Http()
         url = '%s/%s' % (
             settings.MYFC_ID['HOST'],

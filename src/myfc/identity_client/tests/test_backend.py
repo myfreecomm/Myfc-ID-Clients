@@ -2,18 +2,19 @@
 from datetime import datetime as dt, timedelta
 from mock import patch_object, Mock
 from httplib2 import Http
+from uuid import uuid4
 import json
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 
 from identity_client.models import Identity
-from identity_client.backend import MyfcidAPIBackend, get_user
+from identity_client.backend import MyfcidAPIBackend, get_user, AccountManagerAPIBackend, get_user_accounts
 from identity_client.utils import get_account_module
 from identity_client.tests.mock_helpers import *
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
-__all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
+__all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData', 'TestFetchUserAccounts']
 
 def mock_response(status):
     mocked_response = Mock()
@@ -56,8 +57,8 @@ mocked_user_json = """{
         }
     ]
 }""" % (
-    (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'), 
-    (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'), 
+    (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
+    (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
 )
 
 mocked_user_corrupted = """{
@@ -68,7 +69,6 @@ mocked_user_corrupted = """{
     "first_name": "John",
     "language": n
 """
-
 fetch_user_data_ok = lambda self, user, password: mocked_user_json
 fetch_user_data_corrupted = lambda self, user, password: mocked_user_corrupted
 fetch_user_data_failed = lambda self, user, password: None
@@ -79,7 +79,6 @@ mocked_httplib2_request_success = Mock(
 mocked_httplib2_request_failure = Mock(
     return_value=(mock_response(500), mocked_user_json)
 )
-
 
 class TestMyfcidApiBackend(TestCase):
 
@@ -291,3 +290,75 @@ class TestFetchUserData(TestCase):
         api_backend = MyfcidAPIBackend()
         response_content = api_backend.fetch_user_data('user@email.com', 's3nH4')
         self.assertEquals(response_content, None)
+
+
+class TestFetchUserAccounts(TestCase):
+
+    accounts = [
+            {
+                "service_data": { "name": "Doutor Financas", "slug": "dr_financas" },
+                "account_data": { "name": "Pessoal", "uuid": "e823f8e7-962c-414f-b63f-6cf439686159" },
+                "plan_slug": "plus",
+                "expiration": (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
+                "add_member_url": "http://localhost:8080/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/"
+            },
+            {
+                "service_data": { "name": "Backup Online", "slug": "backup_online" },
+                "account_data": { "name": "Account1", "uuid": "b39bad59-94af-4880-995a-04967b454c7a" },
+                "plan_slug": "max",
+                "expiration": (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
+                "add_member_url": "http://localhost:8080/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/members/"
+            }
+    ]
+
+    mocked_httplib2_request_accounts_ok = Mock(
+        return_value=(mock_response(200), json.dumps(accounts))
+    )
+
+    mocked_httplib2_request_accounts_error = Mock()
+
+    mocked_httplib2_request_accounts_failure = Mock(
+        return_value=(mock_response(400), 'BAD REQUEST')
+    )
+
+    mocked_httplib2_request_accounts_unexpected_error = Mock(
+        return_value=(mock_response(200), None)
+    )
+
+
+    @patch_httplib2(mocked_httplib2_request_accounts_ok)
+    def test_fetch_user_accounts_with_success(self):
+        accounts_backend = AccountManagerAPIBackend()
+        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        self.assertEquals(accounts, self.accounts)
+        self.assertEquals(error, None)
+
+    @patch_httplib2(mocked_httplib2_request_accounts_unexpected_error)
+    def test_fetch_user_accounts_generates_error(self):
+        accounts_backend = AccountManagerAPIBackend()
+        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        self.assertEquals(accounts, [])
+        self.assertEquals(error['status'], None)
+        self.assertTrue('unexpected error' in error['message'])
+
+    @patch_httplib2(mocked_httplib2_request_accounts_failure)
+    def test_fetch_user_accounts_400(self):
+        accounts_backend = AccountManagerAPIBackend()
+        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        self.assertEquals(accounts, [])
+        self.assertEquals(error['status'], 400)
+        self.assertTrue('BAD REQUEST' in error['message'])
+
+    @patch_httplib2(mocked_httplib2_request_accounts_error)
+    def test_httplib2_error(self):
+        def side_effect(*args, **kwargs):
+            import httplib2
+            raise httplib2.HttpLib2Error
+
+        self.mocked_httplib2_request_accounts_error.side_effect = side_effect
+
+        accounts_backend = AccountManagerAPIBackend()
+        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        self.assertEquals(accounts, [])
+        self.assertEquals(error['status'], None)
+        self.assertTrue('connection error' in error['message'])
