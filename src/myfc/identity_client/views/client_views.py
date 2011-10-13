@@ -170,7 +170,7 @@ def invoke_registration_api(form):
         form._errors = prepare_form_errors(error_dict)
     elif response.status in (401, 403):
         error_dict = {
-            '__all__': [u"Erro na confuração do projeto. Credenciais incorretas ou acesso negado."]
+            '__all__': [u"Erro na configuração do projeto. Credenciais incorretas ou acesso negado."]
         }
 
         form._errors = prepare_form_errors(error_dict)
