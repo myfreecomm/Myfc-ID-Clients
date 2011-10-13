@@ -21,3 +21,4 @@ share
 include
 .Python
 distribute*.tar.gz
+/src/example.db
