@@ -7,11 +7,12 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render_to_response
 from django.contrib.sites.models import Site, RequestSite
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 
-from identity_client.backend import MyfcidAPIBackend
+from identity_client.backend import MyfcidAPIBackend, get_user_accounts
 from identity_client.forms import RegistrationForm
 from identity_client.decorators import required_method
 from identity_client.forms import IdentityAuthenticationForm as AuthenticationForm
@@ -176,3 +177,15 @@ def invoke_registration_api(form):
         form._errors = prepare_form_errors(error_dict)
 
     return (response.status, content, form)
+
+@login_required
+def list_accounts(request):
+    uuid = request.user.uuid
+    accounts, error = get_user_accounts(uuid)
+    context = {
+        'error': error,
+        'accounts': accounts,
+    }
+
+    return render_to_response('accounts_list.html',
+        RequestContext(request, context))

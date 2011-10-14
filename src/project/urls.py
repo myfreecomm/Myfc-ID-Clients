@@ -13,7 +13,10 @@ urlpatterns += patterns('',
      (r'^accounts/', include('identity_client.urls')),
      (r'^developer/', include('developer.urls')),
      (r'^sso/', include('identity_client.sso.urls', namespace='sso_consumer')),
-     (r'^organizations/', include('identity_client.organizations.urls', namespace='organizations'))
+)
+
+urlpatterns += patterns('identity_client.views.client_views',
+     url(r'^organizations/$', 'list_accounts', name='list_accounts'),
 )
 
 if settings.DEBUG:
