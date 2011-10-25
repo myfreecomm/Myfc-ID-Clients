@@ -107,6 +107,9 @@ class AccountMember(EmbeddedDocument):
     def set_roles(self, roles):
         roles = set(roles)
         self.roles = list(roles)
+
+    def __unicode__(self):
+        return u'%s - [%s]' % (self.identity.email, ','.join(self.roles))
         
 
 class ServiceAccount(Document):

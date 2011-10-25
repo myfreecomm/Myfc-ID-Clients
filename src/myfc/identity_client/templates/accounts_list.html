@@ -32,6 +32,32 @@
         <table>
             <thead>
                 <tr>
+                    <th>Nome</th>
+                    <th>UUID</th>
+                    <th>Slug do Plano</th>
+                    <th>Membros</th>
+                    <th>Expiração</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>{{ account.name }}</td>
+                    <td>{{ account.uuid }}</td>
+                    <td>{{ account.plan_slug }}</td>
+                    <td>{{ account.members }}</td>
+                    <td>{{ account.expiration }}</td>
+                    <td>{{ account.url }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <table>
+            <thead>
+                <tr>
                     <th>Dados da conta</th>
                     <th>Dados do serviço</th>
                     <th>Slug do plano</th>

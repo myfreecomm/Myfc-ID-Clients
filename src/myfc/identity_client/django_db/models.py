@@ -189,6 +189,9 @@ class AccountMember(models.Model):
     class Meta:
         app_label = 'identity_client'
 
+    def __unicode__(self):
+        return u'%s - [%s]' % (self.identity.email, self._roles)
+
     def set_roles(self, roles):
         roles = set(roles)
         self._roles = ','.join(roles)
