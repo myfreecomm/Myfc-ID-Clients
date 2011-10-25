@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Listagem de contas{% endblock %}
+
+{% block content-header %}
+  <h1>Listagem de contas</h1>
+{% endblock content-header %}
+
+{% block content-inner %}
+
+    <div class="accounts">
+        {% if error %}
+        <div class="alert-message error">
+            <a close="close" href="#">x</a>
+            <p>
+                <strong>Erro!</strong>
+            </p>
+            {% if error.status %}<p>Status: {{ error.status }}</p>{% endif %}
+            <p>Mensagem: {{ error.message }}</p>
+        </div>
+        {% endif %}
+
+        {# TODO: usar djblets.datagrid? #}
+        <table>
+            <thead>
+                <tr>
+                    <th>Dados da conta</th>
+                    <th>Dados do serviço</th>
+                    <th>Slug do plano</th>
+                    <th>Expiração</th>
+                    <th>URL para adição de membros</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>Nome: {{ account.account_data.name }} <p></p><p> UUID: {{ account.account_data.uuid }} </p> </td>
+                    <td>Nome: {{ account.service_data.name }} <p> Slug: {{ account.service_data.slug }} </p> </td>
+                    <td>{{ account.plan_slug }}</td>
+                    <td>{{ account.expiration }}</td>
+                    <td>{{ account.add_member_url }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock content-inner %}
+
+{% block content-aside %}
+{% endblock content-aside %}

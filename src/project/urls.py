@@ -15,6 +15,10 @@ urlpatterns += patterns('',
      (r'^sso/', include('identity_client.sso.urls', namespace='sso_consumer')),
 )
 
+urlpatterns += patterns('identity_client.views.client_views',
+     url(r'^organizations/$', 'list_accounts', name='list_accounts'),
+)
+
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^static/(?P<path>.*)$', 'django.views.static.serve',

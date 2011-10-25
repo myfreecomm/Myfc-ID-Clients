@@ -38,3 +38,5 @@ NOSQL_DATABASES = {
     'NAME': 'identity_client',
     'HOST': 'localhost',
 }
+
+PERSISTENCE_STRATEGY= 'mongoengine_db'

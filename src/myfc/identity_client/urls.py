@@ -30,5 +30,4 @@ urlpatterns = patterns('',
         AccountActivationView.as_view(),
         name='account_activation'
     ),
-
 )
