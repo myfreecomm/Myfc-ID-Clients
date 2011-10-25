@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Login via SSO{% endblock title %}
 
+{% block navigation %}
+    <li><a href="{% url index %}">Inicio</a></li>
+    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
+    <li><a href="{% url auth_login %}">Login via API</a></li>
+    <li class="active"><a href="{% url sso_consumer:iframe %}">Login via SSO</a></li>
+    <li><a href="{% url user_profile %}">Perfil</a></li>
+    <li><a href="{% url list_accounts %}">Contas</a></li>
+    <li><a href="#">Notificações</a></li>
+{% endblock navigation %}
+
 {% block content-header %}
   <h1>Login via Single Sign On</h1>
 {% endblock content-header %}
