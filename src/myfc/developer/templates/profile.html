@@ -28,32 +28,30 @@
     <table class="zebra-striped">
         <thead>
             <tr>
-                <th>Nome</th>
-                <th>Sobrenome</th>
+                {% if user.first_name %} <th>Nome</th> {% endif %}
+                {% if user.last_name %} <th>Sobrenome</th> {% endif %}
                 <th>Email</th>
-                <th>Apelido</th>
-                <th>Nascimento</th>
-                <th>Gênero</th>
-                <th>País</th>
-                <th>Idioma</th>
-                <th>Timezone</th>
-                <th>CPF</th>
+                {% if user.nickname %} <th>Apelido</th> {% endif %}
+                {% if user.birth_date %} <th>Nascimento</th> {% endif %}
+                {% if user.gender %} <th>Gênero</th> {% endif %}
+                {% if user.country %} <th>País</th> {% endif %}
+                {% if user.language %} <th>Idioma</th> {% endif %}
+                {% if user.timezone %} <th>Timezone</th> {% endif %}
+                {% if user.cpf %} <th>CPF</th> {% endif %}
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{ user.first_name|default:"Não informado" }}</td>
-                <td>{{ user.last_name|default:"Não informado" }}</td>
-                <td>{{ user.email|default:"Não informado" }}</td>
-                <td>{{ user.nickname|default:"Não informado" }}</td>
-                <td>{{ user.birth_date|default:"Não informado" }}</td>
-                <td>{{ user.gender|default:"Não informado" }}</td>
-                <td>{{ user.country|default:"Não informado" }}</td>
-                <td>{{ user.language|default:"Não informado" }}</td>
-                <td>{{ user.timezone|default:"Não informado" }}</td>
-                {% if user.cpf %}
-                <td>{{ user.cpf }}</td>
-                {% endif %}
+                {% if user.first_name %} <td>{{ user.first_name }}</td> {% endif %}
+                {% if user.last_name %} <td>{{ user.last_name }}</td> {% endif %}
+                <td>{{ user.email }}</td>
+                {% if user.nickname %} <td>{{ user.nickname }}</td> {% endif %}
+                {% if user.birth_date %} <td>{{ user.birth_date }}</td> {% endif %}
+                {% if user.gender %} <td>{{ user.gender }}</td> {% endif %}
+                {% if user.country %} <td>{{ user.country }}</td> {% endif %}
+                {% if user.language %} <td>{{ user.language }}</td> {% endif %}
+                {% if user.timezone %} <td>{{ user.timezone }}</td> {% endif %}
+                {% if user.cpf %} <td>{{ user.cpf }}</td> {% endif %}
             </tr>
         </tbody>
     </table>
