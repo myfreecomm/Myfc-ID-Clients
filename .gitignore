@@ -16,6 +16,7 @@ docs/sphinx/build
 ecommerce.db
 bin
 lib
+lib64
 build
 share
 include
