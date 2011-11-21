@@ -2,14 +2,13 @@
 Introdução
 ==========
 
---------------------------
 Modelo de Dados de Usuário
 --------------------------
 
 Para visualizar o modelo de dados de usuários, utilizamos a
 própria API do Passaporte Web. Assim, você já pode se familiarizar.
 
-Todas as requisições feitas à nossa API são respondidas em formato JSON
+Todas as requisições feitas à nossa API são respondidas em formato `JSON`_
 (JavaScript Object Notation)
 
 Utilizando o navegador
@@ -18,16 +17,16 @@ Utilizando o navegador
 Um navegador de sua preferência pode ser utilizado para acessar o nosso
 modelo de usuário:
 
-1. 
-    Digite a URL https://app.passaporteweb.com.br/accounts/api/auth/ na barra 
+#. 
+    Acesse a URL https://app.passaporteweb.com.br/accounts/api/auth/ na barra 
     de endereço do seu navegador.
 
-2. 
-    Logo após. irá aparecer uma tela para digitar seu login e senha. Utilize o
+#. 
+    Será exibido um prompt solicitando seu login e senha. Utilize
     seu email e senha cadastrados no Passaporte Web.
 
-3. 
-    A resposta será um JSON com as suas informações de usuário descrito abaixo.
+#. 
+    A resposta será o JSON com as suas informações de usuário descrito abaixo.
 
 Utilizando a linha de comando
 -----------------------------
@@ -98,7 +97,7 @@ Você receberá um modelo semelhante a esse:
 - Idioma
     - Tipo: String de acordo com a especificação `ISO639`_
 - Fuso horário
-    - Tipo: String de acordo com o `TimeZone`_ database
+    - Tipo: String de acordo com o `Timezone`_ database
 - CPF
     - Tipo: String numérica com tamanho exato de 11 dígitos
 - Flag de ativação
@@ -114,3 +113,15 @@ Você receberá um modelo semelhante a esse:
     - Token utilizado para autenticação do usuário na API
 - URL de atualização de informações
     - URL para alterar informações do usuário na API
+
+
+Referências
+-----------
+
+- `JSON <http://www.json.org/>`_
+- `RFC2822 <http://www.faqs.org/rfcs/rfc2822.html>`_
+- `RFC4122 <http://www.rfc-editor.org/rfc/rfc4122.txt>`_
+- `bcrypt <http://www.openbsd.org/papers/bcrypt-paper.ps>`_
+- `ISO3166 <http://www.iso.org/iso/english_country_names_and_code_elements>`_
+- `ISO639 <http://www.loc.gov/standards/iso639-2/php/code_list.php>`_
+- `Timezone <http://www.twinsun.com/tz/tz-link.htm>`_
