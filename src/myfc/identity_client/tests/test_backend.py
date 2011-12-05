@@ -9,7 +9,8 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 
 from identity_client.models import Identity
-from identity_client.backend import MyfcidAPIBackend, get_user, AccountManagerAPIBackend, get_user_accounts
+from identity_client.backend import MyfcidAPIBackend, get_user
+from identity_client.client_api_methods import APIClient 
 from identity_client.utils import get_account_module
 from identity_client.tests.mock_helpers import *
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
@@ -328,23 +329,20 @@ class TestFetchUserAccounts(TestCase):
 
     @patch_httplib2(mocked_httplib2_request_accounts_ok)
     def test_fetch_user_accounts_with_success(self):
-        accounts_backend = AccountManagerAPIBackend()
-        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        accounts, error = APIClient.fetch_user_accounts(uuid4())
         self.assertEquals(accounts, self.accounts)
         self.assertEquals(error, None)
 
     @patch_httplib2(mocked_httplib2_request_accounts_unexpected_error)
     def test_fetch_user_accounts_generates_error(self):
-        accounts_backend = AccountManagerAPIBackend()
-        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        accounts, error = APIClient.fetch_user_accounts(uuid4())
         self.assertEquals(accounts, [])
         self.assertEquals(error['status'], None)
         self.assertTrue('unexpected error' in error['message'])
 
     @patch_httplib2(mocked_httplib2_request_accounts_failure)
     def test_fetch_user_accounts_400(self):
-        accounts_backend = AccountManagerAPIBackend()
-        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        accounts, error = APIClient.fetch_user_accounts(uuid4())
         self.assertEquals(accounts, [])
         self.assertEquals(error['status'], 400)
         self.assertTrue('BAD REQUEST' in error['message'])
@@ -357,8 +355,7 @@ class TestFetchUserAccounts(TestCase):
 
         self.mocked_httplib2_request_accounts_error.side_effect = side_effect
 
-        accounts_backend = AccountManagerAPIBackend()
-        accounts, error = accounts_backend.fetch_user_accounts(uuid4())
+        accounts, error = APIClient.fetch_user_accounts(uuid4())
         self.assertEquals(accounts, [])
         self.assertEquals(error['status'], None)
         self.assertTrue('connection error' in error['message'])
