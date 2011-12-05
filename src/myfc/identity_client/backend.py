@@ -12,6 +12,10 @@ class MyfcidAPIBackend(object):
     """
     Authenticates a user using the Myfc ID API.
     """
+    supports_anonymous_user = False
+    supports_inactive_user = False
+    supports_object_permissions = False
+
 
     def authenticate(self, email=None, password=None):
         identity = None
