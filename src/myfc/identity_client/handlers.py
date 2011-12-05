@@ -20,8 +20,9 @@ def update_identity_accounts(sender, identity, user_data, **kwargs):
             account.plan_slug = item['plan_slug']
             account.url = item['url']
 
-            if 'expiration' in item:
-                account.expiration = dt.strptime(item['expiration'], '%Y-%m-%d %H:%M:%S')
+            expiration = item.get('expiration', None)
+            if expiration:
+                account.expiration = dt.strptime(expiration, '%Y-%m-%d %H:%M:%S')
             else:
                 account.expiration = None
 

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Informações do usuário '{{ user.get_full_name }}'{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" charset="utf-8">
+        if (window!=window.top) {
+            window.top.location = '{% url user_profile %}'
+        }
+    </script>
+{% endblock %}
+
+{% block navigation %}
+    <li><a href="{% url index %}">Inicio</a></li>
+    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
+    <li><a href="{% url auth_login %}">Login via API</a></li>
+    <li><a href="{% url sso_consumer:iframe %}">Login via SSO</a></li>
+    <li class="active"><a href="{% url user_profile %}">Perfil</a></li>
+    <li><a href="{% url list_accounts %}">Contas</a></li>
+    <li><a href="#">Notificações</a></li>
+{% endblock navigation %}
+
+{% block content-header %}
+    <h1>Informações do usuário '{{ user.get_full_name }}'</h1>
+{% endblock %}
+
+
+{% block content %}
+    <table class="zebra-striped">
+        <thead>
+            <tr>
+                {% if user.first_name %} <th>Nome</th> {% endif %}
+                {% if user.last_name %} <th>Sobrenome</th> {% endif %}
+                <th>Email</th>
+                {% if user.nickname %} <th>Apelido</th> {% endif %}
+                {% if user.birth_date %} <th>Nascimento</th> {% endif %}
+                {% if user.gender %} <th>Gênero</th> {% endif %}
+                {% if user.country %} <th>País</th> {% endif %}
+                {% if user.language %} <th>Idioma</th> {% endif %}
+                {% if user.timezone %} <th>Timezone</th> {% endif %}
+                {% if user.cpf %} <th>CPF</th> {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% if user.first_name %} <td>{{ user.first_name }}</td> {% endif %}
+                {% if user.last_name %} <td>{{ user.last_name }}</td> {% endif %}
+                <td>{{ user.email }}</td>
+                {% if user.nickname %} <td>{{ user.nickname }}</td> {% endif %}
+                {% if user.birth_date %} <td>{{ user.birth_date }}</td> {% endif %}
+                {% if user.gender %} <td>{{ user.gender }}</td> {% endif %}
+                {% if user.country %} <td>{{ user.country }}</td> {% endif %}
+                {% if user.language %} <td>{{ user.language }}</td> {% endif %}
+                {% if user.timezone %} <td>{{ user.timezone }}</td> {% endif %}
+                {% if user.cpf %} <td>{{ user.cpf }}</td> {% endif %}
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock content %}

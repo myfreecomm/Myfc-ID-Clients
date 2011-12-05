@@ -9,13 +9,13 @@ Explicaremos as diferenças entre esses protocolos a seguir:
 
 HTTP Basic
 ----------
-O HTTP Basic é parte do protocolo de comunicação HTTP. Essa forma de autenticação
+O HTTP Basic (definido na `RFC2617`_) é parte do protocolo de comunicação HTTP. Essa forma de autenticação
 utiliza parâmetros no cabeçalho da requisição HTTP para autenticar o usuário. Um
 exemplo de de requisição utilizando o HTTP Basic foi dado na página anterior, onde os
 parâmetros de autenticação foram passados por opção da ferramenta curl ou pela caixa
 aberta no seu navegador.
 
-Os parâmetros de cabeçalho de uma requisicção com HTTP Basic são apenas login e 
+Os parâmetros de cabeçalho de uma requisição com HTTP Basic são apenas login e 
 senha do usuário. Todas as requisições na API do Passaporte Web são feitas via SSL, garantindo
 a segurança dos dados.
 
@@ -38,3 +38,6 @@ Um exemplo de utilização do OAuth para buscar informações do usuário é:
 
 
 
+Referências
+-----------
+- `RFC2617 <http://www.faqs.org/rfcs/rfc2617.html>`_

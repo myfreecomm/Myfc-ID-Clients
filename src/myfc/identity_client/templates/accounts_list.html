@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Listagem de contas{% endblock %}
 
+{% block navigation %}
+    <li><a href="{% url index %}">Inicio</a></li>
+    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
+    <li><a href="{% url auth_login %}">Login via API</a></li>
+    <li><a href="{% url sso_consumer:iframe %}">Login via SSO</a></li>
+    <li><a href="{% url user_profile %}">Perfil</a></li>
+    <li class="active"><a href="{% url list_accounts %}">Contas</a></li>
+    <li><a href="#">Notificações</a></li>
+{% endblock navigation %}
+
 {% block content-header %}
   <h1>Listagem de contas</h1>
 {% endblock content-header %}
@@ -19,7 +29,32 @@
         </div>
         {% endif %}
 
-        {# TODO: usar djblets.datagrid? #}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>UUID</th>
+                    <th>Slug do Plano</th>
+                    <th>Membros</th>
+                    <th>Expiração</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>{{ account.name }}</td>
+                    <td>{{ account.uuid }}</td>
+                    <td>{{ account.plan_slug }}</td>
+                    <td>{{ account.members }}</td>
+                    <td>{{ account.expiration }}</td>
+                    <td>{{ account.url }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
         <table>
             <thead>
                 <tr>

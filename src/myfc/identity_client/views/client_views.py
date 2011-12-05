@@ -12,11 +12,12 @@ from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 
-from identity_client.backend import MyfcidAPIBackend, get_user_accounts
+from identity_client.backend import MyfcidAPIBackend
 from identity_client.forms import RegistrationForm
 from identity_client.decorators import required_method
 from identity_client.forms import IdentityAuthenticationForm as AuthenticationForm
-from identity_client.utils import prepare_form_errors
+from identity_client.utils import prepare_form_errors, get_account_module
+from identity_client.client_api_methods import APIClient
 
 __all__ = ["new_identity", "register", "login", "show_login"]
 
@@ -84,6 +85,25 @@ def login(request, template_name='login.html',
         )
 
     return result
+
+@login_required
+def list_accounts(request):
+    identity = request.user
+    serviceAccount = get_account_module()
+    if serviceAccount is None:
+        accounts = []
+    else:
+        accounts = serviceAccount.for_identity(identity, include_expired=True)
+
+    remote_accounts, error = APIClient.fetch_user_accounts(identity.uuid)
+    context = {
+        'accounts': accounts,
+        'remote_accounts': remote_accounts,
+        'error': error,
+    }
+
+    return render_to_response('accounts_list.html',
+        RequestContext(request, context))
 
 
 #======================================
@@ -177,15 +197,3 @@ def invoke_registration_api(form):
         form._errors = prepare_form_errors(error_dict)
 
     return (response.status, content, form)
-
-@login_required
-def list_accounts(request):
-    uuid = request.user.uuid
-    accounts, error = get_user_accounts(uuid)
-    context = {
-        'error': error,
-        'accounts': accounts,
-    }
-
-    return render_to_response('accounts_list.html',
-        RequestContext(request, context))

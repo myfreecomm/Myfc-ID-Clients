@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Login via SSO{% endblock title %}
 
+{% block navigation %}
+    <li><a href="{% url index %}">Inicio</a></li>
+    <li><a href="{% url registration_register %}">Criação de usuários</a></li>
+    <li><a href="{% url auth_login %}">Login via API</a></li>
+    <li class="active"><a href="{% url sso_consumer:iframe %}">Login via SSO</a></li>
+    <li><a href="{% url user_profile %}">Perfil</a></li>
+    <li><a href="{% url list_accounts %}">Contas</a></li>
+    <li><a href="#">Notificações</a></li>
+{% endblock navigation %}
+
 {% block content-header %}
   <h1>Login via Single Sign On</h1>
 {% endblock content-header %}
@@ -19,22 +29,30 @@
     <section id="funcionamento">
       <div class="span9">
         <h2>Funcionamento</h2>
-        <p> A autenticação de usuários com Single Sign On é implementada utilizando o protocolo OAuth (http://tools.ietf.org/html/rfc5849, http://oauth.net/, http://hueniverse.com/oauth/guide/) pois o mesmo possui implementações de bibliotecas cliente em diversas linguagens (http://oauth.net/code/) e pelo fato do protocolo ser utilizado em larga escala por diversas aplicações, se provando seguro e robusto. </p>
+        <p> A autenticação de usuários com Single Sign On é implementada utilizando o protocolo OAuth (<a href="http://tools.ietf.org/html/rfc5849">RFC</a>, <a href="http://oauth.net/">Documentação</a>, <a href="http://hueniverse.com/oauth/guide/">Guia</a>) pois o mesmo possui implementações de bibliotecas cliente em <a href="http://oauth.net/code/">diversas linguagens</a> e pelo fato do protocolo ser utilizado em larga escala por diversas aplicações, se provando seguro e robusto. </p>
       </div>
     </section>
 
 
     <section id="python">
       <div class="span9">
-        <h2>Python</h2>
+        <h2>Python (Django)</h2>
+        <p> O projeto <a href="https://github.com/myfreecomm/Myfc-ID-Clients">MyfcID Clients</a> contem um exemplo de projeto django integrado ao Passaporte Web, implementadas na app 'identity_client'.</p>
+      </div>
+    </section>
+
+    <section id="java">
+      <div class="span9">
+        <h2>Java / Jython</h2>
+        <p> O repositório <a href="https://github.com/vitormazzi/signpost-examples">signpost-examples</a> contem exemplos de utilização da biblioteca <a href="https://github.com/kaeppler/signpost">signpost</a> executando todo o processo da comunicação OAuth junto ao Passaporte Web. Além do exemplo Java existe um exemplo transcrito para Jython.</p>
       </div>
     </section>
 
     <section id="Ruby">
       <div class="span9">
-        <h2>Ruby</h2>
-        <p> Em projetos ruby a utilização da gem "omni_auth_myfc_id" (http://rubygems.org/gems/omni_auth_myfc_id/versions/1.0.9.pre) simplifica muito a implementação do processo de SSO. Esta gem é uma "estrategia" para a biblioteca omni_auth (https://github.com/intridea/omniauth), que é usada para integrar a autenticação de sistemas ruby a provedores de identidade externos.  </p>
-        <p>Para utilizá-la, siga o processo descrito na documentação do omniauth (https://github.com/intridea/omniauth/README.md), utilizando como estratégia a classe 'OmniAuth::Strategies::Myfcid'
+        <h2>Ruby (Ruby on rails)</h2>
+        <p> Em projetos ruby a utilização da gem <a href="http://rubygems.org/gems/omni_auth_passaporte_web/versions/1.0.0">omni_auth_passaporte_web</a> simplifica muito a implementação do processo de SSO. Esta gem é uma "estrategia" para a biblioteca <a href="https://github.com/intridea/omniauth">omni_auth</a>, que é usada para integrar a autenticação de sistemas ruby a provedores de identidade externos.  </p>
+        <p>Para utilizá-la, siga o processo descrito na <a href="https://github.com/intridea/omniauth/README.md">documentação do omniauth</a>,  utilizando como estratégia a classe 'OmniAuth::Strategies::PassaporteWeb'
         </p>
         <p>
         Exemplo:
@@ -45,22 +63,24 @@ require 'omniauth'
 
 class MyApplication &lt; Sinatra::Base
   use Rack::Session
-  use OmniAuth::Strategies::Myfcid, 'consumerkey', 'consumersecret', {:site=&gt; 'http://sandbox.app.passaporteweb.com.br'}
+  use OmniAuth::Strategies::PassaporteWeb, 'consumerkey', 'consumersecret', {:site=&gt; 'http://sandbox.app.passaporteweb.com.br'}
 end </pre>
 
-   Consumer key e consumer secret são utilizados para identificar sua aplicação, e neste teste podem ser preenchidos com os mesmos valores do exemplo em php, ou seja:
+   Consumer key e consumer secret são utilizados para identificar sua aplicação:
 
           <pre class="prettyprint">
-consumerkey = 'SRCeyl5ioH'
-consumersecret = 'CfRB98YyqXXPNJSrpEAwGVM3OLWHLrAQ' </pre>
+consumerkey = '8ab29iwKFI'
+consumersecret = 'VnWYenOqYsHtcFowrdJlwdJNALq5Go9v' </pre>
         </p>
+        <p>Um exemplo da integração do Passaporte Web com uma aplicação rails 3.1 está disponível no <a href="https://github.com/myfreecomm/exemplo_passaporte_web_rails_3_1">github da myfreecomm</a></p>
+
       </div>
     </section>
 
     <section id="php">
       <div class="span9">
         <h2>PHP</h2>
-        <p> O script abaixo exemplifica o processo de autenticação do usuário utilizando a biblioteca OAuth do PHP (esta biblioteca pode ser encontrada em http://www.php.net/manual/en/intro.oauth.php). Para utilizá-lo, você precisará criar uma conta no ambiente de sandbox do PassaporteWeb (utilizado para testes e homologação de funcionalidades) e deverá alterar o valor da variável "$callback_url", que deverá apontar para a url do script de teste. </p>
+        <p> O script abaixo exemplifica o processo de autenticação do usuário utilizando a <a href="http://www.php.net/manual/en/intro.oauth.php">biblioteca OAuth do PHP</a>. Para utilizá-lo, você precisará criar uma conta no ambiente de sandbox do PassaporteWeb (utilizado para testes e homologação de funcionalidades) e deverá alterar o valor da variável "$callback_url", que deverá apontar para a url do script de teste. </p>
           <pre class="prettyprint">
 &lt;?php
 $req_url = 'http://sandbox.app.passaporteweb.com.br/sso/initiate';
@@ -68,8 +88,8 @@ $authurl = 'http://sandbox.app.passaporteweb.com.br/sso/authorize';
 $acc_url = 'http://sandbox.app.passaporteweb.com.br/sso/token';
 $api_url = 'http://sandbox.app.passaporteweb.com.br/sso/fetchuserdata';
 $callback_url = '&lt;url do script atual&gt;';
-$conskey = 'SRCeyl5ioH';
-$conssec = 'CfRB98YyqXXPNJSrpEAwGVM3OLWHLrAQ';
+$conskey = '8ab29iwKFI';
+$conssec = 'VnWYenOqYsHtcFowrdJlwdJNALq5Go9v';
 
 session_start();
 
@@ -117,8 +137,9 @@ try {
     </dl>
     <dl>
         <dt>Exemplos</dt>
-        <dd><a href="#python">Python</a></dd>
-        <dd><a href="#ruby">Ruby</a></dd>
+        <dd><a href="#python">Python (Django)</a></dd>
+        <dd><a href="#java">Java / Jython</a></dd>
+        <dd><a href="#ruby">Ruby (Ruby on rails)</a></dd>
         <dd><a href="#php">PHP</a></dd>
     </dl>
 {% endblock content-aside %}
