@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from django.contrib.auth.models import AnonymousUser
 
+from identity_client.signals import pre_identity_authentication
 from identity_client.models import Identity
 
 
@@ -23,6 +24,12 @@ class MyfcidAPIBackendMock(object):
 
         # Append additional user data to a temporary attribute
         identity.user_data = kwargs
+
+        pre_identity_authentication.send_robust(
+            sender="identity_client.tests.MyfcidAPIBackend.backend",
+            identity = identity,
+            user_data = identity.user_data,
+        )
 
         return identity
 
