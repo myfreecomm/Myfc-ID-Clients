@@ -119,6 +119,7 @@ MYFC_ID = {
     'CONSUMER_SECRET': None,
     'AUTH_API':'accounts/api/auth/',
     'REGISTRATION_API':'accounts/api/create/',
+    'PROFILE_API': 'profile/api/info/',
     'REQUEST_TOKEN_PATH':'sso/initiate/',
     'AUTHORIZATION_PATH':'sso/authorize/',
     'ACCESS_TOKEN_PATH':'sso/token/',

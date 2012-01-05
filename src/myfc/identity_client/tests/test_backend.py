@@ -164,13 +164,13 @@ class TestMyfcidApiBackend(TestCase):
         # Autenticar um usuário
         identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache
-
         # O usuário deve ser membro de duas contas
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 2)
+
+        # Voltar a configuração original
+        settings.SERVICE_ACCOUNT_MODULE = cache
 
 
     def test_auth_removes_user_from_old_accounts(self):

@@ -26,8 +26,12 @@ def update_identity_accounts(sender, identity, user_data, **kwargs):
             else:
                 account.expiration = None
 
-            account.add_member(identity, item['roles'])
-            account.save()
+            try:
+                account.add_member(identity, item['roles'])
+                account.save()
+            except Exception, e:
+                message = 'Error updating accounts for identity %s (%s): %s <%s>'
+                logging.error(message, identity.email, identity.uuid, e, type(e))
 
             message = 'Identity %s (%s) at account %s (%s) members list'
             logging.info(message, identity.email, identity.uuid, account.name, account.uuid)

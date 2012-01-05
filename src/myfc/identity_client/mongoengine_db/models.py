@@ -133,9 +133,9 @@ class ServiceAccount(Document):
     @classmethod
     def for_identity(cls, identity, include_expired=False):
         if include_expired:
-            qset = ServiceAccount.objects
+            qset = cls.objects
         else:
-            qset = ServiceAccount.active
+            qset = cls.active
 
         return qset.filter(members__identity=identity)
 
