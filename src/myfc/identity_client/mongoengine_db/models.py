@@ -184,3 +184,7 @@ class ServiceAccount(Document):
     def clear_members(self):
         self.members = []
         self.save()
+
+
+    def update_expiration(self, new_expiration):
+        self.expiration = new_expiration

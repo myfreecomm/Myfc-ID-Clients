@@ -181,6 +181,10 @@ class ServiceAccount(models.Model):
         self.members.clear()
 
 
+    def update_expiration(self, new_expiration):
+        self.expiration = new_expiration
+
+
 class AccountMember(models.Model):
     identity = models.ForeignKey(Identity)
     account = models.ForeignKey(ServiceAccount)

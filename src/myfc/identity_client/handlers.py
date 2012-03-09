@@ -22,9 +22,10 @@ def update_identity_accounts(sender, identity, user_data, **kwargs):
 
             expiration = item.get('expiration', None)
             if expiration:
-                account.expiration = dt.strptime(expiration, '%Y-%m-%d %H:%M:%S')
+                new_expiration = dt.strptime(expiration, '%Y-%m-%d %H:%M:%S')
+                account.update_expiration(new_expiration)
             else:
-                account.expiration = None
+                account.update_expiration(None)
 
             try:
                 account.add_member(identity, item['roles'])
