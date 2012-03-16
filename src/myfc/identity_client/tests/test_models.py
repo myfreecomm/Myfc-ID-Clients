@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from mock import Mock, patch
+
 from datetime import datetime as dt, timedelta
 
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
-
+from identity_client import PERSISTENCE_MODULE
 from identity_client.models import Identity, ServiceAccount
+from identity_client.tests.test_client_api_methods import mocked_accounts_list
 
 __all__ = [
     'TestIdentityModel', 'TestServiceAccountModel'
@@ -162,7 +165,7 @@ class TestServiceAccountModel(TestCase):
         self.assertEqual(account.members_count, 0)
 
 
-    def test_remove__non_existing_member_fails_silently(self):
+    def test_remove_non_existing_member_fails_silently(self):
         account = self.account.remove_member(self.identity)
         self.assertEqual(account, self.account)
         self.assertEqual(account.members_count, 0)
@@ -217,3 +220,72 @@ class TestServiceAccountModel(TestCase):
         active_accounts = ServiceAccount.for_identity(self.identity, include_expired=True)
         self.assertEqual(len(active_accounts), 1)
         self.assertEqual(active_accounts[0], self.account)
+
+
+    @patch.object(PERSISTENCE_MODULE.models.APIClient, 'fetch_user_accounts')
+    def test_pull_remote_accounts_changes_response_format(self, mocked_accounts):
+        mocked_accounts.return_value = mocked_accounts_list, []
+        accounts = ServiceAccount.pull_remote_accounts(self.identity)
+
+        expected = [
+            {
+                'plan_slug': mocked_accounts_list[0]['plan_slug'],
+                'uuid': mocked_accounts_list[0]['account_data']['uuid'],
+                'roles': mocked_accounts_list[0]['roles'],
+                'url': mocked_accounts_list[0]['membership_details_url'],
+                'name': mocked_accounts_list[0]['account_data']['name'],
+                'expiration': mocked_accounts_list[0]['expiration'],
+            },
+            {
+                'plan_slug': mocked_accounts_list[1]['plan_slug'],
+                'uuid': mocked_accounts_list[1]['account_data']['uuid'],
+                'roles': mocked_accounts_list[1]['roles'],
+                'url': mocked_accounts_list[1]['membership_details_url'],
+                'name': mocked_accounts_list[1]['account_data']['name'],
+                'expiration': mocked_accounts_list[1]['expiration'],
+            }
+        ]
+
+        self.assertEqual(list(accounts), expected)
+
+
+    @patch.object(PERSISTENCE_MODULE.models.APIClient, 'fetch_user_accounts')
+    def test_update_user_accounts_creates_local_accounts(self, mocked_accounts):
+        mocked_accounts.return_value = mocked_accounts_list, []
+
+        self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 0)
+
+        accounts = ServiceAccount.pull_remote_accounts(self.identity)
+        ServiceAccount.update_user_accounts(self.identity, accounts)
+
+        self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 2)
+
+
+    @patch.object(PERSISTENCE_MODULE.models.APIClient, 'fetch_user_accounts')
+    def test_remove_stale_accounts(self, mocked_accounts):
+        mocked_accounts.return_value = mocked_accounts_list, []
+
+        self.account.add_member(self.identity, roles=['user'])
+        self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 1)
+
+        accounts = ServiceAccount.pull_remote_accounts(self.identity)
+        ServiceAccount.remove_stale_accounts(self.identity, accounts)
+
+        self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 0)
+
+
+    @patch.object(PERSISTENCE_MODULE.models.APIClient, 'fetch_user_accounts')
+    def test_refresh_user_accounts(self, mocked_accounts):
+        """
+        This method reads the remote user's accounts,
+        updates them locally and purges the accounts which do not exist anymore.
+        """
+        mocked_accounts.return_value = mocked_accounts_list, []
+
+        self.account.add_member(self.identity, roles=['user'])
+        self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 1)
+
+        ServiceAccount.refresh_accounts(self.identity)
+
+        self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 2)
+        self.assertFalse(self.account in ServiceAccount.for_identity(self.identity))

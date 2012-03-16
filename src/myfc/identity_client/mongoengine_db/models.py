@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from datetime import datetime as dt
 
 from mongoengine import *
@@ -6,6 +8,8 @@ from mongoengine.queryset import Q
 
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import SiteProfileNotAvailable
+
+from identity_client.client_api_methods import APIClient
 
 class Identity(Document):
     """
@@ -138,6 +142,78 @@ class ServiceAccount(Document):
             qset = cls.active
 
         return qset.filter(members__identity=identity)
+
+
+    @classmethod
+    def refresh_accounts(cls, identity):
+
+        accounts = cls.pull_remote_accounts(identity)
+        cls.update_user_accounts(identity, accounts)
+        cls.remove_stale_accounts(identity, accounts)
+
+
+    @classmethod
+    def pull_remote_accounts(cls, identity):
+        accounts, error = APIClient.fetch_user_accounts(identity.uuid)
+
+        return [dict(
+            uuid = item['account_data']['uuid'],
+            name = item['account_data']['name'],
+            expiration = item.get('expiration'),
+            plan_slug = item['plan_slug'],
+            url = item['membership_details_url'],
+            roles = item['roles'],
+        ) for item in accounts]
+
+
+    @classmethod
+    def update_user_accounts(cls, identity, accounts):
+        for item in accounts:
+            uuid = item['uuid']
+            name = item['name']
+            expiration = item.get('expiration')
+            plan_slug = item['plan_slug']
+            url = item['url']
+            roles = item['roles']
+
+            try:
+                account = cls.objects.get(uuid=uuid)
+            except cls.DoesNotExist:
+                account = cls(uuid=uuid)
+
+            account.name = name
+            account.plan_slug = plan_slug
+            account.url = url
+
+            if expiration:
+                new_expiration = dt.strptime(expiration, '%Y-%m-%d %H:%M:%S')
+                account.update_expiration(new_expiration)
+            else:
+                account.update_expiration(None)
+
+            try:
+                account.add_member(identity, roles)
+                account.save()
+            except Exception, e:
+                message = 'Error updating accounts for identity %s (%s): %s <%s>'
+                logging.error(message, identity.email, identity.uuid, e, type(e))
+
+            message = 'Identity %s (%s) at account %s (%s) members list'
+            logging.info(message, identity.email, identity.uuid, account.name, account.uuid)
+
+
+    @classmethod
+    def remove_stale_accounts(cls, identity, accounts):
+        current_uuids = [item['uuid'] for item in accounts]
+
+        cached_associations = cls.for_identity(identity, include_expired=True)
+        stale_accounts = [account for account in cached_associations if account.uuid not in current_uuids]
+
+        for account in stale_accounts:
+            account.remove_member(identity)
+            account.save()
+            message = 'Identity %s (%s) was removed from account %s (%s) members list.'
+            logging.info(message, identity.email, identity.uuid, account.name, account.uuid)
 
 
     @property

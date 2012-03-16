@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from datetime import datetime as dt
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+
+from identity_client.client_api_methods import APIClient
 
 
 class Identity(models.Model):
@@ -14,13 +18,14 @@ class Identity(models.Model):
 
     email is required. Other fields are optional.
     """
-    uuid = models.CharField(_('universally unique id'), max_length=36, unique=True)
-    email = models.EmailField(_('e-mail address'), null=True)
     first_name = models.CharField(_('first name'), max_length=50, null=True)
     last_name = models.CharField(_('last name'), max_length=100, null=True)
+    email = models.EmailField(_('e-mail address'), unique=True)
+    uuid = models.CharField(_('universally unique id'), max_length=36, unique=True)
     is_active = models.BooleanField(_('active'), default=True,
         help_text=_("Designates whether this user should be treated as active. Unselect this instead of deleting accounts.")
     )
+    last_login = models.DateTimeField(_('last login'), default=dt.now)
 
     class Meta:
         verbose_name = _('identity')
@@ -44,15 +49,12 @@ class Identity(models.Model):
         """
         return True
 
-    def is_staff(self):
-        """
-        Always returns False.
-        """
-        return False
-
     def get_full_name(self):
         "Returns the first_name plus the last_name, with a space in between."
         full_name = u'%s %s' % (self.first_name, self.last_name)
+        if full_name.strip() == '':
+            full_name = self.email
+
         return full_name.strip()
 
     def set_password(self, raw_password):
@@ -97,13 +99,29 @@ class Identity(models.Model):
                 raise SiteProfileNotAvailable
         return self._profile_cache
 
-    def _get_message_set(self):
-        import warnings
-        warnings.warn('The user messaging API is deprecated. Please update'
-                      ' your code to use the new messages framework.',
-                      category=PendingDeprecationWarning)
-        return self._message_set
-    message_set = property(_get_message_set)
+
+    def get_and_delete_messages(self):
+        return []
+
+
+    def has_perm(self, perm, obj=None):
+        return self.is_active
+
+
+    def has_module_perms(self, app_label):
+        return self.is_active and app_label in (
+            'access_control',
+            'ecommerce',
+            'cobrebem',
+            'pagseguro',
+            'identity_client',
+            'myfinance',
+        )
+
+
+    @property
+    def is_staff(self):
+        return (self.id is not None) and self.domains.exists()
 
 
 class ServiceAccount(models.Model):
@@ -137,6 +155,78 @@ class ServiceAccount(models.Model):
             qset = cls.active()
 
         return qset.filter(accountmember__identity=identity)
+
+
+    @classmethod
+    def refresh_accounts(cls, identity):
+
+        accounts = cls.pull_remote_accounts(identity)
+        cls.update_user_accounts(identity, accounts)
+        cls.remove_stale_accounts(identity, accounts)
+
+
+    @classmethod
+    def pull_remote_accounts(cls, identity):
+        accounts, error = APIClient.fetch_user_accounts(identity.uuid)
+
+        return [dict(
+            uuid = item['account_data']['uuid'],
+            name = item['account_data']['name'],
+            expiration = item.get('expiration'),
+            plan_slug = item['plan_slug'],
+            url = item['membership_details_url'],
+            roles = item['roles'],
+        ) for item in accounts]
+
+
+    @classmethod
+    def update_user_accounts(cls, identity, accounts):
+        for item in accounts:
+            uuid = item['uuid']
+            name = item['name']
+            expiration = item.get('expiration')
+            plan_slug = item['plan_slug']
+            url = item['url']
+            roles = item['roles']
+
+            try:
+                account = cls.objects.get(uuid=uuid)
+            except cls.DoesNotExist:
+                account = cls(uuid=uuid)
+
+            account.name = name
+            account.plan_slug = plan_slug
+            account.url = url
+
+            if expiration:
+                new_expiration = dt.strptime(expiration, '%Y-%m-%d %H:%M:%S')
+                account.update_expiration(new_expiration)
+            else:
+                account.update_expiration(None)
+
+            try:
+                account.add_member(identity, roles)
+                account.save()
+            except Exception, e:
+                message = 'Error updating accounts for identity %s (%s): %s <%s>'
+                logging.error(message, identity.email, identity.uuid, e, type(e))
+
+            message = 'Identity %s (%s) at account %s (%s) members list'
+            logging.info(message, identity.email, identity.uuid, account.name, account.uuid)
+
+
+    @classmethod
+    def remove_stale_accounts(cls, identity, accounts):
+        current_uuids = [item['uuid'] for item in accounts]
+
+        cached_associations = cls.for_identity(identity, include_expired=True)
+        stale_accounts = [account for account in cached_associations if account.uuid not in current_uuids]
+
+        for account in stale_accounts:
+            account.remove_member(identity)
+            account.save()
+            message = 'Identity %s (%s) was removed from account %s (%s) members list.'
+            logging.info(message, identity.email, identity.uuid, account.name, account.uuid)
 
 
     @property

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#coding: utf-8
 try:
     import json
 except ImportError:
@@ -10,6 +10,10 @@ from django.conf import settings
 
 from identity_client.utils import prepare_form_errors
 
+
+__all__ = ['APIClient']
+
+
 class APIClient(object):
 
     api_host = settings.MYFC_ID['HOST']
@@ -17,6 +21,7 @@ class APIClient(object):
     api_password = settings.MYFC_ID['CONSUMER_SECRET']
     profile_api = settings.MYFC_ID['PROFILE_API']
     registration_api = settings.MYFC_ID['REGISTRATION_API']
+
 
     @classmethod
     def fetch_user_accounts(cls, uuid):
@@ -26,7 +31,7 @@ class APIClient(object):
         http = httplib2.Http()
         url = '%s/%s' % (
             cls.api_host,
-            'organizations/api/identities/{0}/accounts'.format(uuid)
+            'organizations/api/identities/{0}/accounts/'.format(uuid)
         )
         headers = {
             'cache-control': 'no-cache',
@@ -34,7 +39,7 @@ class APIClient(object):
             'content-type': 'application/json',
             'user-agent': 'myfc_id client',
             'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-            }
+        }
 
         response = content = error = None
         accounts = []
@@ -71,7 +76,7 @@ class APIClient(object):
         api_host = cls.api_host
         api_user = cls.api_user
         api_password = cls.api_password
-        api_path = self.profile_api
+        api_path = cls.profile_api
 
         if not any((uuid, email)):
             raise ValueError("Either 'uuid' or 'email' must be given")
@@ -96,7 +101,7 @@ class APIClient(object):
         api_password = cls.api_password
         api_url = "%s/%s" % (
             cls.api_host,
-            self.registration_api
+            cls.registration_api
         )
 
         http = httplib2.Http()
