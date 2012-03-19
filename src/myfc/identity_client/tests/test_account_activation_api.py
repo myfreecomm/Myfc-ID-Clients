@@ -296,9 +296,7 @@ class TestUpdateAccount(TestActivateAccount):
 
         serviceAccount = get_account_module()
 
-        self.previous_user = Identity.objects.create(
-            uuid='f55afb82-e63b-11e0-b300-574391ce2a7a', email='user@test.com'
-        )
+        self.previous_user = Identity.objects.create(uuid='f55afb82-e63b-11e0-b300-574391ce2a7a')
         self.previous_account = serviceAccount.objects.create(
             uuid = account.uuid,
             name = account.name,
