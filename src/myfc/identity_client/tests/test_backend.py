@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime as dt, timedelta
-from mock import patch_object, Mock
+from mock import Mock
 from httplib2 import Http
 from uuid import uuid4
 import json

@@ -1,6 +1,6 @@
 #coding: utf-8
 import oauth2 as oauth
-from mock import patch_object, Mock
+from mock import Mock
 from httplib2 import Http, HttpLib2Error
 import json
 
