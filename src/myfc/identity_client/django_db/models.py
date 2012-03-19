@@ -20,7 +20,7 @@ class Identity(models.Model):
     """
     first_name = models.CharField(_('first name'), max_length=50, null=True)
     last_name = models.CharField(_('last name'), max_length=100, null=True)
-    email = models.EmailField(_('e-mail address'), unique=True)
+    email = models.EmailField(_('e-mail address'), null=True)
     uuid = models.CharField(_('universally unique id'), max_length=36, unique=True)
     is_active = models.BooleanField(_('active'), default=True,
         help_text=_("Designates whether this user should be treated as active. Unselect this instead of deleting accounts.")
