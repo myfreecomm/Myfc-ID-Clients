@@ -4,6 +4,8 @@ try:
 except ImportError:
     import simplejson as json
 
+import logging
+
 import httplib2
 
 from django.conf import settings
@@ -45,8 +47,22 @@ class APIClient(object):
         accounts = []
 
         try:
+            logging.info('fetch_user_accounts: Making request to %s', url)
+
             response, content = http.request(url, "GET", headers=headers)
-            accounts = json.loads(content)
+            if response.status in (200, 201):
+                accounts = json.loads(content)
+
+            else:
+                error = {
+                    'status': response.status,
+                    'message': content,
+                }
+
+                logging.error(
+                    'fetch_user_accounts: Error making request: %s - %s',
+                    response.status, content,
+                )
 
         except ValueError:
             error = {
@@ -54,11 +70,10 @@ class APIClient(object):
                 'message': content,
             }
 
-        except httplib2.HttpLib2Error, err:
-            error = {
-                'status': None,
-                'message': u'connection error: {0}'.format(err),
-            }
+            logging.error(
+                'fetch_user_accounts: Unexpected response: %s - %s',
+                error['status'], error['message'],
+            )
 
         except Exception, err:
             error = {
@@ -66,7 +81,78 @@ class APIClient(object):
                 'message': u'unexpected error: ({0.__name__}) {1}'.format(type(err), err),
             }
 
+            logging.error(
+                'fetch_user_accounts: Error making request: %s, %s',
+                err.__class__.__name__, err,
+            )
+
         return accounts, error
+
+
+    @classmethod
+    def create_user_account(cls, uuid, name, plan_slug, expiration=None):
+        api_user = cls.api_user
+        api_password = cls.api_password
+
+        http = httplib2.Http()
+        url = '%s/%s' % (
+            cls.api_host,
+            'organizations/api/identities/{0}/accounts/'.format(uuid)
+        )
+        data = json.dumps({
+            'name': name, 'plan_slug': plan_slug, 'expiration': expiration
+        })
+        headers = {
+            'cache-control': 'no-cache',
+            'content-length': str(len(data)),
+            'content-type': 'application/json',
+            'accept': 'application/json',
+            'user-agent': 'myfc_id client',
+            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
+        }
+
+        account_data = None
+        error = None
+
+        try:
+            response, content = http.request(url, "POST", headers=headers, body=data)
+            if response.status in (200, 201):
+                account_data = json.loads(content)
+
+            else:
+                error = {
+                    'status': response.status,
+                    'message': content,
+                }
+
+                logging.error(
+                    'create_user_accounts: Error making request: %s - %s',
+                    response.status, content,
+                )
+
+        except ValueError:
+            error = {
+                'status': response and response.status,
+                'message': content,
+            }
+
+            logging.error(
+                'create_user_accounts: Error making request: %s - %s',
+                response, content,
+            )
+
+        except Exception, err:
+            error = {
+                'status': None,
+                'message': u'unexpected error: ({0.__name__}) {1}'.format(type(err), err),
+            }
+
+            logging.error(
+                'create_user_accounts: Error making request: %s, %s',
+                err.__class__.__name__, err,
+            )
+
+        return account_data, error
 
 
     @classmethod
