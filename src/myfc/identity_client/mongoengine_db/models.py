@@ -161,7 +161,7 @@ class ServiceAccount(Document):
             name = item['account_data']['name'],
             expiration = item.get('expiration'),
             plan_slug = item['plan_slug'],
-            url = item['membership_details_url'],
+            url = item.get('url'),
             roles = item['roles'],
         ) for item in accounts]
 

@@ -232,7 +232,7 @@ class TestServiceAccountModel(TestCase):
                 'plan_slug': mocked_accounts_list[0]['plan_slug'],
                 'uuid': mocked_accounts_list[0]['account_data']['uuid'],
                 'roles': mocked_accounts_list[0]['roles'],
-                'url': mocked_accounts_list[0]['membership_details_url'],
+                'url': mocked_accounts_list[0]['url'],
                 'name': mocked_accounts_list[0]['account_data']['name'],
                 'expiration': mocked_accounts_list[0]['expiration'],
             },
@@ -240,7 +240,7 @@ class TestServiceAccountModel(TestCase):
                 'plan_slug': mocked_accounts_list[1]['plan_slug'],
                 'uuid': mocked_accounts_list[1]['account_data']['uuid'],
                 'roles': mocked_accounts_list[1]['roles'],
-                'url': mocked_accounts_list[1]['membership_details_url'],
+                'url': mocked_accounts_list[1]['url'],
                 'name': mocked_accounts_list[1]['account_data']['name'],
                 'expiration': mocked_accounts_list[1]['expiration'],
             }

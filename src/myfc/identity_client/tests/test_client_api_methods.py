@@ -21,7 +21,8 @@ mocked_accounts_json = """[
         },
         "plan_slug": "plus",
         "roles": ["owner"],
-        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
+        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
+        "url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
         "expiration": "%s",
         "external_id": null
     },
@@ -35,7 +36,8 @@ mocked_accounts_json = """[
         },
         "plan_slug": "max",
         "roles": ["owner"],
-        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
+        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
+        "url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
         "expiration": "%s",
         "external_id": null
     }
@@ -56,7 +58,8 @@ mocked_account_json = """{
         },
         "plan_slug": "plus",
         "roles": ["owner"],
-        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
+        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
+        "url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
         "expiration": "%s",
         "external_id": null
     }""" % (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
