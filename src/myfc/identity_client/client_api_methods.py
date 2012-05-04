@@ -171,17 +171,21 @@ class APIClient(object):
         else:
             api_uri = "%s/%s/?email=%s" % (api_host, api_path, email)
 
+        headers = {
+            'content-type': 'application/json',
+            'user-agent': 'myfc_id client',
+            'cache-control': 'no-cache',
+            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
+        }
+
         # Efetuar requisição
         http = httplib2.Http()
-        http.add_credentials(api_user, api_password)
-
-        response, content = http.request(api_uri)
+        response, content = http.request(api_uri, "GET", headers=headers)
         return (response.status, content)
 
 
     @classmethod
     def invoke_registration_api(cls, form):
-        registration_data = json.dumps(form.data)
 
         api_user = cls.api_user
         api_password = cls.api_password
@@ -190,21 +194,22 @@ class APIClient(object):
             cls.registration_api
         )
 
-        http = httplib2.Http()
-        http.add_credentials(api_user, api_password)
-
         status_code = 500
         content = None
         error_dict = None
 
+        registration_data = json.dumps(form.data)
+        headers = {
+            'content-type': 'application/json',
+            'user-agent': 'myfc_id client',
+            'cache-control': 'no-cache',
+            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
+        }
+
         try:
+            http = httplib2.Http()
             response, content = http.request(api_url,
-                "POST", body=registration_data,
-                headers={
-                    'content-type': 'application/json',
-                    'user-agent': 'myfc_id client',
-                    'cache-control': 'no-cache'
-                }
+                "POST", body=registration_data, headers=headers
             )
 
             status_code = response.status
@@ -239,24 +244,23 @@ class APIClient(object):
 
         api_uri = "%s%s" % (api_host, api_path)
 
+        headers = {
+            'content-type': 'application/json',
+            'user-agent': 'myfc_id client',
+            'cache-control': 'no-cache',
+            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
+        }
+
         # Efetuar requisição
         http = httplib2.Http()
-        http.add_credentials(api_user, api_password)
-
         response, content = http.request(
-            api_uri,
-            headers={
-                'content-type': 'application/json',
-                'user-agent': 'myfc_id client',
-                'cache-control': 'no-cache'
-            }
+            api_uri, "GET", headers=headers
         )
         return (response.status, content)
 
 
     @classmethod
     def update_user_api(cls, form, api_path):
-        registration_data = json.dumps(form.data)
 
         api_user = cls.api_user
         api_password = cls.api_password
@@ -267,12 +271,15 @@ class APIClient(object):
         else:
             api_url = "%s%s" % (api_host, api_path)
 
+        registration_data = json.dumps(form.data)
+        headers = {
+            'content-type':'application/json',
+            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
+        }
+
         http = httplib2.Http()
-        http.add_credentials(api_user, api_password)
         response, content = http.request(
-            api_url,
-            "PUT", body=registration_data,
-            headers={'content-type':'application/json'}
+            api_url, "PUT", body=registration_data, headers=headers
         )
 
         if response.status == 409:
