@@ -116,7 +116,7 @@ def fetch_access_token(request):
         request_token = request.session['request_token']
     except KeyError:
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-        print "Request token not in session. Session %s data: %s" % (session_key, request.session.items())
+        logging.debug("Request token not in session. Session %s data: %s", session_key, request.session.items())
         return HttpResponseBadRequest()
 
     secret = request_token[oauth_token]
@@ -132,12 +132,12 @@ def fetch_access_token(request):
     access_token = client.fetch_access_token(oauth_request)
 
     if not access_token:
-        print "could not fetch access token"
+        logging.debug("could not fetch access token")
         return HttpResponseServerError()
 
     user_data = fetch_user_data(access_token)
     if user_data is None:
-        print "could not fetch user data"
+        logging.debug("could not fetch access token")
         return HttpResponseServerError()
 
     myfc_id_backend = MyfcidAPIBackend()
