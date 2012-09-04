@@ -7,14 +7,13 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render_to_response
 from django.contrib.sites.models import Site, RequestSite
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 
 from identity_client.backend import MyfcidAPIBackend
 from identity_client.forms import RegistrationForm
-from identity_client.decorators import required_method
+from identity_client.decorators import required_method, sso_login_required
 from identity_client.forms import IdentityAuthenticationForm as AuthenticationForm
 from identity_client.utils import prepare_form_errors, get_account_module
 from identity_client.client_api_methods import APIClient
@@ -86,7 +85,7 @@ def login(request, template_name='login.html',
 
     return result
 
-@login_required
+@sso_login_required
 def list_accounts(request):
     identity = request.user
     serviceAccount = get_account_module()
