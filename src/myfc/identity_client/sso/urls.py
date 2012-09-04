@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 from shortcuts import route
 
 urlpatterns = patterns('identity_client.sso.views',
-    url(r'^$', 'fetch_request_token', name='request_token'),
-    url(r'^callback/$', 'fetch_access_token', name='callback'),
+    url(r'^$', 'initiate', name='request_token'),
+    url(r'^callback/$', 'fetch_user_data', name='callback'),
     url(r'^iframe/$', 'render_sso_iframe', name='iframe'),
 )

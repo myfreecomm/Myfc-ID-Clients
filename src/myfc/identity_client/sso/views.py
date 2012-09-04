@@ -9,14 +9,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.core.urlresolvers import reverse, set_script_prefix
+from django.core.urlresolvers import reverse
 
 from identity_client.sso.client import SSOClient
 from identity_client.backend import MyfcidAPIBackend
 from identity_client.views.client_views import login_user
 
 
-__all__ = ['fetch_request_token', 'fetch_access_token']
+__all__ = ['initiate', 'fetch_user_data']
 
 
 def handle_api_exception(view):
@@ -40,27 +40,6 @@ def handle_api_exception(view):
     return func
 
 
-def _create_signed_oauth_request(url, **kwargs):
-
-    consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'],
-                              settings.MYFC_ID['CONSUMER_SECRET'])
-
-    signature_method_plaintext = oauth.SignatureMethod_PLAINTEXT()
-
-    signature_token = kwargs.pop('signature_token', None)
-
-    oauth_request = oauth.Request.from_consumer_and_token(
-                                            consumer,
-                                            http_url=url,
-                                            parameters={'scope': 'auth:api'},
-                                            **kwargs
-                                            )
-
-    oauth_request.sign_request(signature_method_plaintext, consumer, signature_token)
-
-    return oauth_request
-
-
 def render_sso_iframe(request):
     context = {
         'myfcid_host': settings.MYFC_ID['HOST'],
@@ -74,93 +53,122 @@ def render_sso_iframe(request):
         context_instance=RequestContext(request)
     )
 
+
 @handle_api_exception
-def fetch_request_token(request):
+def initiate(request):
     sso_client = SSOClient()
 
-    oauth_request = _create_signed_oauth_request(sso_client.request_token_url)
+    sso_client.set_signature_method(oauth.SignatureMethod_PLAINTEXT())
 
-    set_script_prefix(settings.APPLICATION_HOST)
-    oauth_request['oauth_callback'] = reverse('sso_consumer:callback')
+    try:
+        request_token = SSOClient().fetch_request_token()
+        request.session['request_token'] = {
+            request_token.key: request_token.secret
+        }
+        request.session.save()
 
-    request_token = sso_client.fetch_request_token(oauth_request)
-
-    if hasattr(request_token, 'key') and hasattr(request_token, 'secret'):
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-        logging.info("Session %s data: %s" % (
-            session_key, request.session.items()
-        ))
-    else:
-        logging.error("could not fetch req token")
-        return HttpResponseServerError()
+        logging.debug("Session %s data: %s", session_key, request.session.items())
 
-    request.session['request_token'] = {
-        request_token.key: request_token.secret
-    }
-    request.session.save()
+    except AssertionError, e:
+        resp, content = e.args
 
-    url = '%s/%s?oauth_token=%s' % (
+        message = "Could not fetch request token. Response was {0} - {1}".format(
+            resp.get('status'), content
+        )
+        logging.error(message)
+        return HttpResponseServerError(content=message)
+
+    except ValueError, e:
+        message = "Invalid request token: {0}".format(request_token)
+        logging.error(message)
+        return HttpResponseServerError(content=message)
+
+    authorization_url = '%s/%s?oauth_token=%s' % (
         settings.MYFC_ID['HOST'], settings.MYFC_ID['AUTHORIZATION_PATH'], request_token.key
     )
-    response = HttpResponseRedirect(url)
+    response = HttpResponseRedirect(authorization_url)
 
     return response
 
 
 @handle_api_exception
-def fetch_access_token(request):
-    oauth_token = request.GET.get('oauth_token')
-    oauth_verifier = request.GET.get('oauth_verifier')
+def fetch_user_data(request):
 
     try:
         request_token = request.session['request_token']
+
     except KeyError:
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-        logging.debug("Request token not in session. Session %s data: %s", session_key, request.session.items())
-        return HttpResponseBadRequest()
+        message = "Request token not in session. Session {0} data: {1}".format(
+            session_key, request.session.items()
+        )
+        logging.debug(message)
+        return HttpResponseBadRequest(content=message)
+
+    oauth_token = request.GET.get('oauth_token')
+    oauth_verifier = request.GET.get('oauth_verifier')
 
     secret = request_token[oauth_token]
-    token = oauth.Token(key=oauth_token, secret=secret)
-    token.set_verifier(oauth_verifier)
 
-    client = SSOClient()
-
-    oauth_request = _create_signed_oauth_request(client.access_token_url,
-                                                 token=token,
-                                                 signature_token=token,)
-
-    access_token = client.fetch_access_token(oauth_request)
-
-    if not access_token:
-        logging.debug("could not fetch access token")
-        return HttpResponseServerError()
-
-    user_data = fetch_user_data(access_token)
-    if user_data is None:
-        logging.debug("could not fetch access token")
-        return HttpResponseServerError()
-
-    myfc_id_backend = MyfcidAPIBackend()
-    identity = myfc_id_backend.create_local_identity(user_data)
-    login_user(request, identity)
-
-    return HttpResponseRedirect(reverse('user_profile'))
-
-
-def fetch_user_data(access_token):
-
-    client = SSOClient()
-    oauth_request = _create_signed_oauth_request(
-                            client.user_data_url,
-                            token=access_token,
-                            signature_token=access_token,
-                        )
-
-    user_data = client.access_user_data(oauth_request)
+    request_token = oauth.Token(key=oauth_token, secret=secret)
+    request_token.set_verifier(oauth_verifier)
 
     try:
-        user_data = json.loads(user_data)
-    except ValueError:
-        return None
+        access_token = SSOClient(request_token).fetch_access_token()
+        request.session['access_token'] = {
+            access_token.key: access_token.secret
+        }
+        request.session.save()
 
-    return user_data
+    except AssertionError, e:
+        resp, content = e.args
+
+        message = "Could not fetch access token. Response was {0} - {1}".format(
+            resp.get('status'), content
+        )
+        logging.error(message)
+        return HttpResponseServerError(content=message)
+
+    except ValueError, e:
+        message = "Invalid access token: {0}".format(access_token)
+        logging.error(message)
+        return HttpResponseServerError(content=message)
+
+
+    ##
+    # -------------------- CUT HERE -------------------- 
+    ##
+
+    try:
+        raw_user_data = SSOClient(access_token).post(SSOClient.user_data_url)
+        identity = json.loads(
+            raw_user_data, object_hook=as_local_identity
+        )
+        login_user(request, identity)
+
+    except AssertionError, e:
+        resp, content = e.args
+
+        message = "Could not fetch user data. Response was {0} - {1}".format(
+            resp.get('status'), content
+        )
+        logging.error(message)
+        return HttpResponseServerError(content=message)
+
+    except ValueError, e:
+        message = "Invalid user data: {0}".format(raw_user_data)
+        logging.error(message)
+        return HttpResponseServerError(content=message)
+
+    next_url = request.session.get('next_url', reverse('user_profile'))
+
+    return HttpResponseRedirect(next_url)
+
+
+def as_local_identity(data):
+
+    if ('uuid' in data) and ('email' in data):
+        return MyfcidAPIBackend().create_local_identity(data)
+
+    return data
