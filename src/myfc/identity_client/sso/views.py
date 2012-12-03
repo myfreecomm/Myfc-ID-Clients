@@ -5,13 +5,14 @@ import json
 from httplib2 import HttpLib2Error
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseServerError, HttpResponseBadRequest
+from django.http import HttpResponseRedirect
+from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
 from identity_client.sso.client import SSOClient
+from identity_client.sso.decorators import oauth_callback
 from identity_client.backend import MyfcidAPIBackend
 from identity_client.views.client_views import login_user
 
@@ -56,16 +57,9 @@ def render_sso_iframe(request):
 
 @handle_api_exception
 def initiate(request):
-    sso_client = SSOClient()
-
-    sso_client.set_signature_method(oauth.SignatureMethod_PLAINTEXT())
 
     try:
-        request_token = SSOClient().fetch_request_token()
-        request.session['request_token'] = {
-            request_token.key: request_token.secret
-        }
-        request.session.save()
+        authorization_url = SSOClient().authorize(request)
 
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
         logging.debug("Session %s data: %s", session_key, request.session.items())
@@ -80,68 +74,22 @@ def initiate(request):
         return HttpResponseServerError(content=message)
 
     except ValueError, e:
-        message = "Invalid request token: {0}".format(request_token)
+        message = "Invalid request token"
         logging.error(message)
         return HttpResponseServerError(content=message)
 
-    authorization_url = '%s/%s?oauth_token=%s' % (
-        settings.MYFC_ID['HOST'], settings.MYFC_ID['AUTHORIZATION_PATH'], request_token.key
-    )
-    response = HttpResponseRedirect(authorization_url)
-
-    return response
+    return HttpResponseRedirect(authorization_url)
 
 
 @handle_api_exception
+@oauth_callback
 def fetch_user_data(request):
 
     try:
-        request_token = request.session['request_token']
+        resp, raw_user_data = SSOClient(request.access_token).get(SSOClient.user_data_url)
 
-    except KeyError:
-        session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
-        message = "Request token not in session. Session {0} data: {1}".format(
-            session_key, request.session.items()
-        )
-        logging.debug(message)
-        return HttpResponseBadRequest(content=message)
+        assert str(resp.get('status')) == '200', (resp, raw_user_data)
 
-    oauth_token = request.GET.get('oauth_token')
-    oauth_verifier = request.GET.get('oauth_verifier')
-
-    secret = request_token[oauth_token]
-
-    request_token = oauth.Token(key=oauth_token, secret=secret)
-    request_token.set_verifier(oauth_verifier)
-
-    try:
-        access_token = SSOClient(request_token).fetch_access_token()
-        request.session['access_token'] = {
-            access_token.key: access_token.secret
-        }
-        request.session.save()
-
-    except AssertionError, e:
-        resp, content = e.args
-
-        message = "Could not fetch access token. Response was {0} - {1}".format(
-            resp.get('status'), content
-        )
-        logging.error(message)
-        return HttpResponseServerError(content=message)
-
-    except ValueError, e:
-        message = "Invalid access token: {0}".format(access_token)
-        logging.error(message)
-        return HttpResponseServerError(content=message)
-
-
-    ##
-    # -------------------- CUT HERE -------------------- 
-    ##
-
-    try:
-        raw_user_data = SSOClient(access_token).post(SSOClient.user_data_url)
         identity = json.loads(
             raw_user_data, object_hook=as_local_identity
         )

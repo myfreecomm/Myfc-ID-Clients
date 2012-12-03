@@ -36,7 +36,7 @@ class MyfcidAPIBackend(object):
 
 
     def create_local_identity(self, user_data):
-         # Create an updated Identity instance for this user
+        # Create an updated Identity instance for this user
         identity, created = Identity.objects.get_or_create(uuid=user_data['uuid'])
         self._update_user(identity, user_data)
 

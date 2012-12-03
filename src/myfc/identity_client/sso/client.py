@@ -10,6 +10,7 @@ class SSOClient(oauth.Client):
 
     request_token_url = '%(HOST)s/%(REQUEST_TOKEN_PATH)s' % settings.MYFC_ID
     access_token_url = '%(HOST)s/%(ACCESS_TOKEN_PATH)s' % settings.MYFC_ID
+    authorization_url = '%(HOST)s/%(AUTHORIZATION_PATH)s' % settings.MYFC_ID
     user_data_url = '%(HOST)s/%(FETCH_USER_DATA_PATH)s' % settings.MYFC_ID
 
     def __init__(self, *args, **kwargs):
@@ -22,37 +23,48 @@ class SSOClient(oauth.Client):
         return super(SSOClient, self).__init__(self.consumer, *args, **kwargs)
 
 
-    def fetch_request_token(self):
+    def fetch_request_token(self, callback_url=None):
         set_script_prefix(settings.APPLICATION_HOST)
-        self.callback_url = reverse('sso_consumer:callback')
 
-        resp, content = self.request(
-            self.request_token_url, method='POST', 
-            body='oauth_callback={0}'.format(self.callback_url)
+        if callback_url is None:
+            callback_url = reverse('sso_consumer:callback')
+
+        resp, content = self.post(
+            self.request_token_url, body='oauth_callback={0}'.format(callback_url)
         )
 
-        assert resp.get('status') == '200', (resp, content)
+        assert str(resp.get('status')) == '200', (resp, content)
+
         return oauth.Token.from_string(content)
 
 
     def fetch_access_token(self):
-        resp, content = self.request(
-            self.access_token_url, method='POST', 
-        )
 
-        assert resp.get('status') == '200', (resp, content)
+        resp, content = self.post(self.access_token_url)
+
+        assert str(resp.get('status')) == '200', (resp, content)
+
         return oauth.Token.from_string(content)
 
 
-    def get(self, url):
-        resp, content = self.request(url, method='GET')
-        
-        assert resp.get('status') == '200', (resp, content)
-        return content
+    def authorize(self, request):
+        request_token = self.fetch_request_token()
+
+        request.session['request_token'] = {request_token.key: request_token.secret}
+        request.session.save()
+
+        return '{0}?oauth_token={1}'.format(
+            self.authorization_url, request_token.key
+        )
 
 
-    def post(self, url):
-        resp, content = self.request(url, method='POST')
+    def get(self, url, **kwargs):
+        resp, content = self.request(url, method='GET', **kwargs)
         
-        assert resp.get('status') == '200', (resp, content)
-        return content
+        return resp, content
+
+
+    def post(self, url, **kwargs):
+        resp, content = self.request(url, method='POST', **kwargs)
+        
+        return resp, content
