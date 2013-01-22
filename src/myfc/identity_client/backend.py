@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import json
 import httplib2
 from django.contrib.auth.models import AnonymousUser
@@ -17,7 +18,12 @@ class MyfcidAPIBackend(object):
     supports_object_permissions = False
 
 
-    def authenticate(self, email=None, password=None):
+    def authenticate(self, email=None, password=None, username=None):
+        if email and username:
+            raise TypeError
+        elif username:
+            email = username
+
         identity = None
 
         # Fetch user data
@@ -26,17 +32,18 @@ class MyfcidAPIBackend(object):
         # Deserialize data
         try:
             user_data = json.loads(response_content)
+            logging.info(u'User %s (%s) authenticated', email, user_data['uuid'])
         except (TypeError, ValueError):
+            logging.info(u'Failed to authenticate user %s', email)
             user_data = None
 
         if user_data:
             identity = self.create_local_identity(user_data)
-
         return identity
 
 
     def create_local_identity(self, user_data):
-        # Create an updated Identity instance for this user
+         # Create an updated Identity instance for this user
         identity, created = Identity.objects.get_or_create(uuid=user_data['uuid'])
         self._update_user(identity, user_data)
 
@@ -47,17 +54,16 @@ class MyfcidAPIBackend(object):
         identity.user_data = user_data
 
         pre_identity_authentication.send_robust(
-            sender="identity_client.MyfcidAPIBackend.backend",
+            sender='identity_client.MyfcidAPIBackend.backend',
             identity = identity,
             user_data = user_data,
         )
         return identity
 
-
     def get_user(self, user_id):
         try:
             user = Identity.objects.get(id=user_id)
-        except Exception:
+        except Identity.DoesNotExist:
             user = None
 
         return user
@@ -67,7 +73,6 @@ class MyfcidAPIBackend(object):
         user.email = user_data['email']
         user.first_name = user_data['first_name']
         user.last_name = user_data['last_name']
-        user.is_active = user_data['is_active']
         user.save()
 
 
@@ -94,12 +99,19 @@ class MyfcidAPIBackend(object):
                 }
             )
 
+            logging.info(u'Auth response: status=%s, content=%s', response.status, content)
+
             # If the request is successful, read response data
             if response.status != 200:
                 raise ValueError
 
             response_content = content
-        except (ValueError, AttributeError, httplib2.HttpLib2Error):
+
+        except (ValueError, ), e:
+            response_content = None
+
+        except (AttributeError, httplib2.HttpLib2Error, Exception), e:
+            logging.error(u'Error authenticating user: %s<%s>', e, type(e))
             response_content = None
 
         return response_content
