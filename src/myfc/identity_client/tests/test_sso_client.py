@@ -1,17 +1,19 @@
 #coding: utf-8
 import oauth2 as oauth
-from mock import Mock
+from mock import Mock, patch
 from httplib2 import Http, HttpLib2Error
 import json
 
+from django.utils.importlib import import_module
 from django.test import TestCase
+from django.http import HttpRequest
 from django.conf import settings
 from mock_helpers import *
 
 from identity_client.sso.client import SSOClient
 
 
-__all__ = ['SSOClientRequestToken', 'SSOClientAccessToken']
+__all__ = ['SSOClientAuthorize', 'SSOClientRequestToken', 'SSOClientAccessToken']
 
 
 def create_signed_oauth_request(consumer, sso_client):
@@ -45,6 +47,49 @@ def build_access_token_request(oauth_token, oauth_verifier):
     return oauth_request
 
 
+class SSOClientAuthorize(TestCase):
+
+    def setUp(self):
+        self.sso_client = SSOClient()
+
+    def _get_real_session(self, client):
+        if 'django.contrib.sessions' in settings.INSTALLED_APPS:
+            engine = import_module(settings.SESSION_ENGINE)
+            cookie = client.cookies.get(settings.SESSION_COOKIE_NAME, None)
+            return engine.SessionStore(cookie and cookie.value or None)
+
+    @patch.object(SSOClient, 'fetch_request_token', Mock(return_value=oauth.Token(key='key', secret='secret')))
+    def test_authorize_invokes_fetch_request_token(self):
+        request = HttpRequest()
+        request.session = self._get_real_session(self.client)
+        authorization_url = self.sso_client.authorize(request)
+
+        self.assertTrue(self.sso_client.fetch_request_token.called)
+        self.assertEquals(self.sso_client.fetch_request_token.call_count, 1)
+        self.assertEquals(self.sso_client.fetch_request_token.call_args, ((), {}))
+
+
+    @patch.object(SSOClient, 'fetch_request_token', Mock(return_value=oauth.Token(key='key', secret='secret')))
+    def test_authorize_stores_request_token_in_session(self):
+        request = HttpRequest()
+        request.session = self._get_real_session(self.client)
+        authorization_url = self.sso_client.authorize(request)
+
+        self.assertTrue('request_token' in request.session.keys())
+        self.assertEquals(request.session['request_token'], {'key': 'secret'})
+
+
+    @patch.object(SSOClient, 'fetch_request_token', Mock(return_value=oauth.Token(key='key', secret='secret')))
+    def test_authorize_stores_next_url_in_session(self):
+        request = HttpRequest()
+        request.GET = {'next': '/oauth-protected-view/'}
+        request.session = self._get_real_session(self.client)
+        authorization_url = self.sso_client.authorize(request)
+
+        self.assertTrue('next_url' in request.session.keys())
+        self.assertEquals(request.session['next_url'], '/oauth-protected-view/')
+
+
 class SSOClientRequestToken(TestCase):
 
     def setUp(self):
@@ -52,12 +97,7 @@ class SSOClientRequestToken(TestCase):
 
     @patch_httplib2(Mock(return_value=mocked_request_token()))
     def test_fetch_request_token_succeeded(self):
-        consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'],
-                                   settings.MYFC_ID['CONSUMER_SECRET'])
-
-        oauth_request = create_signed_oauth_request(consumer, self.sso_client)
-
-        request_token = self.sso_client.fetch_request_token(oauth_request)
+        request_token = self.sso_client.fetch_request_token()
 
         self.assertEqual(OAUTH_REQUEST_TOKEN, request_token.key)
         self.assertEqual(OAUTH_REQUEST_TOKEN_SECRET, request_token.secret)

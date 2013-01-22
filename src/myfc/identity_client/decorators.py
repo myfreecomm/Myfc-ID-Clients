@@ -32,9 +32,6 @@ def sso_login_required(view):
     def decorated(request, *args, **kwargs):
         url = reverse('sso_consumer:request_token')
 
-        request.session['next_url'] = request.get_full_path()
-        request.session.save()
-
         actual_decorator = user_passes_test(
             lambda user: user.is_authenticated(),
             login_url=url,

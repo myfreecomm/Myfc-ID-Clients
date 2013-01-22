@@ -4,6 +4,7 @@ from mock import Mock, patch
 from oauth2 import Token
 import json
 
+from django.utils.importlib import import_module
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -78,6 +79,13 @@ class AccessUserData(TestCase):
         self.assertEquals(response.status_code, 302)
 
 
+    def _get_real_session(self, client):
+        if 'django.contrib.sessions' in settings.INSTALLED_APPS:
+            engine = import_module(settings.SESSION_ENGINE)
+            cookie = client.cookies.get(settings.SESSION_COOKIE_NAME, None)
+            return engine.SessionStore(cookie and cookie.value or None)
+
+
     @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
     def test_access_user_data_successfuly(self):
@@ -92,6 +100,38 @@ class AccessUserData(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response['Location'].endswith('/profile/'))
         self.assertNotEqual(self.client.session.get('user_data'), None)
+
+
+    @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
+    def test_next_url_may_be_read_from_session(self):
+        session = self._get_real_session(self.client)
+        session['next_url'] = '/oauth-protected-view/'
+        session.save()
+
+        response = self.client.get(
+            reverse('sso_consumer:callback'), {
+                'oauth_token': OAUTH_REQUEST_TOKEN,
+                'oauth_verifier': 'niceverifier'
+            }, 
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].endswith('/oauth-protected-view/'))
+
+
+    @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
+    @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
+    def test_default_next_url_is_LOGIN_REDIRECT_URL(self):
+        response = self.client.get(
+            reverse('sso_consumer:callback'), {
+                'oauth_token': OAUTH_REQUEST_TOKEN,
+                'oauth_verifier': 'niceverifier'
+            }, 
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
 
 
     @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))

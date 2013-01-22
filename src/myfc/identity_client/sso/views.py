@@ -109,7 +109,7 @@ def fetch_user_data(request):
         logging.error(message)
         return HttpResponseServerError(content=message)
 
-    next_url = request.session.get('next_url', reverse('user_profile'))
+    next_url = request.session.get('next_url', settings.LOGIN_REDIRECT_URL)
 
     return HttpResponseRedirect(next_url)
 
