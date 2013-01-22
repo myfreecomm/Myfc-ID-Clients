@@ -64,24 +64,13 @@ class SSOClientRequestToken(TestCase):
 
     @patch_httplib2(Mock(return_value=mocked_response(401, 'invalid token')))
     def test_fetch_request_token_fails_on_invalid_token(self):
-        consumer = oauth.Consumer('wrongtoken',
-                                   settings.MYFC_ID['CONSUMER_SECRET'])
-
-        oauth_request = create_signed_oauth_request(consumer, self.sso_client)
-
-        request_token = self.sso_client.fetch_request_token(oauth_request)
-
-        self.assertEqual(None, request_token)
-
+        self.assertRaises(
+            AssertionError, self.sso_client.fetch_request_token
+        )
 
     @patch_httplib2(Mock(side_effect=AttributeError))
-    def test_fetch_request_token_fails_on_communication_error(self):
-        consumer = oauth.Consumer(settings.MYFC_ID['CONSUMER_TOKEN'],
-                                  settings.MYFC_ID['CONSUMER_SECRET'])
-
-        oauth_request = create_signed_oauth_request(consumer, self.sso_client)
-
-        self.assertRaises(HttpLib2Error, self.sso_client.fetch_request_token, oauth_request)
+    def test_http_exceptions_are_not_handled(self):
+        self.assertRaises(AttributeError, self.sso_client.fetch_request_token)
 
 
 class SSOClientAccessToken(TestCase):
@@ -91,33 +80,18 @@ class SSOClientAccessToken(TestCase):
 
     @patch_httplib2(Mock(return_value=mocked_access_token()))
     def test_fetch_access_token_succeeded(self):
-        oauth_token = OAUTH_REQUEST_TOKEN
-        oauth_verifier = 'dummyoauthverifier'
-
-        oauth_request = build_access_token_request(oauth_token, oauth_verifier)
-
-        access_token = self.sso_client.fetch_access_token(oauth_request)
+        access_token = self.sso_client.fetch_access_token()
 
         self.assertEqual(OAUTH_ACCESS_TOKEN, access_token.key)
 
     @patch_httplib2(Mock(return_value=mocked_response(401, 'invalid verifier')))
     def test_fetch_access_token_fails_on_invalid_verifier(self):
-        oauth_token = OAUTH_REQUEST_TOKEN
-        invalid_oauth_verifier = 'invalidoauthverifier'
-
-        oauth_request = build_access_token_request(oauth_token, invalid_oauth_verifier)
-
-        access_token = self.sso_client.fetch_access_token(oauth_request)
-
-        self.assertEqual(access_token, None)
+        self.assertRaises(
+            AssertionError, self.sso_client.fetch_access_token
+        )
 
     @patch_httplib2(Mock(return_value=mocked_response(401, 'invalid token')))
     def test_fetch_access_token_fails_on_invalid_token(self):
-        invalid_oauth_token = 'invalidtoken'
-        oauth_verifier = 'dummyoauthverifier'
-
-        oauth_request = build_access_token_request(invalid_oauth_token, oauth_verifier)
-
-        access_token = self.sso_client.fetch_access_token(oauth_request)
-
-        self.assertEqual(access_token, None)
+        self.assertRaises(
+            AssertionError, self.sso_client.fetch_access_token
+        )
