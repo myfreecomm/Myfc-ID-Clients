@@ -98,7 +98,7 @@ class AccessUserData(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith('/profile/'))
+        self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
         self.assertNotEqual(self.client.session.get('user_data'), None)
 
 
@@ -187,7 +187,7 @@ class AccessUserData(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith('/profile/'))
+        self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
 
         self.assertEqual(Identity.objects.count(), 1)
 
@@ -210,7 +210,7 @@ class AccessUserData(TestCase):
       )
 
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith('/profile/'))
+        self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
 
         self.assertEqual(serviceAccountModel.objects.count(), 2)
 

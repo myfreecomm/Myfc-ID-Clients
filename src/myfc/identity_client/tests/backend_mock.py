@@ -11,6 +11,9 @@ class MyfcidAPIBackendMock(object):
     """
     Mocks the Myfc ID API user authentication
     """
+    supports_anonymous_user = False
+    supports_inactive_user = False
+    supports_object_permissions = False
 
     def authenticate(self, email=None, password=None, **kwargs):
 

@@ -21,6 +21,7 @@ from identity_client.client_api_methods import APIClient
 __all__ = ["new_identity", "register", "login", "show_login"]
 
 @required_method("GET")
+@never_cache
 def new_identity(request,template_name='registration_form.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           registration_form=RegistrationForm, **kwargs):
@@ -55,6 +56,7 @@ def register(request, template_name='registration_form.html',
 
 
 @required_method("GET")
+@never_cache
 def show_login(request, template_name='login.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           authentication_form=AuthenticationForm, **kwargs):
@@ -112,12 +114,15 @@ def login_user(request, user):
     # Efetuar login
     from django.contrib.auth import login as django_login
     django_login(request, user)
+
     # Adicionar dados adicionais do usuário à sessão
     try:
         request.session['user_data'] = user.user_data
         del(user.user_data)
     except AttributeError:
         request.session['user_data'] = {}
+
+    request.session.save()
 
     if request.session.test_cookie_worked():
         request.session.delete_test_cookie()

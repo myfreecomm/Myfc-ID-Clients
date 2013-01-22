@@ -47,7 +47,7 @@ class RegistrationForm(forms.Form):
         label=_(u'I have read and agree to the Terms of Service'),
         required=True,
         error_messages={
-            'required': _("You must agree to the terms to register")
+            'required': _(u"Você precisa ler e concordar com os termos de serviço")
         }
     )
 
@@ -62,18 +62,16 @@ class RegistrationForm(forms.Form):
         """
         if 'password' in self.cleaned_data and 'password2' in self.cleaned_data:
             if self.cleaned_data['password'] != self.cleaned_data['password2']:
-                raise forms.ValidationError(_("The two password fields didn't match."))
+                raise forms.ValidationError(_(u"As senhas informadas são diferentes."))
         return self.cleaned_data
-
-
 
 class IdentityAuthenticationForm(forms.Form):
     """
     Base class for authenticating users. Extend this to get a form that accepts
     email/password logins.
     """
-    email = forms.EmailField(label=_("Email"), max_length=75, required=True)
-    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
+    email = forms.EmailField(label=_(u"Email"), max_length=75, required=True)
+    password = forms.CharField(label=_(u"Password"), widget=forms.PasswordInput)
 
     def __init__(self, request=None, *args, **kwargs):
         """
@@ -89,19 +87,20 @@ class IdentityAuthenticationForm(forms.Form):
     def clean(self):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
-        
+
         if email and password:
-            self.user_cache = MyfcidAPIBackend().authenticate(email=email,
-                                                             password=password)
+            self.user_cache = MyfcidAPIBackend().authenticate(
+                email=email, password=password
+            )
             if self.user_cache is None:
-                raise forms.ValidationError(_("Please enter a correct email and password. Note that both fields are case-sensitive."))
+                raise forms.ValidationError(_(u"Por favor digite seu e-mail e senha. O sistema diferencia minúsculas de maiúsculas."))
             elif not self.user_cache.is_active:
-                raise forms.ValidationError(_("This account is inactive."))
+                raise forms.ValidationError(_(u"Esta conta está inativa."))
 
         # TODO: determine whether this should move to its own method.
         if self.request:
             if not self.request.session.test_cookie_worked():
-                raise forms.ValidationError(_("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in."))
+                raise forms.ValidationError(_(u"Parece que seu navegador não aceita cookies. Por favor habilite os cookies."))
 
         return self.cleaned_data
 

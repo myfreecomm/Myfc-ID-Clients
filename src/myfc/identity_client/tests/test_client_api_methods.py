@@ -5,12 +5,13 @@ from httplib2 import HttpLib2Error
 
 from mock import patch, Mock
 
+from django.conf import settings
 from django.test import TestCase
 
 from identity_client.client_api_methods import APIClient
 
 
-mocked_accounts_json = """[
+mocked_accounts_json = '''[
     {
         "service_data": {
             "name": "John App", "slug": "johnapp"
@@ -21,8 +22,8 @@ mocked_accounts_json = """[
         },
         "plan_slug": "plus",
         "roles": ["owner"],
-        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
-        "url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
+        "membership_details_url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
+        "url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
         "expiration": "%s",
         "external_id": null
     },
@@ -34,17 +35,22 @@ mocked_accounts_json = """[
             "name": "Myfreecomm",
             "uuid": "b39bad59-94af-4880-995a-04967b454c7a"
         },
-        "plan_slug": "max",
+        "plan_slug": "seller",
         "roles": ["owner"],
-        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
-        "url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
+        "membership_details_url": "%s/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
+        "url": "%s/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
         "expiration": "%s",
         "external_id": null
     }
-]""" % (
+]''' % (
+    settings.MYFC_ID['HOST'],
+    settings.MYFC_ID['HOST'],
     (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
-    (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
+    settings.MYFC_ID['HOST'],
+    settings.MYFC_ID['HOST'],
+    (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
 )
+
 
 mocked_accounts_list = json.loads(mocked_accounts_json)
 
@@ -58,11 +64,13 @@ mocked_account_json = """{
         },
         "plan_slug": "plus",
         "roles": ["owner"],
-        "membership_details_url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
-        "url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
+        "membership_details_url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
+        "url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
         "expiration": "%s",
         "external_id": null
-    }""" % (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    }""" % (
+    settings.MYFC_ID['HOST'], settings.MYFC_ID['HOST'], (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    )
 
 mocked_account = json.loads(mocked_account_json)
 

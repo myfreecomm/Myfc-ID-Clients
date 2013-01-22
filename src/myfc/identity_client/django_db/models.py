@@ -20,7 +20,7 @@ class Identity(models.Model):
     """
     first_name = models.CharField(_('first name'), max_length=50, null=True)
     last_name = models.CharField(_('last name'), max_length=100, null=True)
-    email = models.EmailField(_('e-mail address'), null=True)
+    email = models.EmailField(_('e-mail address'), unique=False)
     uuid = models.CharField(_('universally unique id'), max_length=36, unique=True)
     is_active = models.BooleanField(_('active'), default=True,
         help_text=_("Designates whether this user should be treated as active. Unselect this instead of deleting accounts.")
@@ -28,8 +28,8 @@ class Identity(models.Model):
     last_login = models.DateTimeField(_('last login'), default=dt.now)
 
     class Meta:
-        verbose_name = _('identity')
-        verbose_name_plural = _('identities')
+        verbose_name = 'usuário do passaporte web'
+        verbose_name_plural = u'usuários do passaporte web'
         app_label = 'identity_client'
 
     def __unicode__(self):
@@ -134,6 +134,8 @@ class ServiceAccount(models.Model):
 
     class Meta:
         app_label = 'identity_client'
+        verbose_name = 'conta do passaporte web'
+        verbose_name_plural = u'contas do passaporte web'
 
 
     def __unicode__(self):
@@ -169,14 +171,17 @@ class ServiceAccount(models.Model):
     def pull_remote_accounts(cls, identity):
         accounts, error = APIClient.fetch_user_accounts(identity.uuid)
 
-        return [dict(
-            uuid = item['account_data']['uuid'],
-            name = item['account_data']['name'],
-            expiration = item.get('expiration'),
-            plan_slug = item['plan_slug'],
-            url = item.get('url'),
-            roles = item['roles'],
-        ) for item in accounts]
+        if error:
+            return []
+        else:
+            return [dict(
+                uuid = item['account_data']['uuid'],
+                name = item['account_data']['name'],
+                expiration = item.get('expiration'),
+                plan_slug = item['plan_slug'],
+                url = item.get('url'),
+                roles = item['roles'],
+            ) for item in accounts]
 
 
     @classmethod
@@ -282,6 +287,8 @@ class AccountMember(models.Model):
 
     class Meta:
         app_label = 'identity_client'
+        verbose_name = 'membro da conta do passaporte web'
+        verbose_name_plural = u'membros de contas do passaporte web'
 
     def __unicode__(self):
         return u'%s - [%s]' % (self.identity.email, self._roles)

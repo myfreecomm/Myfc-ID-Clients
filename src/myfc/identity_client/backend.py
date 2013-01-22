@@ -43,7 +43,7 @@ class MyfcidAPIBackend(object):
 
 
     def create_local_identity(self, user_data):
-         # Create an updated Identity instance for this user
+        # Create an updated Identity instance for this user
         identity, created = Identity.objects.get_or_create(uuid=user_data['uuid'])
         self._update_user(identity, user_data)
 
@@ -63,7 +63,7 @@ class MyfcidAPIBackend(object):
     def get_user(self, user_id):
         try:
             user = Identity.objects.get(id=user_id)
-        except Identity.DoesNotExist:
+        except Exception: # Usuário não existe ou formato do id incorreto (mongodb)
             user = None
 
         return user
@@ -73,6 +73,7 @@ class MyfcidAPIBackend(object):
         user.email = user_data['email']
         user.first_name = user_data['first_name']
         user.last_name = user_data['last_name']
+        user.is_active = True
         user.save()
 
 
