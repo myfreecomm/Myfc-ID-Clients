@@ -14,7 +14,6 @@ from djangorestframework.permissions import IsAuthenticated
 from djangorestframework.serializer import _SkipField
 from djangorestframework.parsers import JSONParser, FormParser, MultiPartParser
 
-from mongoengine import Document, EmbeddedDocument, queryset
 
 from requestlogging import logging
 from identity_client.utils import get_account_module
@@ -61,78 +60,87 @@ class AccountActivationAuthenticator(BaseAuthentication):
         return None, None
 
 
-class AccountResource(Resource):
+if settings.PERSISTENCE_STRATEGY == 'mongoengine_db':
+    from mongoengine import Document, EmbeddedDocument, queryset
+
+    class APIResource(Resource):
+
+        def serialize(self, obj):
+
+            if isinstance(obj, (Document, EmbeddedDocument)):
+                return self.serialize_model(obj)
+
+            elif isinstance(obj, (queryset.QuerySet, )):
+                return self.serialize_iter(obj)
+
+            else:
+                return super(APIResource, self).serialize(obj)
+
+        def serialize_val(self, key, obj):
+            if isinstance(obj, (list, tuple)):
+                return [self.serialize_val(key, v) for v in obj]
+
+            elif isinstance(obj, (dict, )):
+                return dict(
+                    (k, self.serialize_val(k, v))
+                    for k, v in obj.iteritems()
+                )
+
+            elif hasattr(obj, 'as_dict'):
+                return self.serialize_val(key, obj.as_dict())
+
+            elif isinstance(obj, (EmbeddedDocument, Document)):
+                return self.serialize_val(key, dict(
+                    (k, getattr(obj, k)) for k, v in obj._fields.iteritems()
+                ))
+
+            else:
+                return super(APIResource, self).serialize_val(key, obj, None)
+
+        def serialize_model(self, instance):
+            """
+            Given a model instance or dict, serialize it to a dict..
+            """
+            data = {}
+
+            fields = self.get_fields(instance)
+
+            # serialize each required field
+            for fname in fields:
+                try:
+                    if hasattr(self, smart_str(fname)):
+                        # check first for a method 'fname' on self first
+                        meth = getattr(self, fname)
+                        if inspect.ismethod(meth) and len(inspect.getargspec(meth)[0]) == 2:
+                            obj = meth(instance)
+                    elif hasattr(instance, smart_str(fname)):
+                        # finally check for an attribute 'fname' on the instance
+                        obj = getattr(instance, fname)
+                    elif hasattr(instance, '__contains__') and fname in instance:
+                        # check for a key 'fname' on the instance
+                        obj = instance[fname]
+                    else:
+                        continue
+
+                    key = self.serialize_key(fname)
+                    val = self.serialize_val(fname, obj)
+                    data[key] = val
+                except _SkipField:
+                    pass
+
+            return data
+
+        @property
+        def _property_fields_set(self):
+            return tuple(super(APIResource, self)._property_fields_set)
+
+else:
+    class APIResource(Resource): pass
+
+
+class AccountResource(APIResource):
 
     fields = ('uuid', 'name', 'expiration', 'is_active')
-
-    def serialize(self, obj):
-
-        if isinstance(obj, (Document, EmbeddedDocument)):
-            return self.serialize_model(obj)
-
-        elif isinstance(obj, (queryset.QuerySet, )):
-            return self.serialize_iter(obj)
-
-        else:
-            return super(AccountResource, self).serialize(obj)
-
-    def serialize_val(self, key, obj):
-        if isinstance(obj, (list, tuple)):
-            return [self.serialize_val(key, v) for v in obj]
-
-        elif isinstance(obj, (dict, )):
-            return dict(
-                (k, self.serialize_val(k, v))
-                for k, v in obj.iteritems()
-            )
-
-        elif hasattr(obj, 'as_dict'):
-            return self.serialize_val(key, obj.as_dict())
-
-        elif isinstance(obj, (EmbeddedDocument, Document)):
-            return self.serialize_val(key, dict(
-                (k, getattr(obj, k)) for k, v in obj._fields.iteritems()
-            ))
-
-        else:
-            return super(AccountResource, self).serialize_val(key, obj, None)
-
-    def serialize_model(self, instance):
-        """
-        Given a model instance or dict, serialize it to a dict..
-        """
-        data = {}
-
-        fields = self.get_fields(instance)
-
-        # serialize each required field
-        for fname in fields:
-            try:
-                if hasattr(self, smart_str(fname)):
-                    # check first for a method 'fname' on self first
-                    meth = getattr(self, fname)
-                    if inspect.ismethod(meth) and len(inspect.getargspec(meth)[0]) == 2:
-                        obj = meth(instance)
-                elif hasattr(instance, smart_str(fname)):
-                    # finally check for an attribute 'fname' on the instance
-                    obj = getattr(instance, fname)
-                elif hasattr(instance, '__contains__') and fname in instance:
-                    # check for a key 'fname' on the instance
-                    obj = instance[fname]
-                else:
-                    continue
-
-                key = self.serialize_key(fname)
-                val = self.serialize_val(fname, obj)
-                data[key] = val
-            except _SkipField:
-                pass
-
-        return data
-
-    @property
-    def _property_fields_set(self):
-        return tuple(super(AccountResource, self)._property_fields_set)
 
 
 class AccountActivationView(View):
