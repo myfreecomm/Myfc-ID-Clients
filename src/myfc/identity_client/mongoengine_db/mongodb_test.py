@@ -1,6 +1,4 @@
 #coding: utf-8
-from pymongo import Connection
-
 from django.test.simple import *
 
 from mongoengine import connection

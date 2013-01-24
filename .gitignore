@@ -17,6 +17,7 @@ ecommerce.db
 bin
 lib
 lib64
+local
 build
 share
 include

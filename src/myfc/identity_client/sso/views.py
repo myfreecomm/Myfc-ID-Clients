@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-import oauth2 as oauth
 import json
 from httplib2 import HttpLib2Error
 
@@ -9,7 +8,6 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.core.urlresolvers import reverse
 
 from identity_client.sso.client import SSOClient
 from identity_client.sso.decorators import oauth_callback
@@ -88,7 +86,8 @@ def fetch_user_data(request):
     try:
         resp, raw_user_data = SSOClient(request.access_token).post(SSOClient.user_data_url)
 
-        assert str(resp.get('status')) == '200', (resp, raw_user_data)
+        if not str(resp.get('status')) == '200':
+            raise AssertionError(resp, raw_user_data)
 
         identity = json.loads(
             raw_user_data, object_hook=as_local_identity

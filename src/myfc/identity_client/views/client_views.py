@@ -4,7 +4,6 @@ import json
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render_to_response
 from django.contrib.sites.models import Site, RequestSite
 from django.http import HttpResponseRedirect

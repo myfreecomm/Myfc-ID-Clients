@@ -1,8 +1,6 @@
 #coding: utf-8
 import oauth2 as oauth
 from mock import Mock, patch
-from httplib2 import Http, HttpLib2Error
-import json
 
 from django.utils.importlib import import_module
 from django.test import TestCase
