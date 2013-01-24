@@ -2,15 +2,18 @@
 from datetime import datetime as dt
 from collections import namedtuple
 
-from mongoengine import Document, EmbeddedDocument, queryset
-
 from django.conf import settings
-from djangorestframework import status
-from djangorestframework.views import View
+from django.utils.encoding import smart_str
+
 from djangorestframework.resources import Resource
+from djangorestframework import status
+from djangorestframework.response import ErrorResponse
+from djangorestframework.views import View
 from djangorestframework.authentication import BaseAuthentication
 from djangorestframework.permissions import IsAuthenticated
-from djangorestframework.response import ErrorResponse
+from djangorestframework.serializer import _SkipField
+
+from mongoengine import Document, EmbeddedDocument, queryset
 
 from requestlogging import logging
 from identity_client.utils import get_account_module
@@ -91,7 +94,44 @@ class AccountResource(Resource):
             ))
 
         else:
-            return super(AccountResource, self).serialize_val(key, obj)
+            return super(AccountResource, self).serialize_val(key, obj, None)
+
+    def serialize_model(self, instance):
+        """
+        Given a model instance or dict, serialize it to a dict..
+        """
+        data = {}
+
+        fields = self.get_fields(instance)
+
+        # serialize each required field
+        for fname in fields:
+            try:
+                if hasattr(self, smart_str(fname)):
+                    # check first for a method 'fname' on self first
+                    meth = getattr(self, fname)
+                    if inspect.ismethod(meth) and len(inspect.getargspec(meth)[0]) == 2:
+                        obj = meth(instance)
+                elif hasattr(instance, smart_str(fname)):
+                    # finally check for an attribute 'fname' on the instance
+                    obj = getattr(instance, fname)
+                elif hasattr(instance, '__contains__') and fname in instance:
+                    # check for a key 'fname' on the instance
+                    obj = instance[fname]
+                else:
+                    continue
+
+                key = self.serialize_key(fname)
+                val = self.serialize_val(fname, obj)
+                data[key] = val
+            except _SkipField:
+                pass
+
+        return data
+
+    @property
+    def _property_fields_set(self):
+        return tuple(super(AccountResource, self)._property_fields_set)
 
 
 class AccountActivationView(View):
