@@ -12,6 +12,7 @@ from djangorestframework.views import View
 from djangorestframework.authentication import BaseAuthentication
 from djangorestframework.permissions import IsAuthenticated
 from djangorestframework.serializer import _SkipField
+from djangorestframework.parsers import JSONParser, FormParser, MultiPartParser
 
 from mongoengine import Document, EmbeddedDocument, queryset
 
@@ -139,11 +140,10 @@ class AccountActivationView(View):
     resource = AccountResource
     authentication = (AccountActivationAuthenticator,)
     permissions = (IsAuthenticated, )
+    parsers = (JSONParser, FormParser, MultiPartParser)
 
 
     def get_request_data(self):
-        content = self.CONTENT or {}
-
         try:
             data = dict(self.DATA)
 

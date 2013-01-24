@@ -168,10 +168,34 @@ class TestActivateAccount(TestCase):
         })
 
     def test_api_does_not_accept_xml(self):
-        response = self.client.put(self.url, 
-            '<?xml version="1.0" encoding="utf-8"?><root></root>', 
+
+        def low_level_request(self, path, method='POST', content_type='application/json', body=None, **extra):
+            "Construct a POST request."
+            from urlparse import urlparse
+            from StringIO import StringIO
+
+            parsed = urlparse(path)
+            r = {
+                'CONTENT_LENGTH': 0,
+                'CONTENT_TYPE':   content_type,
+                'PATH_INFO':      self._get_path(parsed),
+                'QUERY_STRING':   parsed[4],
+                'REQUEST_METHOD': method,
+                'wsgi.input':     StringIO(body),
+            }
+            r.update(extra)
+            return self.request(**r)
+
+        ###
+
+        xml_body = '<?xml version="1.0" encoding="utf-8"?><root></root>'
+
+        response = low_level_request(self.client, self.url,
+            method = 'PUT',
+            body = xml_body,
             content_type = 'application/xml',
-            HTTP_ACCEPT = 'application/xml',
+            CONTENT_LENGTH = len(xml_body),
+            HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
         )
 
