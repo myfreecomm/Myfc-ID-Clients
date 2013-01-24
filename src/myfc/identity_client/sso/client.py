@@ -60,6 +60,11 @@ class SSOClient(oauth.Client):
 
 
     def get(self, url, **kwargs):
+        from warnings import warn;
+        warn(
+            'Existe um bug no provider do python-oauth2 quando requisições utilizando GET são utilizadas. '
+            'Você provavelmente vai precisar usar um POST.'
+        )
         resp, content = self.request(url, method='GET', **kwargs)
         
         return resp, content

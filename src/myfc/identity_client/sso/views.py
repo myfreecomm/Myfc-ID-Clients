@@ -86,7 +86,7 @@ def initiate(request):
 def fetch_user_data(request):
 
     try:
-        resp, raw_user_data = SSOClient(request.access_token).get(SSOClient.user_data_url)
+        resp, raw_user_data = SSOClient(request.access_token).post(SSOClient.user_data_url)
 
         assert str(resp.get('status')) == '200', (resp, raw_user_data)
 
