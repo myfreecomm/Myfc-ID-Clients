@@ -86,7 +86,8 @@ def fetch_user_data(request):
     try:
         resp, raw_user_data = SSOClient(request.access_token).get(SSOClient.user_data_url)
 
-        assert str(resp.get('status')) == '200', (resp, raw_user_data)
+        if not str(resp.get('status')) == '200':
+            raise AssertionError(resp, raw_user_data)
 
         identity = json.loads(
             raw_user_data, object_hook=as_local_identity

@@ -31,7 +31,8 @@ class SSOClient(oauth.Client):
             self.request_token_url, body='oauth_callback={0}'.format(callback_url)
         )
 
-        assert str(resp.get('status')) == '200', (resp, content)
+        if not str(resp.get('status')) == '200':
+            raise AssertionError(resp, content)
 
         return oauth.Token.from_string(content)
 
@@ -40,7 +41,8 @@ class SSOClient(oauth.Client):
 
         resp, content = self.post(self.access_token_url)
 
-        assert str(resp.get('status')) == '200', (resp, content)
+        if not str(resp.get('status')) == '200':
+            raise AssertionError(resp, content)
 
         return oauth.Token.from_string(content)
 
