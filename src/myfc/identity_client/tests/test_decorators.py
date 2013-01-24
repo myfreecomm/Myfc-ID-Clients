@@ -14,7 +14,9 @@ from identity_client.sso.decorators import oauth_callback
 
 __all__ = ['TestOauthCallback', ]
 
-from warnings import warn; warn('decorators.sso_login_required não está testado')
+from warnings import warn;
+warn('decorators.sso_login_required não está testado')
+warn('decorators.requires_plan não está testado')
 
 class TestOauthCallback(TestCase):
 
