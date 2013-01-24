@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-import oauth2 as oauth
 import json
 from httplib2 import HttpLib2Error
 
@@ -9,7 +8,6 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.core.urlresolvers import reverse
 
 from identity_client.sso.client import SSOClient
 from identity_client.sso.decorators import oauth_callback

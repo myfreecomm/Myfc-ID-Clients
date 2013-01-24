@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from mock import Mock, patch
+from mock import patch
 
 from datetime import datetime as dt, timedelta
 

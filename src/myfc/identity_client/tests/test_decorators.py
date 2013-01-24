@@ -10,7 +10,6 @@ from django.conf import settings
 from mock_helpers import (
     mocked_request_token, mocked_response, mocked_access_token, patch_httplib2, OAUTH_REQUEST_TOKEN
 )
-from identity_client.sso.decorators import oauth_callback
 
 __all__ = ['TestOauthCallback', ]
 

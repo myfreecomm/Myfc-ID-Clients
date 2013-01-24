@@ -1,7 +1,5 @@
 #coding: utf-8
-import logging
 import oauth2 as oauth
-import httplib2
 
 from django.conf import settings
 from django.core.urlresolvers import reverse, set_script_prefix

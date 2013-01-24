@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 from datetime import datetime as dt
 from collections import namedtuple
 
@@ -11,7 +10,7 @@ from djangorestframework.views import View
 from djangorestframework.resources import Resource
 from djangorestframework.authentication import BaseAuthentication
 from djangorestframework.permissions import IsAuthenticated
-from djangorestframework.response import Response, ErrorResponse
+from djangorestframework.response import ErrorResponse
 
 from requestlogging import logging
 from identity_client.utils import get_account_module

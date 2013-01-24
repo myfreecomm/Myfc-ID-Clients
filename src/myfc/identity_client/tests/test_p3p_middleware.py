@@ -3,7 +3,6 @@ from mock import Mock, patch
 
 from django.test import TestCase
 from django.conf import settings
-from django.test.client import Client
 from django.core.urlresolvers import reverse
 
 from identity_client import middleware

@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
-from datetime import datetime as dt
-
 from identity_client.signals import pre_identity_authentication
 from identity_client.utils import get_account_module
 

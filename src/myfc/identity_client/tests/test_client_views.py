@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
 import json
 from mock import Mock, patch
-from httplib2 import Http
 
 from django.core.urlresolvers import reverse
-from django.conf import settings
 
 from identity_client.views import client_views
-from identity_client.models import Identity
-from identity_client.forms import IdentityAuthenticationForm
 
-from identity_client import forms
-from identity_client.tests.backend_mock import MyfcidAPIBackendMock
 from identity_client.tests.mock_helpers import *
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
