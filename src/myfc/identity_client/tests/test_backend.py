@@ -186,18 +186,12 @@ class TestMyfcidApiBackend(TestCase):
 
     @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_user_accounts_creation_fails_if_settings_are_wrong(self):
-        # drible da vaca
-        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
-        settings.SERVICE_ACCOUNT_MODULE = 'unknown_app.UnknownModel'
+        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'unknown_app.UnknownModel'):
+            # Autenticar um usuário
+            identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
-        # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
-
-        # A autenticação ocorreu com sucesso
-        self.assertTrue(identity is not None)
-
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache
+            # A autenticação ocorreu com sucesso
+            self.assertTrue(identity is not None)
 
         # Nenhuma conta deve ter sido criada
         serviceAccountModel = get_account_module()
@@ -207,18 +201,12 @@ class TestMyfcidApiBackend(TestCase):
 
     @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_user_accounts_creation_fails_if_settings_are_missing(self):
-        # drible da vaca
-        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
-        settings.SERVICE_ACCOUNT_MODULE = None
+        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', None):
+            # Autenticar um usuário
+            identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
-        # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
-
-        # A autenticação ocorreu com sucesso
-        self.assertTrue(identity is not None)
-
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache
+            # A autenticação ocorreu com sucesso
+            self.assertTrue(identity is not None)
 
         # Nenhuma conta deve ter sido criada
         serviceAccountModel = get_account_module()
