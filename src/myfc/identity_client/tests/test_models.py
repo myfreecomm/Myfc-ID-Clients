@@ -44,8 +44,8 @@ class TestIdentityModel(TestCase):
     def test_set_password_not_implemented(self):
         # This method should not be implemented
         self.assertRaises(
-            NotImplementedError, 
-            self.identity.set_password, 
+            NotImplementedError,
+            self.identity.set_password,
             's3nH4'
         )
 
@@ -53,8 +53,8 @@ class TestIdentityModel(TestCase):
     def test_check_password_not_implemented(self):
         # This method should not be implemented
         self.assertRaises(
-            NotImplementedError, 
-            self.identity.check_password, 
+            NotImplementedError,
+            self.identity.check_password,
             's3nH4'
         )
 
@@ -62,8 +62,8 @@ class TestIdentityModel(TestCase):
     def test_set_unusable_password_not_implemented(self):
         # This method should not be implemented
         self.assertRaises(
-            NotImplementedError, 
-            self.identity.set_unusable_password, 
+            NotImplementedError,
+            self.identity.set_unusable_password,
         )
 
 

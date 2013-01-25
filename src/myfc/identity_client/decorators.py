@@ -55,7 +55,7 @@ def requires_plan(plan_slug):
         @sso_login_required
         def check_user_plan(request, *args, **kwargs):
             """
-            Este decorator assume que a autenticação acabou de ser feita, 
+            Este decorator assume que a autenticação acabou de ser feita,
             portanto as contas do usuário estão sincronizadas com o Passaporte Web.
             """
             serviceAccount = get_account_module()

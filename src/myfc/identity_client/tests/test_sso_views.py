@@ -94,7 +94,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -113,7 +113,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -127,7 +127,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -141,7 +141,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 502)
@@ -154,7 +154,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 500)
@@ -168,7 +168,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertTrue(isinstance(sign_request_mock.call_args[0][2], Token))
@@ -183,7 +183,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -206,7 +206,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
       )
 
         self.assertEqual(response.status_code, 302)

@@ -114,7 +114,7 @@ class AccountMember(EmbeddedDocument):
 
     def __unicode__(self):
         return u'%s - [%s]' % (self.identity.email, ','.join(self.roles))
-        
+
 
 class ServiceAccount(Document):
     name = StringField(max_length=256, required=True)

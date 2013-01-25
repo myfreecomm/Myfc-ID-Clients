@@ -34,14 +34,14 @@ class AccountActivationAuthenticator(BaseAuthentication):
         token, secret = self._get_authorization(request)
 
         return Consumer(
-            token=token, 
-            secret=secret, 
+            token=token,
+            secret=secret,
             username=token,
             is_authenticated=lambda: bool((token, secret) == (expected_token, expected_secret)),
         )
 
     def _get_authorization(self, request):
-        """ 
+        """
         Extracts the credentials supplied on the HTTP_AUTHORIZATION header
         """
         header = request.META.get('HTTP_AUTHORIZATION')
@@ -53,10 +53,10 @@ class AccountActivationAuthenticator(BaseAuthentication):
             except:
                 logging.error('parsing (header = %s) - %s: %s',
                     header, type(e).__name__, e)
-                
+
         else:
             logging.debug('unparsable authorizarion header: %s', header)
-                
+
         return None, None
 
 
