@@ -27,7 +27,7 @@ try {
     $_SESSION['state'] = 2;
     $_SESSION['token'] = $access_token_info['oauth_token'];
     $_SESSION['secret'] = $access_token_info['oauth_token_secret'];
-  } 
+  }
   $oauth->setToken($_SESSION['token'],$_SESSION['secret']);
   $oauth->fetch($api_url);
   $json = json_decode($oauth->getLastResponse());

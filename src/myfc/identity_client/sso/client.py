@@ -66,11 +66,11 @@ class SSOClient(oauth.Client):
             'Você provavelmente vai precisar usar um POST.'
         )
         resp, content = self.request(url, method='GET', **kwargs)
-        
+
         return resp, content
 
 
     def post(self, url, **kwargs):
         resp, content = self.request(url, method='POST', **kwargs)
-        
+
         return resp, content

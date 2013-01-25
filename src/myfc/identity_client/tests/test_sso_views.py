@@ -94,7 +94,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -113,7 +113,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -127,7 +127,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -141,7 +141,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 502)
@@ -154,7 +154,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 500)
@@ -168,7 +168,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertTrue(isinstance(sign_request_mock.call_args[0][2], Token))
@@ -183,7 +183,7 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEqual(response.status_code, 302)
@@ -194,11 +194,8 @@ class AccessUserData(TestCase):
 
     @patch.object(SSOClient, 'fetch_access_token', Mock(return_value=dummy_access_token))
     @patch_httplib2(Mock(return_value=mocked_response(200, mocked_user_json)))
+    @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
     def test_authentication_creates_local_user_accounts(self):
-        # drible da vaca
-        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
-        settings.SERVICE_ACCOUNT_MODULE = 'identity_client.ServiceAccount'
-
         serviceAccountModel = get_account_module()
         serviceAccountModel.objects.all().delete()
 
@@ -206,13 +203,10 @@ class AccessUserData(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
       )
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
 
         self.assertEqual(serviceAccountModel.objects.count(), 2)
-
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache

@@ -81,7 +81,7 @@ class TestActivateAccount(TestCase):
 
     def test_GET_is_not_allowed(self):
         response = self.client.get(self.url, HTTP_AUTHORIZATION=self.auth)
-        
+
         self.assertEqual(response.status_code, 405)
 
         data = json.loads(response.content)
@@ -89,7 +89,7 @@ class TestActivateAccount(TestCase):
 
     def test_POST_is_not_allowed(self):
         response = self.client.post(self.url, HTTP_AUTHORIZATION=self.auth)
-        
+
         self.assertEqual(response.status_code, 405)
 
         data = json.loads(response.content)
@@ -97,7 +97,7 @@ class TestActivateAccount(TestCase):
 
     def test_DELETE_is_not_allowed(self):
         response = self.client.delete(self.url, HTTP_AUTHORIZATION=self.auth)
-        
+
         self.assertEqual(response.status_code, 405)
 
         data = json.loads(response.content)
@@ -131,8 +131,8 @@ class TestActivateAccount(TestCase):
         del(local_dict['plan_slug'])
         local_mock = json.dumps(local_dict)
 
-        response = self.client.put(self.url, 
-            local_mock, 
+        response = self.client.put(self.url,
+            local_mock,
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -152,8 +152,8 @@ class TestActivateAccount(TestCase):
         del(local_dict['plan_slug'])
         local_mock = json.dumps(local_dict)
 
-        response = self.client.put(self.url, 
-            local_mock, 
+        response = self.client.put(self.url,
+            local_mock,
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -202,8 +202,8 @@ class TestActivateAccount(TestCase):
         self.assertEqual(response.status_code, 415)
 
     def test_api_accepts_json(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -213,8 +213,8 @@ class TestActivateAccount(TestCase):
 
 
     def test_response_format(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -231,22 +231,22 @@ class TestActivateAccount(TestCase):
 
 
     def test_response_format(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/xml',
             HTTP_AUTHORIZATION=self.auth
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, 
+        self.assertEqual(response.content,
             '<?xml version="1.0" encoding="utf-8"?>\n<root><expiration>%s</expiration><is_active>True</is_active><uuid>16fd2706-8baf-433b-82eb-8c7fada847da</uuid><name>Pessoal</name></root>' % account.expiration
         )
 
 
     def test_creates_account_on_success(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -257,7 +257,7 @@ class TestActivateAccount(TestCase):
         serviceAccount =  get_account_module()
         self.assertEqual(serviceAccount.objects.count(), 1)
         new_account = serviceAccount.objects.get(uuid=account.uuid)
-        
+
         for field in ('uuid', 'name', 'plan_slug'):
             self.assertEqual(
                 getattr(account, field), getattr(new_account, field)
@@ -272,8 +272,8 @@ class TestActivateAccount(TestCase):
         local_mock = dict_mock.copy()
         local_mock['expiration'] = None
 
-        response = self.client.put(self.url, 
-            json.dumps(local_mock), 
+        response = self.client.put(self.url,
+            json.dumps(local_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -284,7 +284,7 @@ class TestActivateAccount(TestCase):
         serviceAccount =  get_account_module()
         self.assertEqual(serviceAccount.objects.count(), 1)
         new_account = serviceAccount.objects.get(uuid=account.uuid)
-        
+
         for field in ('uuid', 'name', 'plan_slug'):
             self.assertEqual(
                 getattr(account, field), getattr(new_account, field)
@@ -294,8 +294,8 @@ class TestActivateAccount(TestCase):
 
 
     def test_updates_account_members_on_success(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -306,9 +306,9 @@ class TestActivateAccount(TestCase):
         serviceAccount =  get_account_module()
         self.assertEqual(serviceAccount.objects.count(), 1)
         new_account = serviceAccount.objects.get(uuid=account.uuid)
-        
+
         self.assertEqual(new_account.members_count, 2)
-        
+
 
 
 class TestUpdateAccount(TestActivateAccount):
@@ -331,8 +331,8 @@ class TestUpdateAccount(TestActivateAccount):
         self.previous_account.save()
 
     def test_does_not_create_a_new_account(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -344,8 +344,8 @@ class TestUpdateAccount(TestActivateAccount):
         self.assertEqual(serviceAccount.objects.count(), 1)
 
     def test_activation_works_as_plan_change(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -356,13 +356,13 @@ class TestUpdateAccount(TestActivateAccount):
         serviceAccount =  get_account_module()
         self.assertEqual(serviceAccount.objects.count(), 1)
         new_account = serviceAccount.objects.get(uuid=account.uuid)
-        
+
         self.assertNotEqual(self.default_plan, new_account.plan_slug)
         self.assertEqual(account.plan_slug, new_account.plan_slug)
 
     def test_activation_updates_expiration_date(self):
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -373,7 +373,7 @@ class TestUpdateAccount(TestActivateAccount):
         serviceAccount =  get_account_module()
         self.assertEqual(serviceAccount.objects.count(), 1)
         new_account = serviceAccount.objects.get(uuid=account.uuid)
-        
+
         self.assertNotEqual(self.default_expiration, new_account.expiration)
         self.assertEqual(
             account.expiration, new_account.expiration.strftime(EXPIRATION_FORMAT)
@@ -383,8 +383,8 @@ class TestUpdateAccount(TestActivateAccount):
         member = self.previous_account.get_member(self.previous_user)
         self.assertEqual(member.roles, [])
 
-        response = self.client.put(self.url, 
-            json.dumps(dict_mock), 
+        response = self.client.put(self.url,
+            json.dumps(dict_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth
@@ -395,7 +395,7 @@ class TestUpdateAccount(TestActivateAccount):
         serviceAccount =  get_account_module()
         self.assertEqual(serviceAccount.objects.count(), 1)
         new_account = serviceAccount.objects.get(uuid=account.uuid)
-        
+
         self.assertEqual(new_account.members_count, 2)
         member = new_account.get_member(self.previous_user)
         self.assertEqual(member.roles, ['owner'])
@@ -407,8 +407,8 @@ class TestUpdateAccount(TestActivateAccount):
         local_mock = dict_mock.copy()
         local_mock['members_data'] = {}
 
-        response = self.client.put(self.url, 
-            json.dumps(local_mock), 
+        response = self.client.put(self.url,
+            json.dumps(local_mock),
             content_type = 'application/json',
             HTTP_ACCEPT = 'application/json',
             HTTP_AUTHORIZATION=self.auth

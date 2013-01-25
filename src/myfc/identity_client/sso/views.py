@@ -47,8 +47,8 @@ def render_sso_iframe(request):
     }
 
     return render_to_response(
-        'sso_iframe.html', 
-        context, 
+        'sso_iframe.html',
+        context,
         context_instance=RequestContext(request)
     )
 

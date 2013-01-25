@@ -9,10 +9,12 @@ from django.contrib.auth.models import AnonymousUser
 
 from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
-from identity_client.client_api_methods import APIClient 
+from identity_client.client_api_methods import APIClient
 from identity_client.utils import get_account_module
 from identity_client.tests.mock_helpers import *
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
+
+from mock import patch
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData', 'TestFetchUserAccounts']
 
@@ -82,11 +84,9 @@ mocked_httplib2_request_failure = Mock(
 
 class TestMyfcidApiBackend(TestCase):
 
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_successful_auth(self):
         mocked_user_data = json.loads(mocked_user_json)
-
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
 
         # Autenticar um usuário
         identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
@@ -105,10 +105,8 @@ class TestMyfcidApiBackend(TestCase):
         )
 
 
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_failed)
     def test_failed_auth(self):
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_failed
-
         # Autenticar um usuário
         identity = MyfcidAPIBackend().authenticate('user@invalid.com', 'senha')
 
@@ -116,6 +114,7 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(identity, None)
 
 
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_updates_user(self):
         #Identity.objects.delete()
         mocked_user_data = json.loads(mocked_user_json)
@@ -128,9 +127,6 @@ class TestMyfcidApiBackend(TestCase):
             last_name='Last',
         )
 
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
-
         # Autenticar um usuário
         identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
@@ -141,10 +137,8 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(identity.uuid, mocked_user_data['uuid'])
 
 
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_corrupted)
     def test_corrupted_api_response(self):
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_corrupted
-
         # Autenticar um usuário
         identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
@@ -152,14 +146,9 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(identity, None)
 
 
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
+    @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
     def test_auth_creates_user_accounts(self):
-        # drible da vaca
-        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
-        settings.SERVICE_ACCOUNT_MODULE = 'identity_client.ServiceAccount'
-
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
-
         # Autenticar um usuário
         identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
@@ -168,17 +157,11 @@ class TestMyfcidApiBackend(TestCase):
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 2)
 
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache
 
-
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
+    @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
     def test_auth_removes_user_from_old_accounts(self):
-        # drible da vaca
-        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
-        settings.SERVICE_ACCOUNT_MODULE = 'identity_client.ServiceAccount'
-
         # Autenticar usuário com accounts
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
         identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
         # 2 contas devem ter sido criadas
@@ -200,26 +183,15 @@ class TestMyfcidApiBackend(TestCase):
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 0)
 
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache
 
-
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_user_accounts_creation_fails_if_settings_are_wrong(self):
-        # drible da vaca
-        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
-        settings.SERVICE_ACCOUNT_MODULE = 'unknown_app.UnknownModel'
+        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'unknown_app.UnknownModel'):
+            # Autenticar um usuário
+            identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
-
-        # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
-
-        # A autenticação ocorreu com sucesso
-        self.assertTrue(identity is not None)
-
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache
+            # A autenticação ocorreu com sucesso
+            self.assertTrue(identity is not None)
 
         # Nenhuma conta deve ter sido criada
         serviceAccountModel = get_account_module()
@@ -227,22 +199,14 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(accounts.count(), 0)
 
 
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_user_accounts_creation_fails_if_settings_are_missing(self):
-        # drible da vaca
-        cache = getattr(settings, 'SERVICE_ACCOUNT_MODULE', None)
-        settings.SERVICE_ACCOUNT_MODULE = None
+        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', None):
+            # Autenticar um usuário
+            identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
-
-        # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
-
-        # A autenticação ocorreu com sucesso
-        self.assertTrue(identity is not None)
-
-        # Voltar a configuração original
-        settings.SERVICE_ACCOUNT_MODULE = cache
+            # A autenticação ocorreu com sucesso
+            self.assertTrue(identity is not None)
 
         # Nenhuma conta deve ter sido criada
         serviceAccountModel = get_account_module()
@@ -253,10 +217,8 @@ class TestMyfcidApiBackend(TestCase):
 
 class TestGetUser(TestCase):
 
+    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def _create_user(self):
-        # Mockar leitura dos dados
-        MyfcidAPIBackend.fetch_user_data = fetch_user_data_ok
-
         # Autenticar um usuário
         return MyfcidAPIBackend().authenticate('user@existing.com', 's3nH4')
 

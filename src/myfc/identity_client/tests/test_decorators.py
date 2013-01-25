@@ -49,7 +49,7 @@ class TestOauthCallback(TestCase):
 
         self.assertIn('callback_url', self.client.session)
         self.assertEquals(
-            self.client.session['callback_url'], 
+            self.client.session['callback_url'],
             reverse('sso_consumer:callback', prefix='{0}/'.format(settings.APPLICATION_HOST))
         )
 
@@ -68,7 +68,7 @@ class TestOauthCallback(TestCase):
 
         self.assertIn('callback_url', self.client.session)
         self.assertEquals(
-            self.client.session['callback_url'], 
+            self.client.session['callback_url'],
             reverse('sso_consumer:callback', prefix='{0}/'.format(settings.APPLICATION_HOST))
         )
 
@@ -82,7 +82,7 @@ class TestOauthCallback(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEquals(response.status_code, 502)
@@ -103,7 +103,7 @@ class TestOauthCallback(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEquals(response.status_code, 500)
@@ -123,7 +123,7 @@ class TestOauthCallback(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEquals(response.status_code, 500)
@@ -140,7 +140,7 @@ class TestOauthCallback(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertEquals(response.status_code, 500)
@@ -158,7 +158,7 @@ class TestOauthCallback(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertTrue(isinstance(sign_request_mock.call_args[0][2], Token))
@@ -172,7 +172,7 @@ class TestOauthCallback(TestCase):
             reverse('sso_consumer:callback'), {
                 'oauth_token': OAUTH_REQUEST_TOKEN,
                 'oauth_verifier': 'niceverifier'
-            }, 
+            },
         )
 
         self.assertIn('access_token', self.client.session)
