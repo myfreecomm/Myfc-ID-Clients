@@ -1,13 +1,15 @@
 #-*- coding: utf-8 -*-
 from django import http
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import user_passes_test
+from django.template import Context, loader
 
 from requestlogging import logging
 from identity_client.utils import get_account_module
 
 
-__all__ = ['required_method', 'sso_login_required', 'required_method']
+__all__ = ['required_method', 'sso_login_required', 'requires_plan', 'with_403_page']
 
 
 class required_method(object):
@@ -76,5 +78,26 @@ def requires_plan(plan_slug):
                 return http.HttpResponseForbidden()
 
         return check_user_plan
-
+        
     return decorator
+
+
+def with_403_page(view):
+
+    # You need to create a 403.html template.
+    template_name = '403.html'
+
+    def handle_403(request, *args, **kwargs):
+        response = view(request, *args, **kwargs)
+
+        if isinstance(response, http.HttpResponseForbidden):
+            t = loader.get_template(template_name) 
+            response = http.HttpResponseForbidden(
+                t.render(
+                    Context({'MEDIA_URL': settings.MEDIA_URL})
+                )
+            )
+
+        return response
+
+    return handle_403
