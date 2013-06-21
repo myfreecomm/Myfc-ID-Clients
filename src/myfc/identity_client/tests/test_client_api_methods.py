@@ -99,6 +99,18 @@ class InvokeRegistrationApi(TestCase):
             'tos': True,
         }
 
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        form = RegistrationForm(self.registration_data)
+        response = APIClient.invoke_registration_api(form)
+        status_code, content, new_form = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            '__all__': [u'Ocorreu uma falha na comunicação com o Passaporte Web. Por favor tente novamente.']
+        })
+
     def test_request_with_wrong_credentials(self):
         form = RegistrationForm(self.registration_data)
         APIClient.pweb.auth = ('?????', 'XXXXXX')
@@ -115,16 +127,17 @@ class InvokeRegistrationApi(TestCase):
             '__all__': [u'Esta aplicação não está autorizada a utilizar o PassaporteWeb. Entre em contato com o suporte.']
         })
 
-    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
-    def test_request_with_wrong_api_host(self):
+    def test_request_with_application_without_permissions(self):
         form = RegistrationForm(self.registration_data)
-        response = APIClient.invoke_registration_api(form)
-        status_code, content, new_form = response
 
-        self.assertEquals(status_code, 500)
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/application_without_permissions'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 403)
         self.assertEquals(content, None)
         self.assertEquals(form.errors, {
-            '__all__': [u'Ocorreu uma falha na comunicação com o Passaporte Web. Por favor tente novamente.']
+            '__all__': [u'Erro no servidor. Entre em contato com o suporte.']
         })
 
     def test_request_without_tos_set(self):
@@ -167,6 +180,59 @@ class InvokeRegistrationApi(TestCase):
         self.assertEquals(content, None)
         self.assertEquals(form.errors, {
             u'__all__': [u"The two password fields didn't match."]
+        })
+
+    def test_registration_success(self):
+        form = RegistrationForm(self.registration_data)
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/registration_success'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'first_name': u'Myfc ID',
+            u'last_name': u'Clients',
+            u'send_partner_news': False,
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57',
+            u'is_active': False,
+            u'cpf': None,
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'accounts': [],
+            u'send_myfreecomm_news': False,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'email': u'identity_client@disposableinbox.com',
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/'
+        })
+        self.assertEquals(form.errors, {})
+
+    def test_email_already_registered(self):
+        form = RegistrationForm(self.registration_data)
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/email_already_registered'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 409)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'email': [u'Este email já está cadastrado. Por favor insira outro email']
+        })
+
+    def test_cpf_already_registered(self):
+        form = RegistrationForm(self.registration_data)
+        form.data['email'] = 'identity_client+1@disposableinbox.com'
+        form.data['cpf'] = '11111111111'
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/cpf_already_registered'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'cpf': [u'Este número de CPF já está cadastrado.']
         })
 
 
