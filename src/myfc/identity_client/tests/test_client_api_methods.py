@@ -106,7 +106,7 @@ class TestFetchUserAccounts(TestCase):
 
         self.assertEquals(response, (mocked_accounts_list, None))
 
-    def test_successful_2(self):
+    def test_success(self):
         user_uuid = '1cf30b5f-e78c-4eb9-a7b2-294a1d024e6d'
         with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success'):
             import ipdb; ipdb.set_trace()
