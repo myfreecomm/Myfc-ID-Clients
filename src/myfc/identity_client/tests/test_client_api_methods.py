@@ -4,6 +4,7 @@ from datetime import datetime as dt, timedelta
 from httplib2 import HttpLib2Error
 
 from mock import patch, Mock
+import vcr
 
 from django.conf import settings
 from django.test import TestCase
@@ -105,6 +106,20 @@ class TestFetchUserAccounts(TestCase):
 
         self.assertEquals(response, (mocked_accounts_list, None))
 
+    def test_successful_2(self):
+        user_uuid = '1cf30b5f-e78c-4eb9-a7b2-294a1d024e6d'
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success'):
+            import ipdb; ipdb.set_trace()
+            response = APIClient.fetch_user_accounts(user_uuid)
+            self.assertEquals(response, (mocked_accounts_list, None))
+
+    def test_connection_error(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/connection_error'):
+            response = APIClient.fetch_user_accounts(self.uuid)
+            self.assertEquals(
+                response, 
+                (None, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+            )
 
     @patch('identity_client.client_api_methods.httplib2')
     def test_error_in_json_loads(self, mocked_http):

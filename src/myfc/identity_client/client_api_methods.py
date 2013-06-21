@@ -1,89 +1,94 @@
-#coding: utf-8
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
+# -*- coding: utf-8 -*-
 import logging
 
-import httplib2
-
+import requests
 from django.conf import settings
 
 from identity_client.utils import prepare_form_errors
 
+# Imports a remover
+import httplib2
+import json
 
 __all__ = ['APIClient']
 
 
 class APIClient(object):
 
-    api_host = settings.MYFC_ID['HOST']
-    api_user = settings.MYFC_ID['CONSUMER_TOKEN']
-    api_password = settings.MYFC_ID['CONSUMER_SECRET']
+    #api_host = settings.MYFC_ID['HOST']
+    #api_user = settings.MYFC_ID['CONSUMER_TOKEN'],
+    #api_password = settings.MYFC_ID['CONSUMER_SECRET']
+
+
+    api_host = 'http://sandbox.app.passaporteweb.com.br'
+    api_user = 'jkAKVNPlgw'
+    api_password = 'GPjzzUZpE7usQQezZkFxVFjLczStwCSV'
+
     profile_api = settings.MYFC_ID['PROFILE_API']
     registration_api = settings.MYFC_ID['REGISTRATION_API']
+
+    pweb = requests.Session()
+    pweb.auth = (api_user, api_password)
+    pweb.headers.update({
+        'cache-control': 'no-cache',
+        'content-length': '0',
+        'content-type': 'application/json',
+        'accept': 'application/json',
+        'user-agent': 'myfc_id client',
+    })
 
 
     @classmethod
     def fetch_user_accounts(cls, uuid):
-        api_user = cls.api_user
-        api_password = cls.api_password
 
-        http = httplib2.Http()
-        url = '%s/%s' % (
-            cls.api_host,
-            'organizations/api/identities/{0}/accounts/'.format(uuid)
+        url = '{0}/organizations/api/identities/{1}/accounts/'.format(
+            cls.api_host, uuid
         )
-        headers = {
-            'cache-control': 'no-cache',
-            'content-length': '0',
-            'content-type': 'application/json',
-            'user-agent': 'myfc_id client',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-        }
 
-        response = content = error = None
-        accounts = []
+        accounts = error = None
 
         try:
             logging.info('fetch_user_accounts: Making request to %s', url)
+            response = cls.pweb.get(url)
+            response.raise_for_status()
 
-            response, content = http.request(url, "GET", headers=headers)
-            if response.status in (200, 201):
-                accounts = json.loads(content)
+            if response.status_code == 200:
+                if response.text:
+                    accounts = response.json()
+                else:
+                    accounts = []
 
             else:
-                error = {
-                    'status': response.status,
-                    'message': content,
-                }
-
-                logging.error(
-                    'fetch_user_accounts: Error making request: %s - %s',
-                    response.status, content,
-                )
-
-        except ValueError:
+                raise requests.exceptions.HTTPError('Unexpected response', response=response)
+                
+        except requests.exceptions.HTTPError as e:
             error = {
-                'status': response and response.status,
-                'message': content,
+                'status': e.response.status_code,
+                'message': e.response.text if e.response.text else e.message,
             }
 
-            logging.error(
-                'fetch_user_accounts: Unexpected response: %s - %s',
-                error['status'], error['message'],
-            )
-
-        except Exception, err:
+        except requests.exceptions.ConnectionError as e:
             error = {
                 'status': None,
-                'message': u'unexpected error: ({0.__name__}) {1}'.format(type(err), err),
+                'message': 'Error connecting to PassaporteWeb',
             }
 
+        except requests.exceptions.Timeout as e:
+            error = {
+                'status': None,
+                'message': 'Timeout connecting to PassaporteWeb',
+            }
+
+        except (requests.exceptions.RequestException, Exception) as e:
+            error = {
+                'status': None,
+                'message': u'Unexpected error: {0} <{1}>'.format(e, type(e)),
+            }
+
+        if error:
             logging.error(
-                'fetch_user_accounts: Error making request: %s, %s',
-                err.__class__.__name__, err,
+                'fetch_user_accounts: Error making request: %s - %s',
+                error['status'], error['message']
             )
 
         return accounts, error
