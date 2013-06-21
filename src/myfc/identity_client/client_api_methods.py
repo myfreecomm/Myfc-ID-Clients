@@ -16,7 +16,7 @@ __all__ = ['APIClient']
 class APIClient(object):
 
     api_host = settings.MYFC_ID['HOST']
-    api_user = settings.MYFC_ID['CONSUMER_TOKEN'],
+    api_user = settings.MYFC_ID['CONSUMER_TOKEN']
     api_password = settings.MYFC_ID['CONSUMER_SECRET']
     profile_api = settings.MYFC_ID['PROFILE_API']
     registration_api = settings.MYFC_ID['REGISTRATION_API']
@@ -35,49 +35,72 @@ class APIClient(object):
     @classmethod
     def invoke_registration_api(cls, form):
 
-        api_user = cls.api_user
-        api_password = cls.api_password
-        api_url = "%s/%s" % (
-            cls.api_host,
-            cls.registration_api
-        )
+        url = "{0}/{1}".format(cls.api_host, cls.registration_api)
 
         status_code = 500
-        content = None
-        error_dict = None
-
-        registration_data = json.dumps(form.data)
-        headers = {
-            'content-type': 'application/json',
-            'user-agent': 'myfc_id client',
-            'cache-control': 'no-cache',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-        }
+        content = error = error_dict = None
 
         try:
-            http = httplib2.Http()
-            response, content = http.request(api_url,
-                "POST", body=registration_data, headers=headers
-            )
+            registration_data = json.dumps(form.data)
 
-            status_code = response.status
-            if status_code not in (200, 201):
+            logging.info('invoke_registration_api: Making request to %s', url)
+            response = cls.pweb.post(url, headers={'content-length': str(len(registration_data))}, data=registration_data)
+            status_code = response.status_code
 
-                if status_code in (400, 409):
-                    error_dict = json.loads(content)
+            if status_code in (200, 201):
+                content = response.json()
+            else:
+                response.raise_for_status()
+                raise requests.exceptions.HTTPError('Unexpected response', response=response)
 
-                else:
-                    raise Exception
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in (400, 409):
+                error_dict = e.response.json()
+            else:
+                error_dict = {
+                    '__all__': [error_messages.get(e.response.status_code, error_messages['default']), ]
+                }
 
+            error = {
+                'status': e.response.status_code,
+                'message': e.response.text if e.response.text else e.message,
+            }
 
-        except (ValueError, httplib2.HttpLib2Error, Exception):
-            # Caso o json esteja corrompido ou ocorra uma falha na comunicação com o servidor
+        except requests.exceptions.ConnectionError as e:
             error_dict = {
-                '__all__': [error_messages.get(status_code, error_messages['default']), ]
+                '__all__': [error_messages.get('ConnectionError', error_messages['default']), ]
+            }
+            error = {
+                'status': None,
+                'message': 'Error connecting to PassaporteWeb',
+            }
+
+        except requests.exceptions.Timeout as e:
+            error_dict = {
+                '__all__': [error_messages.get('Timeout', error_messages['default']), ]
+            }
+            error = {
+                'status': None,
+                'message': 'Timeout connecting to PassaporteWeb',
+            }
+
+        except (requests.exceptions.RequestException, Exception) as e:
+            error_dict = {
+                '__all__': [error_messages.get('default'), ]
+            }
+            error = {
+                'status': None,
+                'message': u'Unexpected error: {0} <{1}>'.format(e, type(e)),
             }
 
         if error_dict:
             form._errors = prepare_form_errors(error_dict)
+
+        if error:
+            logging.error(
+                'invoke_registration_api: Error making request: %s - %s',
+                error['status'], error['message']
+            )
 
         return (status_code, content, form)
 
@@ -298,5 +321,7 @@ error_messages = {
     401: u"Esta aplicação não está autorizada a utilizar o PassaporteWeb. Entre em contato com o suporte.",
     400: u"Erro na transmissão dos dados. Tente novamente.",
     409: u"Email já cadastrado.",
+    'ConnectionError': u"Ocorreu uma falha na comunicação com o Passaporte Web. Por favor tente novamente.",
+    'Timeout': u"Ocorreu uma falha na comunicação com o Passaporte Web. Por favor tente novamente.",
     'default': u"Erro no servidor. Entre em contato com o suporte.",
 }

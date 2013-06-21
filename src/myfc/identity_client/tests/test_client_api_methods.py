@@ -9,7 +9,9 @@ import vcr
 from django.conf import settings
 from django.test import TestCase
 
+from identity_client import client_api_methods
 from identity_client.client_api_methods import APIClient
+from identity_client.forms import RegistrationForm
 
 
 mocked_accounts_json = '''[
@@ -82,18 +84,90 @@ __all__ = [
     'TestFetchUserAccounts',
 ]
 
+test_user_email = 'identity_client@disposableinbox.com'
+test_user_password = '*SudN7%r$MiYRa!E'
 
 class InvokeRegistrationApi(TestCase):
 
-    @patch.object(APIClient, 'api_user', '?????????')
-    def test_request_with_wrong_credentials(self):
-        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/wrong_credentials'):
-            form = None
-            import ipdb; ipdb.set_trace()
-            response = APIClient.invoke_registration_api(form)
-            raise NotImplementedError
+    def setUp(self):
+        self.registration_data = {
+            'first_name': 'Myfc ID',
+            'last_name': 'Clients',
+            'email': test_user_email,
+            'password': test_user_password,
+            'password2': test_user_password,
+            'tos': True,
+        }
 
-        self.assertEquals(response, (Exception, None))
+    def test_request_with_wrong_credentials(self):
+        form = RegistrationForm(self.registration_data)
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/wrong_credentials'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            '__all__': [u'Esta aplicação não está autorizada a utilizar o PassaporteWeb. Entre em contato com o suporte.']
+        })
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        form = RegistrationForm(self.registration_data)
+        response = APIClient.invoke_registration_api(form)
+        status_code, content, new_form = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            '__all__': [u'Ocorreu uma falha na comunicação com o Passaporte Web. Por favor tente novamente.']
+        })
+
+    def test_request_without_tos_set(self):
+        form = RegistrationForm(self.registration_data)
+        del(form.data['tos'])
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/without_tos_set'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'tos': [u'Você precisa concordar com os Termos de Serviço']
+        })
+
+    def test_request_with_password_only_once(self):
+        form = RegistrationForm(self.registration_data)
+        del(form.data['password2'])
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/with_password_only_once'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'password2': [u'Este campo é obrigatório.']
+        })
+
+    def test_request_with_passwords_not_matching(self):
+        form = RegistrationForm(self.registration_data)
+        form.data['password2'] = 'will not match'
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/with_passwords_not_matching'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'__all__': [u"The two password fields didn't match."]
+        })
 
 
 class TestFetchUserAccounts(TestCase):
