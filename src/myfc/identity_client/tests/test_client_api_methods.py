@@ -76,7 +76,25 @@ mocked_account_json = """{
 mocked_account = json.loads(mocked_account_json)
 
 
-__all__ = ['TestFetchUserAccounts', 'TestCreateUserAccount']
+__all__ = [
+    'InvokeRegistrationApi',
+    'TestCreateUserAccount',
+    'TestFetchUserAccounts',
+]
+
+
+class InvokeRegistrationApi(TestCase):
+
+    @patch.object(APIClient, 'api_user', '?????????')
+    def test_request_with_wrong_credentials(self):
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/wrong_credentials'):
+            form = None
+            import ipdb; ipdb.set_trace()
+            response = APIClient.invoke_registration_api(form)
+            raise NotImplementedError
+
+        self.assertEquals(response, (Exception, None))
+
 
 class TestFetchUserAccounts(TestCase):
     mocked_content = mocked_accounts_json
@@ -107,19 +125,21 @@ class TestFetchUserAccounts(TestCase):
         self.assertEquals(response, (mocked_accounts_list, None))
 
     def test_success(self):
-        user_uuid = '1cf30b5f-e78c-4eb9-a7b2-294a1d024e6d'
         with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success'):
-            import ipdb; ipdb.set_trace()
+            user_uuid = '1cf30b5f-e78c-4eb9-a7b2-294a1d024e6d'
             response = APIClient.fetch_user_accounts(user_uuid)
-            self.assertEquals(response, (mocked_accounts_list, None))
+
+        self.assertEquals(response, (mocked_accounts_list, None))
 
     def test_connection_error(self):
+
         with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/connection_error'):
             response = APIClient.fetch_user_accounts(self.uuid)
-            self.assertEquals(
-                response, 
-                (None, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
-            )
+
+        self.assertEquals(
+            response, 
+            (None, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+        )
 
     @patch('identity_client.client_api_methods.httplib2')
     def test_error_in_json_loads(self, mocked_http):

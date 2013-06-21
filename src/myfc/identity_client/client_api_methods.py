@@ -15,15 +15,9 @@ __all__ = ['APIClient']
 
 class APIClient(object):
 
-    #api_host = settings.MYFC_ID['HOST']
-    #api_user = settings.MYFC_ID['CONSUMER_TOKEN'],
-    #api_password = settings.MYFC_ID['CONSUMER_SECRET']
-
-
-    api_host = 'http://sandbox.app.passaporteweb.com.br'
-    api_user = 'jkAKVNPlgw'
-    api_password = 'GPjzzUZpE7usQQezZkFxVFjLczStwCSV'
-
+    api_host = settings.MYFC_ID['HOST']
+    api_user = settings.MYFC_ID['CONSUMER_TOKEN'],
+    api_password = settings.MYFC_ID['CONSUMER_SECRET']
     profile_api = settings.MYFC_ID['PROFILE_API']
     registration_api = settings.MYFC_ID['REGISTRATION_API']
 
@@ -36,6 +30,56 @@ class APIClient(object):
         'accept': 'application/json',
         'user-agent': 'myfc_id client',
     })
+
+
+    @classmethod
+    def invoke_registration_api(cls, form):
+
+        api_user = cls.api_user
+        api_password = cls.api_password
+        api_url = "%s/%s" % (
+            cls.api_host,
+            cls.registration_api
+        )
+
+        status_code = 500
+        content = None
+        error_dict = None
+
+        registration_data = json.dumps(form.data)
+        headers = {
+            'content-type': 'application/json',
+            'user-agent': 'myfc_id client',
+            'cache-control': 'no-cache',
+            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
+        }
+
+        try:
+            http = httplib2.Http()
+            response, content = http.request(api_url,
+                "POST", body=registration_data, headers=headers
+            )
+
+            status_code = response.status
+            if status_code not in (200, 201):
+
+                if status_code in (400, 409):
+                    error_dict = json.loads(content)
+
+                else:
+                    raise Exception
+
+
+        except (ValueError, httplib2.HttpLib2Error, Exception):
+            # Caso o json esteja corrompido ou ocorra uma falha na comunicação com o servidor
+            error_dict = {
+                '__all__': [error_messages.get(status_code, error_messages['default']), ]
+            }
+
+        if error_dict:
+            form._errors = prepare_form_errors(error_dict)
+
+        return (status_code, content, form)
 
 
     @classmethod
@@ -187,56 +231,6 @@ class APIClient(object):
         http = httplib2.Http()
         response, content = http.request(api_uri, "GET", headers=headers)
         return (response.status, content)
-
-
-    @classmethod
-    def invoke_registration_api(cls, form):
-
-        api_user = cls.api_user
-        api_password = cls.api_password
-        api_url = "%s/%s" % (
-            cls.api_host,
-            cls.registration_api
-        )
-
-        status_code = 500
-        content = None
-        error_dict = None
-
-        registration_data = json.dumps(form.data)
-        headers = {
-            'content-type': 'application/json',
-            'user-agent': 'myfc_id client',
-            'cache-control': 'no-cache',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-        }
-
-        try:
-            http = httplib2.Http()
-            response, content = http.request(api_url,
-                "POST", body=registration_data, headers=headers
-            )
-
-            status_code = response.status
-            if status_code not in (200, 201):
-
-                if status_code in (400, 409):
-                    error_dict = json.loads(content)
-
-                else:
-                    raise Exception
-
-
-        except (ValueError, httplib2.HttpLib2Error, Exception):
-            # Caso o json esteja corrompido ou ocorra uma falha na comunicação com o servidor
-            error_dict = {
-                '__all__': [error_messages.get(status_code, error_messages['default']), ]
-            }
-
-        if error_dict:
-            form._errors = prepare_form_errors(error_dict)
-
-        return (status_code, content, form)
 
 
     @classmethod
