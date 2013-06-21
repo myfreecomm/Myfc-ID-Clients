@@ -106,6 +106,64 @@ class APIClient(object):
 
 
     @classmethod
+    def fetch_identity_data(cls, uuid=None, email=None):
+
+        if not any((uuid, email)):
+            raise ValueError("Either 'uuid' or 'email' must be given")
+        elif uuid:
+            url = "{0}/{1}/{2}".format(cls.api_host, cls.profile_api, uuid)
+        else:
+            url = "{0}/{1}/?email={2}".format(cls.api_host, cls.profile_api, email)
+
+        content = error = status_code = None
+
+        try:
+            logging.info('fetch_identity_data: Making request to %s', url)
+            response = cls.pweb.get(url)
+            status_code = response.status_code
+
+            if response.status_code == 200:
+                content = response.json()
+
+            else:
+                response.raise_for_status()
+                raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        except requests.exceptions.HTTPError as e:
+
+            error = {
+                'status': e.response.status_code,
+                'message': e.response.text if e.response.text else e.message,
+            }
+
+        except requests.exceptions.ConnectionError as e:
+            error = {
+                'status': None,
+                'message': 'Error connecting to PassaporteWeb',
+            }
+
+        except requests.exceptions.Timeout as e:
+            error = {
+                'status': None,
+                'message': 'Timeout connecting to PassaporteWeb',
+            }
+
+        except (requests.exceptions.RequestException, Exception) as e:
+            error = {
+                'status': None,
+                'message': u'Unexpected error: {0} <{1}>'.format(e, type(e)),
+            }
+
+        if error:
+            logging.error(
+                'fetch_identity_data: Error making request: %s - %s',
+                error['status'], error['message']
+            )
+
+        return (status_code, content if content else error)
+
+
+    @classmethod
     def fetch_user_accounts(cls, uuid):
 
         url = '{0}/organizations/api/identities/{1}/accounts/'.format(
@@ -117,15 +175,12 @@ class APIClient(object):
         try:
             logging.info('fetch_user_accounts: Making request to %s', url)
             response = cls.pweb.get(url)
-            response.raise_for_status()
 
             if response.status_code == 200:
-                if response.text:
-                    accounts = response.json()
-                else:
-                    accounts = []
+                accounts = response.json()
 
             else:
+                response.raise_for_status()
                 raise requests.exceptions.HTTPError('Unexpected response', response=response)
                 
         except requests.exceptions.HTTPError as e:
@@ -225,35 +280,6 @@ class APIClient(object):
             )
 
         return account_data, error
-
-
-    @classmethod
-    def fetch_identity_data(cls, uuid=None, email=None):
-
-        # Construir url da API
-        api_host = cls.api_host
-        api_user = cls.api_user
-        api_password = cls.api_password
-        api_path = cls.profile_api
-
-        if not any((uuid, email)):
-            raise ValueError("Either 'uuid' or 'email' must be given")
-        elif uuid:
-            api_uri = "%s/%s/%s" % (api_host, api_path, uuid)
-        else:
-            api_uri = "%s/%s/?email=%s" % (api_host, api_path, email)
-
-        headers = {
-            'content-type': 'application/json',
-            'user-agent': 'myfc_id client',
-            'cache-control': 'no-cache',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-        }
-
-        # Efetuar requisição
-        http = httplib2.Http()
-        response, content = http.request(api_uri, "GET", headers=headers)
-        return (response.status, content)
 
 
     @classmethod

@@ -1,0 +1,60 @@
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57
+  response:
+    body: {string: ''}
+    headers: {cache-control: no-cache, connection: keep-alive, content-length: '0',
+      content-type: text/html; charset=utf-8, date: 'Fri, 21 Jun 2013 22:33:45 GMT',
+      expires: 'Fri, 21 Jun 2013 22:33:44 GMT', location: 'http://sandbox.app.passaporteweb.com.br/profile/api/info/c3769912-baa9-4a0c-9856-395a706c7d57/',
+      p3p: CP="NON DSP COR CURa TIA", server: nginx/0.7.67}
+    status: {code: 301, message: MOVED PERMANENTLY}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info/c3769912-baa9-4a0c-9856-395a706c7d57/
+  response:
+    body: {string: ''}
+    headers: {connection: close, content-length: '0', content-type: text/html; charset=utf-8,
+      date: 'Fri, 21 Jun 2013 22:33:46 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/0.7.67,
+      via: '1.1 firewall.corp.myfreecomm.com.br:3128 (squid/2.7.STABLE9)', x-cache: MISS
+        from firewall.corp.myfreecomm.com.br, x-cache-lookup: 'MISS from firewall.corp.myfreecomm.com.br:3128'}
+    status: {code: 403, message: Forbidden}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?email=identity_client@disposableinbox.com
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAwMAAAAAAAAAAAA=
+    headers: {connection: keep-alive, content-encoding: gzip, content-length: '20',
+      content-type: text/html; charset=utf-8, date: 'Fri, 21 Jun 2013 22:49:57 GMT',
+      p3p: CP="NON DSP COR CURa TIA", server: nginx/0.7.67}
+    status: {code: 403, message: FORBIDDEN}

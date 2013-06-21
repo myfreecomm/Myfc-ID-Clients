@@ -80,12 +80,15 @@ mocked_account = json.loads(mocked_account_json)
 
 __all__ = [
     'InvokeRegistrationApi',
+    'FetchIdentityData',
+    'FetchIdentityDataWithEmail',
     'TestCreateUserAccount',
     'TestFetchUserAccounts',
 ]
 
 test_user_email = 'identity_client@disposableinbox.com'
 test_user_password = '*SudN7%r$MiYRa!E'
+test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
 
 class InvokeRegistrationApi(TestCase):
 
@@ -233,6 +236,134 @@ class InvokeRegistrationApi(TestCase):
         self.assertEquals(content, None)
         self.assertEquals(form.errors, {
             u'cpf': [u'Este número de CPF já está cadastrado.']
+        })
+
+
+class FetchIdentityData(TestCase):
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+        status_code, content = response
+
+        self.assertEquals(status_code, None)
+        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/wrong_credentials'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: Unauthorized'})
+
+    def test_request_with_application_without_permissions(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/application_without_permissions'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: Forbidden'})
+
+    def test_request_with_uuid_which_does_not_exist(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/uuid_with_does_not_exist'):
+            response = APIClient.fetch_identity_data(uuid='00000000-0000-0000-0000-000000000000')
+            status_code, content = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(content['status'], 404)
+        self.assertTrue(content['message'].startswith('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1/'))
+
+    def test_success_request(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'accounts': [],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Myfc ID',
+            u'is_active': False,
+            u'last_name': u'Clients',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': False,
+            u'send_partner_news': False,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+        })
+
+
+class FetchIdentityDataWithEmail(TestCase):
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.fetch_identity_data(email=test_user_email)
+        status_code, content = response
+
+        self.assertEquals(status_code, None)
+        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/wrong_credentials'):
+            response = APIClient.fetch_identity_data(email=test_user_email)
+            status_code, content = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: Unauthorized'})
+
+    def test_request_with_application_without_permissions(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/application_without_permissions'):
+            response = APIClient.fetch_identity_data(email=test_user_email)
+            status_code, content = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: Forbidden'})
+
+    def test_request_with_email_which_does_not_exist(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/email_with_does_not_exist'):
+            response = APIClient.fetch_identity_data(email='nao_registrado@email.test')
+            status_code, content = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(content['status'], 404)
+        self.assertTrue(content['message'].startswith('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1/'))
+
+    def test_success_request(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success'):
+            response = APIClient.fetch_identity_data(email=test_user_email)
+            status_code, content = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'accounts': [],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Myfc ID',
+            u'is_active': False,
+            u'last_name': u'Clients',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': False,
+            u'send_partner_news': False,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
         })
 
 
