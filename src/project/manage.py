@@ -17,7 +17,10 @@ except ImportError:
 if __name__ == "__main__":
 
     if not '--settings' in str().join(sys.argv):
-        sys.argv.append('--settings=devel')
+        if 'test' in sys.argv:
+            sys.argv.append('--settings=test')
+        else:
+            sys.argv.append('--settings=devel')
 
     from django.core.management import execute_manager
     execute_manager(settings)
