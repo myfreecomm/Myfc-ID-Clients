@@ -275,47 +275,51 @@ class FetchIdentityData(TestCase):
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
         response = APIClient.fetch_identity_data(uuid=test_user_uuid)
-        status_code, content = response
+        status_code, content, error = response
 
         self.assertEquals(status_code, 500)
-        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
 
     def test_request_with_wrong_credentials(self):
         APIClient.pweb.auth = ('?????', 'XXXXXX')
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data/wrong_credentials'):
             response = APIClient.fetch_identity_data(uuid=test_user_uuid)
-            status_code, content = response
+            status_code, content, error = response
 
         APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
 
         self.assertEquals(status_code, 401)
-        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: UNAUTHORIZED'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': 401, 'message': '401 Client Error: UNAUTHORIZED'})
 
     def test_request_with_application_without_permissions(self):
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data/application_without_permissions'):
             response = APIClient.fetch_identity_data(uuid=test_user_uuid)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: FORBIDDEN'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': 403, 'message': '403 Client Error: FORBIDDEN'})
 
     def test_request_with_uuid_which_does_not_exist(self):
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data/uuid_which_does_not_exist'):
             response = APIClient.fetch_identity_data(uuid='00000000-0000-0000-0000-000000000000')
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 404)
-        self.assertEquals(content['status'], 404)
-        self.assertTrue(content['message'].startswith('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1/'))
+        self.assertEquals(content, None)
+        self.assertEquals(error['status'], 404)
+        self.assertTrue(error['message'].startswith('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1/'))
 
     def test_success_request(self):
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success'):
             response = APIClient.fetch_identity_data(uuid=test_user_uuid)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 200)
         self.assertEquals(content, {
@@ -332,6 +336,7 @@ class FetchIdentityData(TestCase):
             u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
             u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
         })
+        self.assertEquals(error, None)
 
 
 class FetchIdentityDataWithEmail(TestCase):
@@ -339,47 +344,51 @@ class FetchIdentityDataWithEmail(TestCase):
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
         response = APIClient.fetch_identity_data(email=test_user_email)
-        status_code, content = response
+        status_code, content, error = response
 
         self.assertEquals(status_code, 500)
-        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
 
     def test_request_with_wrong_credentials(self):
         APIClient.pweb.auth = ('?????', 'XXXXXX')
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/wrong_credentials'):
             response = APIClient.fetch_identity_data(email=test_user_email)
-            status_code, content = response
+            status_code, content, error = response
 
         APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
 
         self.assertEquals(status_code, 401)
-        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: UNAUTHORIZED'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': 401, 'message': '401 Client Error: UNAUTHORIZED'})
 
     def test_request_with_application_without_permissions(self):
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/application_without_permissions'):
             response = APIClient.fetch_identity_data(email=test_user_email)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: FORBIDDEN'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': 403, 'message': '403 Client Error: FORBIDDEN'})
 
     def test_request_with_email_which_does_not_exist(self):
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/email_which_does_not_exist'):
             response = APIClient.fetch_identity_data(email='nao_registrado@email.test')
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 404)
-        self.assertEquals(content['status'], 404)
-        self.assertTrue(content['message'].startswith('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1/'))
+        self.assertEquals(content, None)
+        self.assertEquals(error['status'], 404)
+        self.assertTrue(error['message'].startswith('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1/'))
 
     def test_success_request(self):
 
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
             response = APIClient.fetch_identity_data(email=test_user_email)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 200)
         self.assertEquals(content, {
@@ -396,6 +405,7 @@ class FetchIdentityDataWithEmail(TestCase):
             u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
             u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
         })
+        self.assertEquals(error, None)
 
 
 class UpdateUserApi(TestCase):
@@ -404,7 +414,7 @@ class UpdateUserApi(TestCase):
     def setUp(self):
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
             response = APIClient.fetch_identity_data(email=test_user_email)
-            status_code, content = response
+            status_code, content, error = response
 
         assert status_code == 200
         self.user_data = content
@@ -555,7 +565,7 @@ class FetchAssociationData(TestCase):
     def setUp(self):
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
             response = APIClient.fetch_identity_data(email=test_user_email)
-            status_code, content = response
+            status_code, content, error = response
 
         assert status_code == 200
         self.user_data = content
@@ -563,22 +573,24 @@ class FetchAssociationData(TestCase):
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
         response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
-        status_code, content = response
+        status_code, content, error = response
 
         self.assertEquals(status_code, 500)
-        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
 
     def test_request_with_wrong_credentials(self):
         APIClient.pweb.auth = ('?????', 'XXXXXX')
 
         with vcr.use_cassette('cassettes/api_client/fetch_association_data/wrong_credentials'):
             response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
-            status_code, content = response
+            status_code, content, error = response
 
         APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
 
         self.assertEquals(status_code, 401)
-        self.assertEquals(content, {
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
             'status': 401,
             'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
         })
@@ -589,10 +601,11 @@ class FetchAssociationData(TestCase):
 
         with vcr.use_cassette('cassettes/api_client/fetch_association_data/application_without_permissions'):
             response = APIClient.fetch_association_data(association_url)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
             'status': 403,
             'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
         })
@@ -603,10 +616,11 @@ class FetchAssociationData(TestCase):
 
         with vcr.use_cassette('cassettes/api_client/fetch_association_data/association_which_does_not_exist'):
             response = APIClient.fetch_association_data(association_url)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
             'status': 403,
             'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
         })
@@ -614,15 +628,16 @@ class FetchAssociationData(TestCase):
     def test_success_without_data(self):
         with vcr.use_cassette('cassettes/api_client/fetch_association_data/success_without_data'):
             response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 200)
         self.assertEquals(content, {u'is_active': True, u'slug': u'identity_client'})
+        self.assertEquals(error, None)
 
     def test_success_with_data(self):
         with vcr.use_cassette('cassettes/api_client/fetch_association_data/success_with_data'):
             response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 200)
         self.assertEquals(content, {
@@ -632,6 +647,7 @@ class FetchAssociationData(TestCase):
             u'updated_by': u'identity_client.UpdateAssociationData',
             u'slug': u'identity_client'
         })
+        self.assertEquals(error, None)
 
 
 class UpdateAssociationData(TestCase):
@@ -639,7 +655,7 @@ class UpdateAssociationData(TestCase):
     def setUp(self):
         with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
             response = APIClient.fetch_identity_data(email=test_user_email)
-            status_code, content = response
+            status_code, content, error = response
 
         assert status_code == 200
         self.user_data = content
@@ -653,22 +669,24 @@ class UpdateAssociationData(TestCase):
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
         response = APIClient.update_association_data(self.association_data, self.user_data['services']['identity_client'])
-        status_code, content = response
+        status_code, content, error = response
 
         self.assertEquals(status_code, 500)
-        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
 
     def test_request_with_wrong_credentials(self):
         APIClient.pweb.auth = ('?????', 'XXXXXX')
 
         with vcr.use_cassette('cassettes/api_client/update_association_data/wrong_credentials'):
             response = APIClient.update_association_data(self.association_data, self.user_data['services']['identity_client'])
-            status_code, content = response
+            status_code, content, error = response
 
         APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
 
         self.assertEquals(status_code, 401)
-        self.assertEquals(content, {
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
             'status': 401,
             'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
         })
@@ -679,10 +697,11 @@ class UpdateAssociationData(TestCase):
 
         with vcr.use_cassette('cassettes/api_client/update_association_data/application_without_permissions'):
             response = APIClient.update_association_data(self.association_data, association_url)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
             'status': 403,
             'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
         })
@@ -693,10 +712,11 @@ class UpdateAssociationData(TestCase):
 
         with vcr.use_cassette('cassettes/api_client/update_association_data/association_which_does_not_exist'):
             response = APIClient.update_association_data(self.association_data, association_url)
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
             'status': 403,
             'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
         })
@@ -704,7 +724,7 @@ class UpdateAssociationData(TestCase):
     def test_success_with_data(self):
         with vcr.use_cassette('cassettes/api_client/update_association_data/success_with_data'):
             response = APIClient.update_association_data(self.association_data, self.user_data['services']['identity_client'])
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 200)
         self.assertEquals(content, {
@@ -714,14 +734,16 @@ class UpdateAssociationData(TestCase):
             u'updated_by': u'identity_client.UpdateAssociationData',
             u'slug': u'identity_client'
         })
+        self.assertEquals(error, None)
 
     def test_success_without_data(self):
         with vcr.use_cassette('cassettes/api_client/update_association_data/success_without_data'):
             response = APIClient.update_association_data({}, self.user_data['services']['identity_client'])
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 200)
         self.assertEquals(content, {u'is_active': True, u'slug': u'identity_client'})
+        self.assertEquals(error, None)
 
     def test_success_with_xml_payload(self):
         data_with_xml = self.association_data.copy()
@@ -732,7 +754,7 @@ class UpdateAssociationData(TestCase):
 
         with vcr.use_cassette('cassettes/api_client/update_association_data/success_with_xml_payload'):
             response = APIClient.update_association_data(data_with_xml, self.user_data['services']['identity_client'])
-            status_code, content = response
+            status_code, content, error = response
 
         self.assertEquals(status_code, 200)
         self.assertEquals(content, {
@@ -746,6 +768,7 @@ class UpdateAssociationData(TestCase):
                 u'body': u'<?xml version="1.0" encoding="UTF-8" ?> <俄语>данные</俄语>'
             }
         })
+        self.assertEquals(error, None)
 
 
 class TestFetchUserAccounts(TestCase):

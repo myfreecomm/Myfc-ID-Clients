@@ -169,8 +169,7 @@ class APIClient(object):
                 error['status'], error['message']
             )
 
-        # FIXME: Transformar em status_code, content, error
-        return (status_code, content if content else error)
+        return status_code, content, error
 
 
     @classmethod
@@ -303,8 +302,7 @@ class APIClient(object):
                 error['status'], error['message']
             )
 
-        # FIXME: Transformar em status_code, content, error
-        return (status_code, content if content else error)
+        return status_code, content, error
 
 
     @classmethod
@@ -361,8 +359,7 @@ class APIClient(object):
                 error['status'], error['message']
             )
 
-        # FIXME: Transformar em status_code, content, error
-        return (status_code, content if content else error)
+        return status_code, content, error
 
 
     @classmethod
