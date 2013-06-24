@@ -161,6 +161,7 @@ class APIClient(object):
                 error['status'], error['message']
             )
 
+        # FIXME: Transformar em status_code, content, error
         return (status_code, content if content else error)
 
 
@@ -294,6 +295,7 @@ class APIClient(object):
                 error['status'], error['message']
             )
 
+        # FIXME: Transformar em status_code, content, error
         return (status_code, content if content else error)
 
 
@@ -351,6 +353,7 @@ class APIClient(object):
                 error['status'], error['message']
             )
 
+        # FIXME: Transformar em status_code, content, error
         return (status_code, content if content else error)
 
 
@@ -411,68 +414,59 @@ class APIClient(object):
 
     @classmethod
     def create_user_account(cls, uuid, name, plan_slug, expiration=None):
-        api_user = cls.api_user
-        api_password = cls.api_password
+        status_code = 500
+        content = error = None
 
-        http = httplib2.Http()
-        url = '%s/%s' % (
-            cls.api_host,
-            'organizations/api/identities/{0}/accounts/'.format(uuid)
-        )
-        data = json.dumps({
-            'name': name, 'plan_slug': plan_slug, 'expiration': expiration
-        })
-        headers = {
-            'cache-control': 'no-cache',
-            'content-length': str(len(data)),
-            'content-type': 'application/json',
-            'accept': 'application/json',
-            'user-agent': 'myfc_id client',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-        }
+        url = '{0}/organizations/api/identities/{1}/accounts/'.format(cls.api_host, uuid)
 
-        account_data = None
-        error = None
 
         try:
-            response, content = http.request(url, "POST", headers=headers, body=data)
-            if response.status in (200, 201):
-                account_data = json.loads(content)
+            logging.info('create_user_account: Making request to %s', url)
+
+            account_data = {'name': name, 'plan_slug': plan_slug, 'expiration': expiration}
+            account_data = json.dumps(account_data)
+
+            response = cls.pweb.post(url, headers={'content-length': str(len(account_data))}, data=account_data)
+            status_code = response.status_code
+
+            if response.status_code in (200, 201):
+                content = response.json()
 
             else:
-                error = {
-                    'status': response.status,
-                    'message': content,
-                }
+                response.raise_for_status()
+                raise requests.exceptions.HTTPError('Unexpected response', response=response)
 
-                logging.error(
-                    'create_user_accounts: Error making request: %s - %s',
-                    response.status, content,
-                )
-
-        except ValueError:
+        except requests.exceptions.HTTPError as e:
             error = {
-                'status': response and response.status,
-                'message': content,
+                'status': e.response.status_code,
+                'message': e.response.text if e.response.text else e.message,
             }
 
-            logging.error(
-                'create_user_accounts: Error making request: %s - %s',
-                response, content,
-            )
-
-        except Exception, err:
+        except requests.exceptions.ConnectionError as e:
             error = {
                 'status': None,
-                'message': u'unexpected error: ({0.__name__}) {1}'.format(type(err), err),
+                'message': 'Error connecting to PassaporteWeb',
             }
 
+        except requests.exceptions.Timeout as e:
+            error = {
+                'status': None,
+                'message': 'Timeout connecting to PassaporteWeb',
+            }
+
+        except (requests.exceptions.RequestException, Exception) as e:
+            error = {
+                'status': None,
+                'message': u'Unexpected error: {0} <{1}>'.format(e, type(e)),
+            }
+
+        if error:
             logging.error(
-                'create_user_accounts: Error making request: %s, %s',
-                err.__class__.__name__, err,
+                'create_user_account: Error making request: %s - %s',
+                error['status'], error['message']
             )
 
-        return account_data, error
+        return status_code, content, error
 
 
 error_messages = {

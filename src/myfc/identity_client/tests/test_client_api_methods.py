@@ -809,13 +809,21 @@ class TestFetchUserAccounts(TestCase):
         self.assertEquals(error, None)
 
     def test_success_with_accounts(self):
-        raise NotImplementedError
         with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success_with_accounts'):
             response = APIClient.fetch_user_accounts(test_user_uuid)
             status_code, accounts, error = response
 
         self.assertEquals(status_code, 200)
-        self.assertEquals(accounts, None)
+        self.assertEquals(accounts, [{
+            u'account_data': {u'name': u'Test Account', u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'},
+            u'add_member_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/',
+            u'expiration': None,
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'plan_slug': u'unittest',
+            u'roles': [u'owner'],
+            u'service_data': {u'name': u'Identity Client', u'slug': u'identity_client'},
+            u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+        }])
         self.assertEquals(error, None)
 
     def test_success_with_expired_accounts(self):
@@ -830,102 +838,145 @@ class TestFetchUserAccounts(TestCase):
 
 
 class TestCreateUserAccount(TestCase):
-    maxDiff = None
-    mocked_content = mocked_account_json
-    method = 'POST'
-    uuid = 'some_uuid'
-    url = '%s/%s' % (APIClient.api_host, 'organizations/api/identities/some_uuid/accounts/')
-    body = json.dumps({'plan_slug': 'plan_slug', 'name': 'account_name', 'expiration': None})
 
-    def setUp(self):
-        self.headers = {
-            'cache-control': 'no-cache',
-            'content-length': str(len(self.body)),
-            'content-type': 'application/json',
-            'user-agent': 'myfc_id client',
-            'accept': 'application/json',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(
-                APIClient.api_user, APIClient.api_password).encode('base64').strip()
-            ),
-        }
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.create_user_account(uuid=test_user_uuid, name='Test Account', plan_slug='unittest')
+        status_code, accounts, error = response
 
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_successful(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.return_value = mocked_response, self.mocked_content
-        mocked_response.status = 200
+        self.assertEquals(status_code, 500)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
 
-        response = APIClient.create_user_account(self.uuid, 'account_name', 'plan_slug')
-        mocked_request.assert_called_once_with(
-            self.url, self.method, headers=self.headers, body=self.body
-        )
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
 
-        self.assertEquals(response, (mocked_account, None))
+        with vcr.use_cassette('cassettes/api_client/create_user_account/wrong_credentials'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, name='Test Account', plan_slug='unittest')
+            status_code, accounts, error = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 401,
+            'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_application_without_permissions(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/application_without_permissions'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, name='Test Account', plan_slug='unittest')
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/uuid_which_does_not_exist'):
+            response = APIClient.create_user_account(
+                uuid='00000000-0000-0000-0000-000000000000', name='Test Account', plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Identity with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
+        })
+
+    def test_request_with_empty_name(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/with_empty_name'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, name='', plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {'status': 400, 'message': u'{"errors": ["Either name or uuid must be supplied."]}'})
+
+    def test_request_with_invalid_expiration(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/with_invalid_expiration'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, name='Test Account', plan_slug='unittest', expiration='ABC'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 400,
+            'message': u'{"field_errors": {"expiration": ["Informe uma data v\\u00e1lida."]}}'
+        })
+
+    def test_request_with_expiration_in_the_past(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/with_expiration_in_the_past'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, name='Test Account', plan_slug='unittest', expiration='0000-01-01'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 400,
+            'message': u'{"field_errors": {"expiration": ["Informe uma data v\\u00e1lida."]}}'
+        })
+
+    def test_request_with_expiration_after_max_date(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/with_expiration_after_max_date'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, name='Test Account', plan_slug='unittest', expiration='10000-01-01'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 400,
+            'message': u'{"field_errors": {"expiration": ["Informe uma data v\\u00e1lida."]}}'
+        })
+
+    def test_success_request(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/success'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, name='Test Account', plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 201)
+        self.assertEquals(accounts, {
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'plan_slug': u'unittest',
+            u'roles': [u'owner'],
+            u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+            u'expiration': None,
+            u'service_data': {u'name': u'Identity Client', u'slug': u'identity_client'},
+            u'account_data': {u'name': u'Test Account', u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'},
+            u'add_member_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/'
+        })
+        self.assertEquals(error, None)
+
+    def test_duplicated_account(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account/duplicated_account'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, name='Test Account', plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 409)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 409,
+            'message': u'"ServiceAccount for service identity_client and account \'Test Account\' already exists and is active. Conflict"'
+        })
 
 
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_error_in_json_loads(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.return_value = mocked_response, '<not a json>'
-        mocked_response.status = 200
-
-        response = APIClient.create_user_account(self.uuid, 'account_name', 'plan_slug')
-        mocked_request.assert_called_once_with(
-            self.url, self.method, headers=self.headers, body=self.body
-        )
-
-        self.assertEquals(response, (None, {'status': 200, 'message': '<not a json>'}))
-
-
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_unexpected_status_code(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.return_value = mocked_response, '404 not found'
-        mocked_response.status = 404
-
-        response = APIClient.create_user_account(self.uuid, 'account_name', 'plan_slug')
-        mocked_request.assert_called_once_with(
-            self.url, self.method, headers=self.headers, body=self.body
-        )
-
-        self.assertEquals(response, (None, {'status': 404, 'message': '404 not found'}))
-
-
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_httplib2error_error(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.side_effect = HttpLib2Error
-
-        response = APIClient.create_user_account(self.uuid, 'account_name', 'plan_slug')
-        mocked_request.assert_called_once_with(
-            self.url, self.method, headers=self.headers, body=self.body
-        )
-
-        self.assertEquals(response, (
-            None, {'message': u'unexpected error: (HttpLib2Error) ', 'status': None}
-        ))
-
-
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_any_other_exception(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.side_effect = Exception
-
-        response = APIClient.create_user_account(self.uuid, 'account_name', 'plan_slug')
-        mocked_request.assert_called_once_with(
-            self.url, self.method, headers=self.headers, body=self.body
-        )
-
-        self.assertEquals(response, (
-            None, {'message': u'unexpected error: (Exception) ', 'status': None}
-        ))
+class TestCreateUserAccountUsingAccountUUID(TestCreateUserAccount):
+    pass
