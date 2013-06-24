@@ -172,7 +172,7 @@ class APIClient(object):
         if api_path.startswith(cls.api_host):
             url = api_path
         else:
-            url = "{0}/{1}".format(cls.api_host, api_path)
+            url = "{0}{1}".format(cls.api_host, api_path)
 
         try:
             registration_data = json.dumps(form.data)
@@ -237,6 +237,121 @@ class APIClient(object):
             )
 
         return (status_code, content, form)
+
+
+    @classmethod
+    def fetch_association_data(cls, api_path):
+
+        status_code = 500
+        content = error = None
+
+        if api_path.startswith(cls.api_host):
+            url = api_path
+        else:
+            url = "{0}{1}".format(cls.api_host, api_path)
+
+        try:
+            logging.info('fetch_association_data: Making request to %s', url)
+            response = cls.pweb.get(url)
+            status_code = response.status_code
+
+            if response.status_code == 200:
+                content = response.json()
+
+            else:
+                response.raise_for_status()
+                raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        except requests.exceptions.HTTPError as e:
+
+            error = {
+                'status': e.response.status_code,
+                'message': e.response.text if e.response.text else e.message,
+            }
+
+        except requests.exceptions.ConnectionError as e:
+            error = {
+                'status': None,
+                'message': 'Error connecting to PassaporteWeb',
+            }
+
+        except requests.exceptions.Timeout as e:
+            error = {
+                'status': None,
+                'message': 'Timeout connecting to PassaporteWeb',
+            }
+
+        except (requests.exceptions.RequestException, Exception) as e:
+            error = {
+                'status': None,
+                'message': u'Unexpected error: {0} <{1}>'.format(e, type(e)),
+            }
+
+        if error:
+            logging.error(
+                'fetch_association_data: Error making request: %s - %s',
+                error['status'], error['message']
+            )
+
+        return (status_code, content if content else error)
+
+
+    @classmethod
+    def update_association_data(cls, new_data, api_path):
+
+        status_code = 500
+        content = error = None
+
+        if api_path.startswith(cls.api_host):
+            url = api_path
+        else:
+            url = "{0}{1}".format(cls.api_host, api_path)
+
+        try:
+            logging.info('update_association_data: Making request to %s', url)
+            association_data = json.dumps(new_data)
+            response = cls.pweb.put(url, headers={'content-length': str(len(association_data))}, data=association_data)
+            status_code = response.status_code
+
+            if response.status_code == 200:
+                content = response.json()
+
+            else:
+                response.raise_for_status()
+                raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        except requests.exceptions.HTTPError as e:
+
+            error = {
+                'status': e.response.status_code,
+                'message': e.response.text if e.response.text else e.message,
+            }
+
+        except requests.exceptions.ConnectionError as e:
+            error = {
+                'status': None,
+                'message': 'Error connecting to PassaporteWeb',
+            }
+
+        except requests.exceptions.Timeout as e:
+            error = {
+                'status': None,
+                'message': 'Timeout connecting to PassaporteWeb',
+            }
+
+        except (requests.exceptions.RequestException, Exception) as e:
+            error = {
+                'status': None,
+                'message': u'Unexpected error: {0} <{1}>'.format(e, type(e)),
+            }
+
+        if error:
+            logging.error(
+                'update_association_data: Error making request: %s - %s',
+                error['status'], error['message']
+            )
+
+        return (status_code, content if content else error)
 
 
     @classmethod
@@ -356,31 +471,6 @@ class APIClient(object):
             )
 
         return account_data, error
-
-
-    @classmethod
-    def fetch_association_data(cls, api_path):
-
-        # Construir url da API
-        api_user = cls.api_user
-        api_password = sels.api_password
-        api_host = cls.api_host
-
-        api_uri = "%s%s" % (api_host, api_path)
-
-        headers = {
-            'content-type': 'application/json',
-            'user-agent': 'myfc_id client',
-            'cache-control': 'no-cache',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-        }
-
-        # Efetuar requisição
-        http = httplib2.Http()
-        response, content = http.request(
-            api_uri, "GET", headers=headers
-        )
-        return (response.status, content)
 
 
 error_messages = {

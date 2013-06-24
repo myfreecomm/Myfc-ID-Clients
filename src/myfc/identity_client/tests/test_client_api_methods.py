@@ -82,6 +82,7 @@ __all__ = [
     'InvokeRegistrationApi',
     'FetchIdentityData', 'FetchIdentityDataWithEmail',
     'UpdateUserApi',
+    'FetchAssociationData', 'UpdateAssociationData',
     'TestFetchUserAccounts', 'TestCreateUserAccount',
 ]
 
@@ -547,6 +548,204 @@ class UpdateUserApi(TestCase):
             u'cpf': u'99999999999',
         })
         self.assertEquals(form.errors, {})
+
+
+class FetchAssociationData(TestCase):
+
+    def setUp(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
+            response = APIClient.fetch_identity_data(email=test_user_email)
+            status_code, content = response
+
+        assert status_code == 200
+        self.user_data = content
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
+        status_code, content = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/fetch_association_data/wrong_credentials'):
+            response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
+            status_code, content = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(content, {
+            'status': 401,
+            'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_application_without_permissions(self):
+        association_url =  self.user_data['services']['identity_client']
+        association_url = association_url.replace('identity_client', 'ecommerce')
+
+        with vcr.use_cassette('cassettes/api_client/fetch_association_data/application_without_permissions'):
+            response = APIClient.fetch_association_data(association_url)
+            status_code, content = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_for_association_which_does_not_exist(self):
+        association_url =  self.user_data['services']['identity_client']
+        association_url = association_url.replace('identity_client', 'gFXrVmzDXXZm')
+
+        with vcr.use_cassette('cassettes/api_client/fetch_association_data/association_which_does_not_exist'):
+            response = APIClient.fetch_association_data(association_url)
+            status_code, content = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_success_without_data(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_association_data/success_without_data'):
+            response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
+            status_code, content = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {u'is_active': True, u'slug': u'identity_client'})
+
+    def test_success_with_data(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_association_data/success_with_data'):
+            response = APIClient.fetch_association_data(self.user_data['services']['identity_client'])
+            status_code, content = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'timezone': u'America/Sao_Paulo',
+            u'is_active': True,
+            u'updated_at': u'2013-06-24 14:55:00',
+            u'updated_by': u'identity_client.UpdateAssociationData',
+            u'slug': u'identity_client'
+        })
+
+
+class UpdateAssociationData(TestCase):
+
+    def setUp(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
+            response = APIClient.fetch_identity_data(email=test_user_email)
+            status_code, content = response
+
+        assert status_code == 200
+        self.user_data = content
+
+        self.association_data = {
+            'updated_by': 'identity_client.UpdateAssociationData',
+            'updated_at': '2013-06-24 14:55:00',
+            'timezone': 'America/Sao_Paulo',
+        }
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.update_association_data(self.association_data, self.user_data['services']['identity_client'])
+        status_code, content = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(content, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/update_association_data/wrong_credentials'):
+            response = APIClient.update_association_data(self.association_data, self.user_data['services']['identity_client'])
+            status_code, content = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(content, {
+            'status': 401,
+            'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_application_without_permissions(self):
+        association_url =  self.user_data['services']['identity_client']
+        association_url = association_url.replace('identity_client', 'ecommerce')
+
+        with vcr.use_cassette('cassettes/api_client/update_association_data/application_without_permissions'):
+            response = APIClient.update_association_data(self.association_data, association_url)
+            status_code, content = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_for_association_which_does_not_exist(self):
+        association_url =  self.user_data['services']['identity_client']
+        association_url = association_url.replace('identity_client', 'gFXrVmzDXXZm')
+
+        with vcr.use_cassette('cassettes/api_client/update_association_data/association_which_does_not_exist'):
+            response = APIClient.update_association_data(self.association_data, association_url)
+            status_code, content = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_success_with_data(self):
+        with vcr.use_cassette('cassettes/api_client/update_association_data/success_with_data'):
+            response = APIClient.update_association_data(self.association_data, self.user_data['services']['identity_client'])
+            status_code, content = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'timezone': u'America/Sao_Paulo',
+            u'is_active': True,
+            u'updated_at': u'2013-06-24 14:55:00',
+            u'updated_by': u'identity_client.UpdateAssociationData',
+            u'slug': u'identity_client'
+        })
+
+    def test_success_without_data(self):
+        with vcr.use_cassette('cassettes/api_client/update_association_data/success_without_data'):
+            response = APIClient.update_association_data({}, self.user_data['services']['identity_client'])
+            status_code, content = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {u'is_active': True, u'slug': u'identity_client'})
+
+    def test_success_with_xml_payload(self):
+        data_with_xml = self.association_data.copy()
+        data_with_xml['payload'] = {
+            'content-type': 'application/xml',
+            'body': u'<?xml version="1.0" encoding="UTF-8" ?> <俄语>данные</俄语>'
+        }
+
+        with vcr.use_cassette('cassettes/api_client/update_association_data/success_with_xml_payload'):
+            response = APIClient.update_association_data(data_with_xml, self.user_data['services']['identity_client'])
+            status_code, content = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'timezone': u'America/Sao_Paulo',
+            u'is_active': True,
+            u'updated_at': u'2013-06-24 14:55:00',
+            u'updated_by': u'identity_client.UpdateAssociationData',
+            u'slug': u'identity_client',
+            u'payload': {
+                u'content-type': u'application/xml',
+                u'body': u'<?xml version="1.0" encoding="UTF-8" ?> <俄语>данные</俄语>'
+            }
+        })
 
 
 class TestFetchUserAccounts(TestCase):
