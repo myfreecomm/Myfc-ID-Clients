@@ -11,7 +11,7 @@ from django.test import TestCase
 
 from identity_client import client_api_methods
 from identity_client.client_api_methods import APIClient
-from identity_client.forms import RegistrationForm
+from identity_client.forms import RegistrationForm, IdentityInformationForm
 
 
 mocked_accounts_json = '''[
@@ -80,15 +80,15 @@ mocked_account = json.loads(mocked_account_json)
 
 __all__ = [
     'InvokeRegistrationApi',
-    'FetchIdentityData',
-    'FetchIdentityDataWithEmail',
-    'TestCreateUserAccount',
-    'TestFetchUserAccounts',
+    'FetchIdentityData', 'FetchIdentityDataWithEmail',
+    'UpdateUserApi',
+    'TestFetchUserAccounts', 'TestCreateUserAccount',
 ]
 
 test_user_email = 'identity_client@disposableinbox.com'
 test_user_password = '*SudN7%r$MiYRa!E'
 test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
+
 
 class InvokeRegistrationApi(TestCase):
 
@@ -395,6 +395,158 @@ class FetchIdentityDataWithEmail(TestCase):
             u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
             u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
         })
+
+
+class UpdateUserApi(TestCase):
+    """ Estes testes utilizam o usuário criado em InvokeRegistrationApi.  """
+
+    def setUp(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
+            response = APIClient.fetch_identity_data(email=test_user_email)
+            status_code, content = response
+
+        assert status_code == 200
+        self.user_data = content
+
+        self.updated_user_data = {
+            'first_name': 'Identity',
+            'last_name': 'Client',
+            'send_myfreecomm_news': True,
+            'send_partner_news': True,
+        }
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        form = IdentityInformationForm(self.updated_user_data)
+        response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+        status_code, content, new_form = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            '__all__': [u'Ocorreu uma falha na comunicação com o Passaporte Web. Por favor tente novamente.']
+        })
+
+    def test_request_with_wrong_credentials(self):
+        form = IdentityInformationForm(self.updated_user_data)
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/update_user_api/wrong_credentials'):
+            response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+            status_code, content, new_form = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            '__all__': [u'Esta aplicação não está autorizada a utilizar o PassaporteWeb. Entre em contato com o suporte.']
+        })
+
+    def test_request_with_application_without_permissions(self):
+        form = IdentityInformationForm(self.updated_user_data)
+
+        with vcr.use_cassette('cassettes/api_client/update_user_api/application_without_permissions'):
+            response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            '__all__': [u'Erro no servidor. Entre em contato com o suporte.']
+        })
+
+    def test_cpf_already_registered(self):
+        form = IdentityInformationForm(self.updated_user_data)
+        form.data['cpf'] = '11111111111'
+
+        with vcr.use_cassette('cassettes/api_client/update_user_api/cpf_already_registered'):
+            response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 409)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'cpf': [u'Esse número de CPF já está cadastrado.']
+        })
+
+    def test_invalid_cpf_pt1(self):
+        form = IdentityInformationForm(self.updated_user_data)
+        form.data['cpf'] = '1111111111122222222'
+
+        with vcr.use_cassette('cassettes/api_client/update_user_api/invalid_cpf_pt1'):
+            response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 409)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'cpf': [u'Certifique-se de que o valor tenha no máximo 14 caracteres (ele possui 19).']
+        })
+
+    def test_invalid_cpf_pt2(self):
+        form = IdentityInformationForm(self.updated_user_data)
+        form.data['cpf'] = 'asdfgqwertzxcvb'
+
+        with vcr.use_cassette('cassettes/api_client/update_user_api/invalid_cpf_pt2'):
+            response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 409)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'cpf': [u'Certifique-se de que o valor tenha no máximo 14 caracteres (ele possui 15).']
+        })
+
+    def test_success_request(self):
+        form = IdentityInformationForm(self.updated_user_data)
+
+        with vcr.use_cassette('cassettes/api_client/update_user_api/success'):
+            response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'accounts': [],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'is_active': False,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57',
+        })
+        self.assertEquals(form.errors, {})
+
+    def test_success_request_with_cpf(self):
+        form = IdentityInformationForm(self.updated_user_data)
+        form.data['cpf'] = '99999999999'
+
+        with vcr.use_cassette('cassettes/api_client/update_user_api/success_with_cpf'):
+            response = APIClient.update_user_api(form, self.user_data['update_info_url'])
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'accounts': [],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'is_active': False,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57',
+            u'cpf': u'99999999999',
+        })
+        self.assertEquals(form.errors, {})
 
 
 class TestFetchUserAccounts(TestCase):

@@ -1,8 +1,18 @@
 # -*- coding: utf-8 -*-
-from django.utils.translation import ugettext_lazy as _
+from datetime import datetime as dt
+
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.localflavor.br import forms as br_forms
+from django.conf import settings
+
+from timezones import PRETTY_TIMEZONE_CHOICES
 from backend import MyfcidAPIBackend
+
+__all__ = [
+    'RegistrationForm', 'IdentityAuthenticationForm',
+    'IdentityInformationForm', 'IdentityProfileForm',
+]
 
 
 class RegistrationForm(forms.Form):
@@ -65,6 +75,7 @@ class RegistrationForm(forms.Form):
                 raise forms.ValidationError(_(u"As senhas informadas são diferentes."))
         return self.cleaned_data
 
+
 class IdentityAuthenticationForm(forms.Form):
     """
     Base class for authenticating users. Extend this to get a form that accepts
@@ -111,3 +122,132 @@ class IdentityAuthenticationForm(forms.Form):
 
     def get_user(self):
         return self.user_cache
+
+
+class IdentityInformationForm(forms.Form):
+    """
+    Form for updating user's data. All fields compulsory. Email and password
+    not changeable here.
+    """
+    first_name = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(),
+        required=False,
+        label=_("Nome")
+    )
+    last_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(),
+        required=False,
+        label=_("Sobrenome")
+    )
+    send_myfreecomm_news = forms.BooleanField(
+        label=_(u"Quero receber novidades e promoções do Passaporte Web"),
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-checkbox-input'}),
+    )
+    send_partner_news = forms.BooleanField(
+        label=_(u"Quero receber novidades e promoções de parceiros"),
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-checkbox-input'}),
+    )
+    cpf = br_forms.BRCPFField(
+        required=False,
+        label=_("CPF")
+    )
+
+    def __init__(self, *args, **kwargs):
+        identity = kwargs.pop('identity', None)
+        super(IdentityInformationForm, self).__init__(*args, **kwargs)
+        self.identity = identity
+
+
+class IdentityProfileForm(forms.Form):
+
+    nickname = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(),
+        required=False,
+        label=_("Apelido")
+    )
+    birth_date = forms.DateTimeField(
+        widget=forms.DateInput(),
+        input_formats = ('%d/%m/%Y', '%d/%m/%y', '%d-%m-%Y', '%d-%m-%y', '%Y-%m-%d'),
+        required=False,
+        label=_("Data de nascimento"),
+        error_messages={
+            'invalid': _(u'Enter a valid date.'),
+        },
+    )
+    gender = forms.ChoiceField(
+        choices = (
+            ('-', _(u"Não informado")),
+            ('M', _(u"Masculino")),
+            ('F', _(u"Feminino"))
+        ),
+        required=False,
+        label=_(u"Gênero")
+    )
+    company = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(),
+        required=False,
+        label=_("Empresa")
+    )
+    position = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(),
+        required=False,
+        label=_("Cargo")
+    )
+    profession = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(),
+        required=False,
+        label=_(u"Profissão")
+    )
+    bio = forms.CharField(
+        max_length=1024,
+        widget=forms.Textarea(),
+        required=False,
+        label=_(u"Sobre você")
+    )
+    city = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(),
+        required=False,
+        label=_("Cidade")
+    )
+    state = br_forms.BRStateChoiceField(
+        label=_("Estado"), required=False,
+    )
+    country = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(),
+        required=False,
+        label=_(u"País")
+    )
+    language = forms.ChoiceField(
+        required=False,
+        label=_("Idioma nativo"),
+        choices=settings.LANGUAGES,
+    )
+    timezone = forms.ChoiceField(
+        required=False,
+        label=_(u"Fuso horário"),
+        choices=PRETTY_TIMEZONE_CHOICES,
+    )
+
+    def __init__(self, *args, **kwargs):
+        identity = kwargs.pop('identity', None)
+        super(IdentityProfileForm, self).__init__(*args, **kwargs)
+        self.identity = identity
+
+    def clean_birth_date(self):
+        data = self.cleaned_data.get('birth_date', None)
+        if data and (not dt(1900, 1, 1) <= data <= dt(9999, 12, 31)):
+            raise forms.ValidationError(
+                self.fields['birth_date'].error_messages['invalid']
+            )
+
+        return data

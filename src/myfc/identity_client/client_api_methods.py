@@ -164,6 +164,82 @@ class APIClient(object):
 
 
     @classmethod
+    def update_user_api(cls, form, api_path):
+
+        status_code = 500
+        content = error = error_dict = None
+
+        if api_path.startswith(cls.api_host):
+            url = api_path
+        else:
+            url = "{0}/{1}".format(cls.api_host, api_path)
+
+        try:
+            registration_data = json.dumps(form.data)
+
+            logging.info('update_user_api: Making request to %s', url)
+            response = cls.pweb.put(url, headers={'content-length': str(len(registration_data))}, data=registration_data)
+            status_code = response.status_code
+
+            if status_code == 200:
+                content = response.json()
+            else:
+                response.raise_for_status()
+                raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in (400, 409):
+                error_dict = e.response.json()
+            else:
+                error_dict = {
+                    '__all__': [error_messages.get(e.response.status_code, error_messages['default']), ]
+                }
+
+            error = {
+                'status': e.response.status_code,
+                'message': e.response.text if e.response.text else e.message,
+            }
+
+        except requests.exceptions.ConnectionError as e:
+            error_dict = {
+                '__all__': [error_messages.get('ConnectionError', error_messages['default']), ]
+            }
+            error = {
+                'status': None,
+                'message': 'Error connecting to PassaporteWeb',
+            }
+
+        except requests.exceptions.Timeout as e:
+            error_dict = {
+                '__all__': [error_messages.get('Timeout', error_messages['default']), ]
+            }
+            error = {
+                'status': None,
+                'message': 'Timeout connecting to PassaporteWeb',
+            }
+
+        except (requests.exceptions.RequestException, Exception) as e:
+            error_dict = {
+                '__all__': [error_messages.get('default'), ]
+            }
+            error = {
+                'status': None,
+                'message': u'Unexpected error: {0} <{1}>'.format(e, type(e)),
+            }
+
+        if error_dict:
+            form._errors = prepare_form_errors(error_dict)
+
+        if error:
+            logging.error(
+                'update_user_api: Error making request: %s - %s',
+                error['status'], error['message']
+            )
+
+        return (status_code, content, form)
+
+
+    @classmethod
     def fetch_user_accounts(cls, uuid):
 
         url = '{0}/organizations/api/identities/{1}/accounts/'.format(
@@ -305,42 +381,6 @@ class APIClient(object):
             api_uri, "GET", headers=headers
         )
         return (response.status, content)
-
-
-    @classmethod
-    def update_user_api(cls, form, api_path):
-
-        api_user = cls.api_user
-        api_password = cls.api_password
-        api_host = cls.api_host
-
-        if api_path.startswith(api_host):
-            api_url = api_path
-        else:
-            api_url = "%s%s" % (api_host, api_path)
-
-        registration_data = json.dumps(form.data)
-        headers = {
-            'content-type':'application/json',
-            'authorization': 'Basic {0}'.format('{0}:{1}'.format(api_user, api_password).encode('base64').strip()),
-        }
-
-        http = httplib2.Http()
-        response, content = http.request(
-            api_url, "PUT", body=registration_data, headers=headers
-        )
-
-        if response.status == 409:
-            try:
-                error_dict = json.loads(content)
-            except ValueError:
-                error_dict = {
-                    '__all__': [error_messages.get(400, error_messages.get('default')), ]
-                }
-
-            form._errors = prepare_form_errors(error_dict)
-
-        return (response.status, content, form)
 
 
 error_messages = {
