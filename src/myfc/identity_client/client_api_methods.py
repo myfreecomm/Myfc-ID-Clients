@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import json
 import requests
 
 from django.conf import settings
@@ -7,6 +8,17 @@ from django.conf import settings
 from identity_client.utils import prepare_form_errors
 
 __all__ = ['APIClient']
+
+# TODO: 
+#   - DRY (tratamento de exceções, etc)
+#   - compatibilizar retorno das operações da api
+#   - create_user_account usando uuid
+#   - fetch_application_accounts
+#   - operacoes que o ecommerce precisa
+#   - listar membros de uma conta
+#   - adicionar membro a uma conta
+#   - alterar papelis de um membro de uma conta
+#   - remover membro a uma conta
 
 
 class APIClient(object):
@@ -410,11 +422,11 @@ class APIClient(object):
 
     @classmethod
     def create_user_account(cls, uuid, name, plan_slug, expiration=None):
+
         status_code = 500
         content = error = None
 
         url = '{0}/organizations/api/identities/{1}/accounts/'.format(cls.api_host, uuid)
-
 
         try:
             logging.info('create_user_account: Making request to %s', url)
