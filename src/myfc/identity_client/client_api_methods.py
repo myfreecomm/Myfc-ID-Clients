@@ -111,7 +111,7 @@ class APIClient(object):
         if not any((uuid, email)):
             raise ValueError("Either 'uuid' or 'email' must be given")
         elif uuid:
-            url = "{0}/{1}/{2}".format(cls.api_host, cls.profile_api, uuid)
+            url = "{0}/{1}/{2}/".format(cls.api_host, cls.profile_api, uuid)
         else:
             url = "{0}/{1}/?email={2}".format(cls.api_host, cls.profile_api, email)
 

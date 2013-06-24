@@ -259,7 +259,7 @@ class FetchIdentityData(TestCase):
         APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
 
         self.assertEquals(status_code, 401)
-        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: Unauthorized'})
+        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: UNAUTHORIZED'})
 
     def test_request_with_application_without_permissions(self):
 
@@ -268,11 +268,11 @@ class FetchIdentityData(TestCase):
             status_code, content = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: Forbidden'})
+        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: FORBIDDEN'})
 
     def test_request_with_uuid_which_does_not_exist(self):
 
-        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/uuid_with_does_not_exist'):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/uuid_which_does_not_exist'):
             response = APIClient.fetch_identity_data(uuid='00000000-0000-0000-0000-000000000000')
             status_code, content = response
 
@@ -316,27 +316,27 @@ class FetchIdentityDataWithEmail(TestCase):
     def test_request_with_wrong_credentials(self):
         APIClient.pweb.auth = ('?????', 'XXXXXX')
 
-        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/wrong_credentials'):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/wrong_credentials'):
             response = APIClient.fetch_identity_data(email=test_user_email)
             status_code, content = response
 
         APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
 
         self.assertEquals(status_code, 401)
-        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: Unauthorized'})
+        self.assertEquals(content, {'status': 401, 'message': '401 Client Error: UNAUTHORIZED'})
 
     def test_request_with_application_without_permissions(self):
 
-        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/application_without_permissions'):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/application_without_permissions'):
             response = APIClient.fetch_identity_data(email=test_user_email)
             status_code, content = response
 
         self.assertEquals(status_code, 403)
-        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: Forbidden'})
+        self.assertEquals(content, {'status': 403, 'message': '403 Client Error: FORBIDDEN'})
 
     def test_request_with_email_which_does_not_exist(self):
 
-        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/email_with_does_not_exist'):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/email_which_does_not_exist'):
             response = APIClient.fetch_identity_data(email='nao_registrado@email.test')
             status_code, content = response
 
@@ -346,7 +346,7 @@ class FetchIdentityDataWithEmail(TestCase):
 
     def test_success_request(self):
 
-        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success'):
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success'):
             response = APIClient.fetch_identity_data(email=test_user_email)
             status_code, content = response
 
