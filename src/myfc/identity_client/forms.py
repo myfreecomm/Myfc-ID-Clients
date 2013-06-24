@@ -156,11 +156,6 @@ class IdentityInformationForm(forms.Form):
         label=_("CPF")
     )
 
-    def __init__(self, *args, **kwargs):
-        identity = kwargs.pop('identity', None)
-        super(IdentityInformationForm, self).__init__(*args, **kwargs)
-        self.identity = identity
-
 
 class IdentityProfileForm(forms.Form):
 
@@ -237,11 +232,6 @@ class IdentityProfileForm(forms.Form):
         label=_(u"Fuso horário"),
         choices=PRETTY_TIMEZONE_CHOICES,
     )
-
-    def __init__(self, *args, **kwargs):
-        identity = kwargs.pop('identity', None)
-        super(IdentityProfileForm, self).__init__(*args, **kwargs)
-        self.identity = identity
 
     def clean_birth_date(self):
         data = self.cleaned_data.get('birth_date', None)
