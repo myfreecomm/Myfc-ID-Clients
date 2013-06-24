@@ -11,11 +11,11 @@
         content-type: !!python/tuple [content-type, application/json]
         user-agent: !!python/tuple [user-agent, myfc_id client]
     method: PUT
-    url: //accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/
+    url: /accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/
   response:
     body: {string: '{"cpf": ["Certifique-se de que o valor tenha no m\u00e1ximo 14
         caracteres (ele possui 19)."]}'}
     headers: {connection: keep-alive, content-length: '93', content-type: text/html;
-        charset=utf-8, date: 'Mon, 24 Jun 2013 16:37:20 GMT', p3p: CP="NON DSP COR
+        charset=utf-8, date: 'Mon, 24 Jun 2013 23:24:32 GMT', p3p: CP="NON DSP COR
         CURa TIA", server: nginx/0.7.67}
     status: {code: 409, message: CONFLICT}
