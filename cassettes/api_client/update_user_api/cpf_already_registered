@@ -11,10 +11,10 @@
         content-type: !!python/tuple [content-type, application/json]
         user-agent: !!python/tuple [user-agent, myfc_id client]
     method: PUT
-    url: /accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/
+    url: //accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/
   response:
     body: {string: '{"cpf": ["Esse n\u00famero de CPF j\u00e1 est\u00e1 cadastrado."]}'}
     headers: {connection: keep-alive, content-length: '66', content-type: text/html;
-        charset=utf-8, date: 'Mon, 24 Jun 2013 23:24:31 GMT', p3p: CP="NON DSP COR
+        charset=utf-8, date: 'Mon, 24 Jun 2013 16:36:38 GMT', p3p: CP="NON DSP COR
         CURa TIA", server: nginx/0.7.67}
     status: {code: 409, message: CONFLICT}
