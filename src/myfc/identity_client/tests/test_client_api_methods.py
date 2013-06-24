@@ -238,6 +238,36 @@ class InvokeRegistrationApi(TestCase):
             u'cpf': [u'Este número de CPF já está cadastrado.']
         })
 
+    def test_invalid_cpf_pt1(self):
+        form = RegistrationForm(self.registration_data)
+        form.data['email'] = 'identity_client+1@disposableinbox.com'
+        form.data['cpf'] = '1111111111122222222'
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/invalid_cpf_pt1'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'cpf': [u'Certifique-se de que o valor tenha no máximo 14 caracteres (ele possui 19).']
+        })
+
+    def test_invalid_cpf_pt2(self):
+        form = RegistrationForm(self.registration_data)
+        form.data['email'] = 'identity_client+1@disposableinbox.com'
+        form.data['cpf'] = 'asdfgqwertzxcvb'
+
+        with vcr.use_cassette('cassettes/api_client/invoke_registration_api/invalid_cpf_pt2'):
+            response = APIClient.invoke_registration_api(form)
+            status_code, content, new_form = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(content, None)
+        self.assertEquals(form.errors, {
+            u'cpf': [u'Certifique-se de que o valor tenha no máximo 14 caracteres (ele possui 15).']
+        })
+
 
 class FetchIdentityData(TestCase):
 
