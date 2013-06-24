@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
-
 import requests
+
 from django.conf import settings
 
 from identity_client.utils import prepare_form_errors
-
-# Imports a remover
-import httplib2
-import json
 
 __all__ = ['APIClient']
 
