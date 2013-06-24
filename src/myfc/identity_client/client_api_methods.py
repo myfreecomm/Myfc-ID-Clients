@@ -35,10 +35,10 @@ class APIClient(object):
     @classmethod
     def invoke_registration_api(cls, form):
 
-        url = "{0}/{1}".format(cls.api_host, cls.registration_api)
-
         status_code = 500
         content = error = error_dict = None
+
+        url = "{0}/{1}".format(cls.api_host, cls.registration_api)
 
         try:
             registration_data = json.dumps(form.data)
@@ -115,7 +115,8 @@ class APIClient(object):
         else:
             url = "{0}/{1}/?email={2}".format(cls.api_host, cls.profile_api, email)
 
-        content = error = status_code = None
+        status_code = 500
+        content = error = None
 
         try:
             logging.info('fetch_identity_data: Making request to %s', url)
@@ -321,7 +322,6 @@ class APIClient(object):
                 raise requests.exceptions.HTTPError('Unexpected response', response=response)
 
         except requests.exceptions.HTTPError as e:
-
             error = {
                 'status': e.response.status_code,
                 'message': e.response.text if e.response.text else e.message,
@@ -355,20 +355,22 @@ class APIClient(object):
 
 
     @classmethod
-    def fetch_user_accounts(cls, uuid):
+    def fetch_user_accounts(cls, uuid, include_expired_accounts=False):
 
-        url = '{0}/organizations/api/identities/{1}/accounts/'.format(
-            cls.api_host, uuid
-        )
+        status_code = 500
+        content = error = None
 
-        accounts = error = None
+        url = '{0}/organizations/api/identities/{1}/accounts/'.format(cls.api_host, uuid)
 
         try:
             logging.info('fetch_user_accounts: Making request to %s', url)
-            response = cls.pweb.get(url)
+            response = cls.pweb.get(url, params={
+                'include_expired_accounts': include_expired_accounts,
+            })
+            status_code = response.status_code
 
             if response.status_code == 200:
-                accounts = response.json()
+                content = response.json()
 
             else:
                 response.raise_for_status()
@@ -404,7 +406,7 @@ class APIClient(object):
                 error['status'], error['message']
             )
 
-        return accounts, error
+        return status_code, content, error
 
 
     @classmethod

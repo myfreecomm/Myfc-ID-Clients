@@ -749,106 +749,84 @@ class UpdateAssociationData(TestCase):
 
 
 class TestFetchUserAccounts(TestCase):
-    mocked_content = mocked_accounts_json
-    method = 'GET'
-    headers = {
-        'cache-control': 'no-cache',
-        'content-length': '0',
-        'content-type': 'application/json',
-        'user-agent': 'myfc_id client',
-        'authorization': 'Basic {0}'.format('{0}:{1}'.format(
-            APIClient.api_user, APIClient.api_password).encode('base64').strip()
-        ),
-    }
-    uuid = 'some_uuid'
-    url = '%s/%s' % (APIClient.api_host, 'organizations/api/identities/some_uuid/accounts/')
 
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_successful(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.return_value = mocked_response, self.mocked_content
-        mocked_response.status = 200
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.fetch_user_accounts(uuid=test_user_uuid)
+        status_code, accounts, error = response
 
-        response = APIClient.fetch_user_accounts(self.uuid)
-        mocked_request.assert_called_once_with(self.url, self.method, headers=self.headers)
+        self.assertEquals(status_code, 500)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
 
-        self.assertEquals(response, (mocked_accounts_list, None))
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
 
-    def test_success(self):
-        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success'):
-            user_uuid = '1cf30b5f-e78c-4eb9-a7b2-294a1d024e6d'
-            response = APIClient.fetch_user_accounts(user_uuid)
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/wrong_credentials'):
+            response = APIClient.fetch_user_accounts(uuid=test_user_uuid)
+            status_code, accounts, error = response
 
-        self.assertEquals(response, (mocked_accounts_list, None))
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
 
-    def test_connection_error(self):
+        self.assertEquals(status_code, 401)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 401,
+            'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
+        })
 
-        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/connection_error'):
-            response = APIClient.fetch_user_accounts(self.uuid)
+    def test_request_with_application_without_permissions(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/application_without_permissions'):
+            response = APIClient.fetch_user_accounts(uuid=test_user_uuid)
+            status_code, accounts, error = response
 
-        self.assertEquals(
-            response, 
-            (None, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
-        )
+        self.assertEquals(status_code, 403)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
 
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_error_in_json_loads(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.return_value = mocked_response, '<not a json>'
-        mocked_response.status = 200
+    def test_request_with_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/uuid_which_does_not_exist'):
+            response = APIClient.fetch_user_accounts(uuid='00000000-0000-0000-0000-000000000000')
+            status_code, accounts, error = response
 
-        response = APIClient.fetch_user_accounts(self.uuid)
-        mocked_request.assert_called_once_with(self.url, self.method, headers=self.headers)
+        self.assertEquals(status_code, 404)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Identity with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
+        })
 
-        self.assertEquals(response, ([], {'status': 200, 'message': '<not a json>'}))
+    def test_success_without_accounts(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success_without_accounts'):
+            response = APIClient.fetch_user_accounts(test_user_uuid)
+            status_code, accounts, error = response
 
+        self.assertEquals(status_code, 200)
+        self.assertEquals(accounts, [])
+        self.assertEquals(error, None)
 
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_unexpected_status_code(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.return_value = mocked_response, '404 not found'
-        mocked_response.status = 404
+    def test_success_with_accounts(self):
+        raise NotImplementedError
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success_with_accounts'):
+            response = APIClient.fetch_user_accounts(test_user_uuid)
+            status_code, accounts, error = response
 
-        response = APIClient.fetch_user_accounts(self.uuid)
-        mocked_request.assert_called_once_with(self.url, self.method, headers=self.headers)
+        self.assertEquals(status_code, 200)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, None)
 
-        self.assertEquals(response, ([], {'status': 404, 'message': '404 not found'}))
+    def test_success_with_expired_accounts(self):
+        raise NotImplementedError
+        with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success_with_expired_accounts'):
+            response = APIClient.fetch_user_accounts(test_user_uuid, include_expired_accounts=True)
+            status_code, accounts, error = response
 
-
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_httplib2error_error(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.side_effect = HttpLib2Error
-
-        response = APIClient.fetch_user_accounts(self.uuid)
-        mocked_request.assert_called_once_with(self.url, self.method, headers=self.headers)
-
-        self.assertEquals(response, (
-            [], {'message': u'unexpected error: (HttpLib2Error) ', 'status': None}
-        ))
-
-
-    @patch('identity_client.client_api_methods.httplib2')
-    def test_any_other_exception(self, mocked_http):
-        mocked_http_object = mocked_http.Http()
-        mocked_request = mocked_http_object.request
-        mocked_response = Mock()
-        mocked_request.side_effect = Exception
-
-        response = APIClient.fetch_user_accounts(self.uuid)
-        mocked_request.assert_called_once_with(self.url, self.method, headers=self.headers)
-
-        self.assertEquals(response, (
-            [], {'message': u'unexpected error: (Exception) ', 'status': None}
-        ))
+        self.assertEquals(status_code, 200)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, None)
 
 
 class TestCreateUserAccount(TestCase):
