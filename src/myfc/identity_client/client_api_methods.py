@@ -10,14 +10,15 @@ from identity_client.decorators import handle_api_exceptions, handle_api_excepti
 __all__ = ['APIClient']
 
 # TODO: 
-#   - DRY (tratamento de exceções, etc)
+# - operacoes que o ecommerce precisa
+#   - ler dados de uma conta
 #   - create_user_account usando uuid
-#   - fetch_application_accounts
-#   - operacoes que o ecommerce precisa
 #   - listar membros de uma conta
 #   - adicionar membro a uma conta
-#   - alterar papelis de um membro de uma conta
-#   - remover membro a uma conta
+#   - alterar papeis de um membro de uma conta
+#
+# - fetch_application_accounts
+# - remover membro de uma conta
 
 
 class APIClient(object):
@@ -187,6 +188,22 @@ class APIClient(object):
         )
 
         if response.status_code not in (200, 201):
+            response.raise_for_status()
+            raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        return response.status_code, response.json()
+
+
+    @classmethod
+    @handle_api_exceptions
+    def fetch_account_data(cls, account_uuid):
+
+        url = '{0}/organizations/api/accounts/{1}/'.format(cls.api_host, account_uuid)
+
+        logging.info('fetch_account_data: Making request to %s', url)
+        response = cls.pweb.get(url)
+
+        if response.status_code != 200:
             response.raise_for_status()
             raise requests.exceptions.HTTPError('Unexpected response', response=response)
 

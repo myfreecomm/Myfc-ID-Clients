@@ -13,12 +13,14 @@ __all__ = [
     'FetchIdentityData', 'FetchIdentityDataWithEmail',
     'UpdateUserApi',
     'FetchAssociationData', 'UpdateAssociationData',
-    'TestFetchUserAccounts', 'TestCreateUserAccount',
+    'FetchUserAccounts', 'CreateUserAccount',
+    'FetchAccountData',
 ]
 
 test_user_email = 'identity_client@disposableinbox.com'
 test_user_password = '*SudN7%r$MiYRa!E'
 test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
+test_account_uuid = 'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
 
 
 class InvokeRegistrationApi(TestCase):
@@ -775,7 +777,7 @@ class UpdateAssociationData(TestCase):
         self.assertEquals(error, None)
 
 
-class TestFetchUserAccounts(TestCase):
+class FetchUserAccounts(TestCase):
 
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
@@ -866,7 +868,7 @@ class TestFetchUserAccounts(TestCase):
         self.assertEquals(error, None)
 
 
-class TestCreateUserAccount(TestCase):
+class CreateUserAccount(TestCase):
 
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
@@ -1005,3 +1007,91 @@ class TestCreateUserAccount(TestCase):
             'status': 409,
             'message': u'"ServiceAccount for service identity_client and account \'Test Account\' already exists and is active. Conflict"'
         })
+
+
+class FetchAccountData(TestCase):
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.fetch_account_data(account_uuid=test_account_uuid)
+        status_code, account, error = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(account, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/fetch_account_data/wrong_credentials'):
+            response = APIClient.fetch_account_data(account_uuid=test_account_uuid)
+            status_code, account, error = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(account, None)
+        self.assertEquals(error, {
+            'status': 401,
+            'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_application_without_permissions(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_account_data/application_without_permissions'):
+            response = APIClient.fetch_account_data(account_uuid=test_account_uuid)
+            status_code, account, error = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(account, None)
+        self.assertEquals(error, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_account_data/uuid_which_does_not_exist'):
+            response = APIClient.fetch_account_data(account_uuid='00000000-0000-0000-0000-000000000000')
+            status_code, account, error = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(account, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Account 00000000-0000-0000-0000-000000000000 has no relation with service identity_client"'
+        })
+
+    def test_success(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_account_data/success'):
+            response = APIClient.fetch_account_data(account_uuid=test_account_uuid)
+            status_code, account, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(account, {
+            u'account_data': {
+                u'name': u'Test Account',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            },
+            u'members_data': [{
+                u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/c3769912-baa9-4a0c-9856-395a706c7d57/',
+                u'roles': [u'owner'],
+                u'identity': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+            }],
+            u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+            u'expiration': None,
+            u'service_data': {u'name': u'Identity Client', u'slug': u'identity_client'},
+            u'plan_slug': u'unittest',
+            u'add_member_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/',
+        })
+        self.assertEquals(error, None)
+
+    # TODO: implementar teste
+    def test_reading_expired_accounts(self):
+        return
+        raise NotImplementedError
+        with vcr.use_cassette('cassettes/api_client/fetch_account_data/expired_accounts'):
+            response = APIClient.fetch_account_data(test_user_uuid)
+            status_code, account, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(account, None)
+        self.assertEquals(error, None)
