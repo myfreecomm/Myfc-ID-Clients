@@ -5,9 +5,9 @@ from identity_client.utils import get_account_module
 def update_identity_accounts(sender, identity, user_data, **kwargs):
 
     serviceAccount = get_account_module()
+    accounts = user_data.get('accounts', None)
 
-    if serviceAccount is not None:
-        accounts = user_data.get('accounts', [])
+    if (serviceAccount is not None) and (accounts is not None):
         serviceAccount.update_user_accounts(identity, accounts)
 
     return
@@ -16,9 +16,9 @@ def update_identity_accounts(sender, identity, user_data, **kwargs):
 def dissociate_old_identity_accounts(sender, identity, user_data, **kwargs):
 
     serviceAccount = get_account_module()
+    accounts = user_data.get('accounts', None)
 
-    if serviceAccount is not None:
-        accounts = user_data.get('accounts', [])
+    if (serviceAccount is not None) and (accounts is not None):
         serviceAccount.remove_stale_accounts(identity, accounts)
 
     return
