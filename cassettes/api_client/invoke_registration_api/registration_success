@@ -26,3 +26,59 @@
         21:48:35 GMT', expires: 'Fri, 21 Jun 2013 21:48:34 GMT', p3p: CP="NON DSP
         COR CURa TIA", server: nginx/0.7.67, vary: Accept-Encoding}
     status: {code: 200, message: OK}
+- request:
+    body: '{"first_name": "Myfc ID", "last_name": "Clients", "tos": true, "password2":
+      "*SudN7%r$MiYRa!E", "password": "*SudN7%r$MiYRa!E", "email": "identity_client@disposableinbox.com"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '175']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /accounts/api/create/
+  response:
+    body:
+      string: !!binary |
+        H4sIADPKxFEC/61Qy07EIBT9lYa1tdWxrZ2ViW5c+AXGkFu4JDehQICONhP/Xeh0krFuZuEO7jk5
+        ryNT5EPkBkZk+4K9zUoUry/spmAaLu7PmtDEkO8BjeQOfDToucHPkHAFOmDCpolkpotd1/b93X05
+        APTlA9Si7B+bttz1DXR1KzrZdFmLAgcR6YAXGsKp9DOT1lnQSYjIySjLJ6+zdgVC2CmFqcBRRTLl
+        okgYqmtMq+xqbCRFAiJZk9Mf2SKYXnXuTSEuPr9oixn7TvjZPnHeP857jLPyiMKO43aSgP5AAk8+
+        a9qZi2XPv3VWdpkLX1doI3nKiCPQMtYGfZIUnA0waCQz2K/blDgv4rxVpPF/Jl7FUpIfmloshF4C
+        AAA=
+    headers: {cache-control: no-cache, connection: keep-alive, content-encoding: gzip,
+      content-length: '287', content-type: application/json, date: 'Fri, 21 Jun 2013
+        21:48:35 GMT', expires: 'Fri, 21 Jun 2013 21:48:34 GMT', p3p: CP="NON DSP
+        COR CURa TIA", server: nginx/0.7.67, vary: Accept-Encoding}
+    status: {code: 200, message: OK}
+- request:
+    body: '{"first_name": "Myfc ID", "last_name": "Clients", "tos": true, "password2":
+      "*SudN7%r$MiYRa!E", "password": "*SudN7%r$MiYRa!E", "email": "identity_client@disposableinbox.com"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '175']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /accounts/api/create/
+  response:
+    body:
+      string: !!binary |
+        H4sIADPKxFEC/61Qy07EIBT9lYa1tdWxrZ2ViW5c+AXGkFu4JDehQICONhP/Xeh0krFuZuEO7jk5
+        ryNT5EPkBkZk+4K9zUoUry/spmAaLu7PmtDEkO8BjeQOfDToucHPkHAFOmDCpolkpotd1/b93X05
+        APTlA9Si7B+bttz1DXR1KzrZdFmLAgcR6YAXGsKp9DOT1lnQSYjIySjLJ6+zdgVC2CmFqcBRRTLl
+        okgYqmtMq+xqbCRFAiJZk9Mf2SKYXnXuTSEuPr9oixn7TvjZPnHeP857jLPyiMKO43aSgP5AAk8+
+        a9qZi2XPv3VWdpkLX1doI3nKiCPQMtYGfZIUnA0waCQz2K/blDgv4rxVpPF/Jl7FUpIfmloshF4C
+        AAA=
+    headers: {cache-control: no-cache, connection: keep-alive, content-encoding: gzip,
+      content-length: '287', content-type: application/json, date: 'Fri, 21 Jun 2013
+        21:48:35 GMT', expires: 'Fri, 21 Jun 2013 21:48:34 GMT', p3p: CP="NON DSP
+        COR CURa TIA", server: nginx/0.7.67, vary: Accept-Encoding}
+    status: {code: 200, message: OK}

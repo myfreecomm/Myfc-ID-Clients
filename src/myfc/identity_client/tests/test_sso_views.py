@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from httplib2 import HttpLib2Error
-from mock import Mock, patch
 from oauth2 import Token
+from datetime import datetime as dt, timedelta
 import json
+
+from mock import Mock, patch
 
 from django.utils.importlib import import_module
 from django.conf import settings
@@ -13,9 +15,56 @@ from mock_helpers import *
 from identity_client.models import Identity
 from identity_client.utils import get_account_module
 from identity_client.sso.client import SSOClient
-from identity_client.tests.test_backend import mocked_user_json, mocked_user_corrupted
 
 __all__ = ['SSOFetchRequestTokenView', 'AccessUserData']
+
+mocked_user_json = """{
+    "last_name": "Doe",
+    "services": ["financedesktop"],
+    "timezone": null,
+    "nickname": null,
+    "first_name": "John",
+    "language": null,
+    "country": null,
+    "cpf": null,
+    "gender": null,
+    "birth_date": "2010-05-04",
+    "email": "jd@123.com",
+    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da",
+    "is_active": true,
+    "accounts": [
+        {
+            "plan_slug": "plus",
+            "name": "Pessoal",
+            "roles": ["owner"],
+            "url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
+            "expiration": "%s",
+            "external_id": null,
+            "uuid": "e823f8e7-962c-414f-b63f-6cf439686159"
+        },
+        {
+            "plan_slug": "max",
+            "name": "Myfreecomm",
+            "roles": ["owner"],
+            "url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
+            "expiration": "%s",
+            "external_id": null,
+            "uuid": "b39bad59-94af-4880-995a-04967b454c7a"
+        }
+    ]
+}""" % (
+    (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
+    (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
+)
+
+mocked_user_corrupted = """{
+    "last_name": "Doe",
+    "services": ["financedesktop"],
+    "timezone": null,
+    "nickname": null,
+    "first_name": "John",
+    "language": n
+"""
 
 request_token_session = {OAUTH_REQUEST_TOKEN: OAUTH_REQUEST_TOKEN_SECRET}
 dummy_access_token = Token(OAUTH_ACCESS_TOKEN, OAUTH_ACCESS_TOKEN_SECRET)

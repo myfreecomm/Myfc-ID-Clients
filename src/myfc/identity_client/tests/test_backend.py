@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime as dt, timedelta
 import json
-from uuid import uuid4
 
-from mock import Mock, patch
+from mock import patch
 import vcr
 
 from django.conf import settings
@@ -16,73 +14,10 @@ from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 
-def mock_response(status):
-    mocked_response = Mock()
-    mocked_response.status = status
-
-    return mocked_response
-
-mocked_user_json = """{
-    "last_name": "Doe",
-    "services": ["financedesktop"],
-    "timezone": null,
-    "nickname": null,
-    "first_name": "John",
-    "language": null,
-    "country": null,
-    "cpf": null,
-    "gender": null,
-    "birth_date": "2010-05-04",
-    "email": "jd@123.com",
-    "uuid": "16fd2706-8baf-433b-82eb-8c7fada847da",
-    "is_active": true,
-    "accounts": [
-        {
-            "plan_slug": "plus",
-            "name": "Pessoal",
-            "roles": ["owner"],
-            "url": "http://192.168.1.48:8000/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
-            "expiration": "%s",
-            "external_id": null,
-            "uuid": "e823f8e7-962c-414f-b63f-6cf439686159"
-        },
-        {
-            "plan_slug": "max",
-            "name": "Myfreecomm",
-            "roles": ["owner"],
-            "url": "http://192.168.1.48:8000/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
-            "expiration": "%s",
-            "external_id": null,
-            "uuid": "b39bad59-94af-4880-995a-04967b454c7a"
-        }
-    ]
-}""" % (
-    (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
-    (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
-)
-
-mocked_user_corrupted = """{
-    "last_name": "Doe",
-    "services": ["financedesktop"],
-    "timezone": null,
-    "nickname": null,
-    "first_name": "John",
-    "language": n
-"""
-fetch_user_data_ok = lambda self, user, password: mocked_user_json
-fetch_user_data_corrupted = lambda self, user, password: mocked_user_corrupted
-fetch_user_data_failed = lambda self, user, password: None
-
-mocked_httplib2_request_success = Mock(
-    return_value=(mock_response(200), mocked_user_json)
-)
-mocked_httplib2_request_failure = Mock(
-    return_value=(mock_response(500), mocked_user_json)
-)
-
 test_user_email = 'identity_client@disposableinbox.com'
 test_user_password = '*SudN7%r$MiYRa!E'
 test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
+
 
 class TestMyfcidApiBackend(TestCase):
 

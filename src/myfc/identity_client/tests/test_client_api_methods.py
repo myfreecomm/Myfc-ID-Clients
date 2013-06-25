@@ -1,81 +1,12 @@
 # -*- coding: utf-8 -*-
-import json
-from datetime import datetime as dt, timedelta
-
-from mock import patch, Mock
+from mock import patch
 import vcr
 
 from django.conf import settings
 from django.test import TestCase
 
-from identity_client import client_api_methods
 from identity_client.client_api_methods import APIClient
 from identity_client.forms import RegistrationForm, IdentityInformationForm
-
-
-mocked_accounts_json = '''[
-    {
-        "service_data": {
-            "name": "John App", "slug": "johnapp"
-        },
-        "account_data": {
-            "name": "Pessoal",
-            "uuid": "e823f8e7-962c-414f-b63f-6cf439686159"
-        },
-        "plan_slug": "plus",
-        "roles": ["owner"],
-        "membership_details_url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
-        "url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
-        "expiration": "%s",
-        "external_id": null
-    },
-    {
-        "service_data": {
-            "name": "John App", "slug": "johnapp"
-        },
-        "account_data": {
-            "name": "Myfreecomm",
-            "uuid": "b39bad59-94af-4880-995a-04967b454c7a"
-        },
-        "plan_slug": "seller",
-        "roles": ["owner"],
-        "membership_details_url": "%s/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
-        "url": "%s/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/",
-        "expiration": "%s",
-        "external_id": null
-    }
-]''' % (
-    settings.MYFC_ID['HOST'],
-    settings.MYFC_ID['HOST'],
-    (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
-    settings.MYFC_ID['HOST'],
-    settings.MYFC_ID['HOST'],
-    (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
-)
-
-
-mocked_accounts_list = json.loads(mocked_accounts_json)
-
-mocked_account_json = """{
-        "service_data": {
-            "name": "John App", "slug": "johnapp"
-        },
-        "account_data": {
-            "name": "Pessoal",
-            "uuid": "e823f8e7-962c-414f-b63f-6cf439686159"
-        },
-        "plan_slug": "plus",
-        "roles": ["owner"],
-        "membership_details_url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/1e73dad8-fefe-4b3a-a1a1-7149633748f2/",
-        "url": "%s/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/",
-        "expiration": "%s",
-        "external_id": null
-    }""" % (
-    settings.MYFC_ID['HOST'], settings.MYFC_ID['HOST'], (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
-    )
-
-mocked_account = json.loads(mocked_account_json)
-
 
 __all__ = [
     'InvokeRegistrationApi',
