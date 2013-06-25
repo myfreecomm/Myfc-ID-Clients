@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import httplib2
-import json
-
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.shortcuts import render_to_response
@@ -42,9 +39,8 @@ def register(request, template_name='registration_form.html',
     form = registration_form(data=request.POST)
     if form.is_valid():
         # Registro
-        status, content, form = invoke_registration_api(form)
+        status, content, form = APIClient.invoke_registration_api(form)
         if status == 200:
-            content = json.loads(content)
             user = MyfcidAPIBackend().create_local_identity(content)
             login_user(request, user)
             return redirect_logged_user(request, redirect_field_name)
@@ -160,43 +156,3 @@ def handle_redirect_to(request, template_name, redirect_field_name, form, **kwar
         context,
         context_instance=RequestContext(request)
     )
-
-
-def invoke_registration_api(form):
-    registration_data = json.dumps(form.data)
-
-    api_user = settings.MYFC_ID['CONSUMER_TOKEN']
-    api_password = settings.MYFC_ID['CONSUMER_SECRET']
-    api_url = "%s/%s" % (
-        settings.MYFC_ID['HOST'],
-        settings.MYFC_ID['REGISTRATION_API'],
-    )
-
-    http = httplib2.Http()
-    http.add_credentials(api_user, api_password)
-    response, content = http.request(api_url,
-        "POST", body=registration_data,
-        headers={
-            'content-type': 'application/json',
-            'user-agent': 'myfc_id client',
-            'cache-control': 'no-cache'
-        }
-    )
-
-    if response.status in (400, 409):
-        try:
-            error_dict = json.loads(content)
-        except ValueError:
-            error_dict = {
-                '__all__': [u"Erro na transmissão dos dados. Aguarde alguns instantes e tente novamente."]
-            }
-
-        form._errors = prepare_form_errors(error_dict)
-    elif response.status in (401, 403):
-        error_dict = {
-            '__all__': [u"Erro na configuração do projeto. Credenciais incorretas ou acesso negado."]
-        }
-
-        form._errors = prepare_form_errors(error_dict)
-
-    return (response.status, content, form)

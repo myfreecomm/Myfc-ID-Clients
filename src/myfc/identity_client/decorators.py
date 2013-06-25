@@ -13,7 +13,10 @@ from identity_client.utils import get_account_module
 from identity_client.utils import prepare_form_errors
 
 
-__all__ = ['required_method', 'sso_login_required', 'requires_plan', 'with_403_page']
+__all__ = [
+    'required_method', 'sso_login_required', 'requires_plan', 'with_403_page',
+    'handle_api_exceptions', 'handle_api_exceptions_with_form',
+]
 
 
 class required_method(object):

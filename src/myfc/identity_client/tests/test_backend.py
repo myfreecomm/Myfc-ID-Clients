@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime as dt, timedelta
-from mock import Mock
-from uuid import uuid4
 import json
+from uuid import uuid4
+
+from mock import Mock, patch
+import vcr
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 
 from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
-from identity_client.client_api_methods import APIClient
 from identity_client.utils import get_account_module
-from identity_client.tests.mock_helpers import *
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
 
-from mock import patch
-
-__all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData', 'TestFetchUserAccounts']
+__all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 
 def mock_response(status):
     mocked_response = Mock()
@@ -82,21 +80,36 @@ mocked_httplib2_request_failure = Mock(
     return_value=(mock_response(500), mocked_user_json)
 )
 
+test_user_email = 'identity_client@disposableinbox.com'
+test_user_password = '*SudN7%r$MiYRa!E'
+test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
+
 class TestMyfcidApiBackend(TestCase):
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_successful_auth(self):
-        mocked_user_data = json.loads(mocked_user_json)
-
         # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
         # Checar se o usuário foi autenticado corretamente
         self.assertNotEqual(identity, None)
-        self.assertEquals(identity.first_name, mocked_user_data['first_name'])
-        self.assertEquals(identity.last_name, mocked_user_data['last_name'])
-        self.assertEquals(identity.email, mocked_user_data['email'])
-        self.assertEquals(identity.user_data, mocked_user_data)
+        self.assertEquals(identity.first_name, 'Identity')
+        self.assertEquals(identity.last_name, 'Client')
+        self.assertEquals(identity.email, test_user_email)
+        self.assertEquals(identity.user_data, {
+            u'authentication_key': u'$2a$12$nA3ad2y5aSBlg80K9ekbNuvnRO1OI1WUKZyoJqWEhk.PQpD8.6jkS',
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'id_token': u'729dd3a15cf03a80024d0986deee9ae91fdd5d834fabf6f9',
+            u'is_active': True,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+        })
 
         # Checar se o backend foi setado corretamente
         self.assertEquals(
@@ -105,93 +118,80 @@ class TestMyfcidApiBackend(TestCase):
         )
 
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_failed)
     def test_failed_auth(self):
         # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@invalid.com', 'senha')
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/wrong_password'):
+            identity = MyfcidAPIBackend().authenticate(test_user_email, 'senha errada')
 
         # Garantir que o usuario não foi autenticado
         self.assertEquals(identity, None)
 
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_updates_user(self):
-        #Identity.objects.delete()
-        mocked_user_data = json.loads(mocked_user_json)
-
         # Create a user
-        user = Identity.objects.create(
-            uuid=mocked_user_data['uuid'],
-            email='user@domain.com',
-            first_name='First',
-            last_name='Last',
-        )
+        user = Identity.objects.create(uuid=test_user_uuid, email='vai_mudar@email.com')
 
         # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
         # Checar se os dados do usuário foram atualizados
-        self.assertEquals(identity.first_name, mocked_user_data['first_name'])
-        self.assertEquals(identity.last_name, mocked_user_data['last_name'])
-        self.assertEquals(identity.email, mocked_user_data['email'])
-        self.assertEquals(identity.uuid, mocked_user_data['uuid'])
+        self.assertEquals(identity.first_name, 'Identity')
+        self.assertEquals(identity.last_name, 'Client') 
+        self.assertEquals(identity.email, test_user_email)
+        self.assertEquals(identity.uuid, test_user_uuid)
 
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_corrupted)
-    def test_corrupted_api_response(self):
-        # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+    #@patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_corrupted)
+    #def test_corrupted_api_response(self):
+    #    # Autenticar um usuário
+    #    identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
 
-        # Garantir que o usuario não foi autenticado
-        self.assertEquals(identity, None)
+    #    # Garantir que o usuario não foi autenticado
+    #    self.assertEquals(identity, None)
 
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
     def test_auth_creates_user_accounts(self):
         # Autenticar um usuário
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
-        # O usuário deve ser membro de duas contas
+        # O usuário deve ser membro de uma conta
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
-        self.assertEquals(accounts.count(), 2)
+        self.assertEquals(accounts.count(), 1)
 
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
     def test_auth_removes_user_from_old_accounts(self):
         # Autenticar usuário com accounts
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
-        # 2 contas devem ter sido criadas
+        # 1 conta deve ter sido criada
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
-        self.assertEquals(accounts.count(), 2)
+        self.assertEquals(accounts.count(), 1)
 
-        # Mockar leitura dos dados (sem accounts)
-        mocked_data = json.loads(mocked_user_json)
-        del(mocked_data['accounts'])
-        mocked_user_json_without_accounts = json.dumps(mocked_data)
-        MyfcidAPIBackend.fetch_user_data = lambda self, user, password: mocked_user_json_without_accounts
-
+        raise NotImplementedError
         # Autenticar o mesmo usuário, desta vez sem accounts
-        identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success_without_accounts'):
+            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
-        # O usuário deve ter sido dissociado das accounts
+        # O usuário deve ter sido dissociado da account
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 0)
 
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_user_accounts_creation_fails_if_settings_are_wrong(self):
         with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'unknown_app.UnknownModel'):
-            # Autenticar um usuário
-            identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+            with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+                identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
-            # A autenticação ocorreu com sucesso
-            self.assertTrue(identity is not None)
+        # A autenticação ocorreu com sucesso
+        self.assertTrue(identity is not None)
 
         # Nenhuma conta deve ter sido criada
         serviceAccountModel = get_account_module()
@@ -199,28 +199,26 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(accounts.count(), 0)
 
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def test_auth_user_accounts_creation_fails_if_settings_are_missing(self):
         with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', None):
-            # Autenticar um usuário
-            identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
+            with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+                identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
-            # A autenticação ocorreu com sucesso
-            self.assertTrue(identity is not None)
+        # A autenticação ocorreu com sucesso
+        self.assertTrue(identity is not None)
 
         # Nenhuma conta deve ter sido criada
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 0)
-
 
 
 class TestGetUser(TestCase):
 
-    @patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_ok)
     def _create_user(self):
         # Autenticar um usuário
-        return MyfcidAPIBackend().authenticate('user@existing.com', 's3nH4')
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+            return MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
 
 
     def test_valid_user(self):
@@ -241,82 +239,28 @@ class TestGetUser(TestCase):
 
 class TestFetchUserData(TestCase):
 
-    @patch_httplib2(mocked_httplib2_request_success)
     def test_fetch_user_data_with_success(self):
-        api_backend = MyfcidAPIBackend()
-        response_content = api_backend.fetch_user_data('user@email.com', 's3nH4')
-        self.assertEquals(response_content, mocked_user_json)
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+            _, user_data, _ = MyfcidAPIBackend().fetch_user_data(test_user_email, test_user_password)
 
-    @patch_httplib2(mocked_httplib2_request_failure)
+        self.assertEquals(user_data, {
+            u'authentication_key': u'$2a$12$nA3ad2y5aSBlg80K9ekbNuvnRO1OI1WUKZyoJqWEhk.PQpD8.6jkS',
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'id_token': u'729dd3a15cf03a80024d0986deee9ae91fdd5d834fabf6f9',
+            u'is_active': True,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+        })
+
     def test_fetch_user_data_failure(self):
-        api_backend = MyfcidAPIBackend()
-        response_content = api_backend.fetch_user_data('user@email.com', 's3nH4')
-        self.assertEquals(response_content, None)
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/wrong_password'):
+            _, user_data, error = MyfcidAPIBackend().fetch_user_data(test_user_email, 'senha errada')
 
-
-class TestFetchUserAccounts(TestCase):
-
-    accounts = [
-            {
-                "service_data": { "name": "Doutor Financas", "slug": "dr_financas" },
-                "account_data": { "name": "Pessoal", "uuid": "e823f8e7-962c-414f-b63f-6cf439686159" },
-                "plan_slug": "plus",
-                "expiration": (dt.today() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S'),
-                "add_member_url": "http://localhost:8080/organizations/api/accounts/e823f8e7-962c-414f-b63f-6cf439686159/members/"
-            },
-            {
-                "service_data": { "name": "Backup Online", "slug": "backup_online" },
-                "account_data": { "name": "Account1", "uuid": "b39bad59-94af-4880-995a-04967b454c7a" },
-                "plan_slug": "max",
-                "expiration": (dt.today() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
-                "add_member_url": "http://localhost:8080/organizations/api/accounts/b39bad59-94af-4880-995a-04967b454c7a/members/"
-            }
-    ]
-
-    mocked_httplib2_request_accounts_ok = Mock(
-        return_value=(mock_response(200), json.dumps(accounts))
-    )
-
-    mocked_httplib2_request_accounts_error = Mock()
-
-    mocked_httplib2_request_accounts_failure = Mock(
-        return_value=(mock_response(400), 'BAD REQUEST')
-    )
-
-    mocked_httplib2_request_accounts_unexpected_error = Mock(
-        return_value=(mock_response(200), None)
-    )
-
-
-    @patch_httplib2(mocked_httplib2_request_accounts_ok)
-    def test_fetch_user_accounts_with_success(self):
-        accounts, error = APIClient.fetch_user_accounts(uuid4())
-        self.assertEquals(accounts, self.accounts)
-        self.assertEquals(error, None)
-
-    @patch_httplib2(mocked_httplib2_request_accounts_unexpected_error)
-    def test_fetch_user_accounts_generates_error(self):
-        accounts, error = APIClient.fetch_user_accounts(uuid4())
-        self.assertEquals(accounts, [])
-        self.assertEquals(error['status'], None)
-        self.assertTrue('unexpected error' in error['message'])
-
-    @patch_httplib2(mocked_httplib2_request_accounts_failure)
-    def test_fetch_user_accounts_400(self):
-        accounts, error = APIClient.fetch_user_accounts(uuid4())
-        self.assertEquals(accounts, [])
-        self.assertEquals(error['status'], 400)
-        self.assertTrue('BAD REQUEST' in error['message'])
-
-    @patch_httplib2(mocked_httplib2_request_accounts_error)
-    def test_httplib2_error(self):
-        def side_effect(*args, **kwargs):
-            import httplib2
-            raise httplib2.HttpLib2Error
-
-        self.mocked_httplib2_request_accounts_error.side_effect = side_effect
-
-        accounts, error = APIClient.fetch_user_accounts(uuid4())
-        self.assertEquals(accounts, [])
-        self.assertEquals(error['status'], None)
-        self.assertTrue('connection error' in error['message'])
+        self.assertEquals(user_data, None)
+        self.assertEquals(error, {'status': 401, 'message': '401 Client Error: UNAUTHORIZED'})

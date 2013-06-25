@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
 import json
-import httplib2
+import requests
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
 from identity_client.models import Identity
 from identity_client.signals import pre_identity_authentication
+from identity_client.decorators import handle_api_exceptions
 
 
 class MyfcidAPIBackend(object):
@@ -27,18 +28,14 @@ class MyfcidAPIBackend(object):
         identity = None
 
         # Fetch user data
-        response_content = self.fetch_user_data(email, password)
-
-        # Deserialize data
-        try:
-            user_data = json.loads(response_content)
-            logging.info(u'User %s (%s) authenticated', email, user_data['uuid'])
-        except (TypeError, ValueError):
-            logging.info(u'Failed to authenticate user %s', email)
-            user_data = None
+        status_code, user_data, error = self.fetch_user_data(email, password)
 
         if user_data:
+            logging.info(u'User %s (%s) authenticated', email, user_data['uuid'])
             identity = self.create_local_identity(user_data)
+        else:
+            logging.info(u'Failed to authenticate user %s', email)
+
         return identity
 
 
@@ -60,6 +57,7 @@ class MyfcidAPIBackend(object):
         )
         return identity
 
+
     def get_user(self, user_id):
         try:
             user = Identity.objects.get(id=user_id)
@@ -77,45 +75,31 @@ class MyfcidAPIBackend(object):
         user.save()
 
 
+    @handle_api_exceptions
     def fetch_user_data(self, user, password):
 
         # Build the API uri
-        uri = '%s/%s' % (
-            settings.MYFC_ID['HOST'],
-            settings.MYFC_ID['AUTH_API'],
-        )
+        uri = "{0[HOST]}/{0[AUTH_API]}".format(settings.MYFC_ID)
 
-        # Setup httplib2 for this request
-        h = httplib2.Http()
-        h.add_credentials(user, password)
+        headers = {
+            'content-type': 'application/json',
+            'cache-control': 'no-cache',
+            'user-agent': 'myfc_id client'
+        }
 
         # Request the data
-        try:
-            response, content = h.request(
-                uri, method='GET',
-                headers={
-                    'content-type': 'application/json',
-                    'cache-control': 'no-cache',
-                    'user-agent': 'myfc_id client'
-                }
-            )
+        response = requests.get(uri, auth=(user, password), headers=headers)
+        logging.info(
+            u'Auth response: status=%s, content=%s',
+            response.status_code, response.text
+        )
 
-            logging.info(u'Auth response: status=%s, content=%s', response.status, content)
+        # If the request is successful, read response data
+        if response.status_code != 200:
+            response.raise_for_status()
+            raise requests.exceptions.HTTPError('Unexpected response', response=response)
 
-            # If the request is successful, read response data
-            if response.status != 200:
-                raise ValueError
-
-            response_content = content
-
-        except (ValueError, ), e:
-            response_content = None
-
-        except (AttributeError, httplib2.HttpLib2Error, Exception), e:
-            logging.error(u'Error authenticating user: %s<%s>', e, type(e))
-            response_content = None
-
-        return response_content
+        return response.status_code, response.json()
 
 
 def get_user(userid=None):

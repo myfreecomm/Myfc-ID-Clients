@@ -5,7 +5,7 @@ import json
 import requests
 from django.conf import settings
 
-from identity_client.decorators import handle_api_exceptions,handle_api_exceptions_with_form
+from identity_client.decorators import handle_api_exceptions, handle_api_exceptions_with_form
 
 __all__ = ['APIClient']
 

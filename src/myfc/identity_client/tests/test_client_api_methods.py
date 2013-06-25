@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 from datetime import datetime as dt, timedelta
-from httplib2 import HttpLib2Error
 
 from mock import patch, Mock
 import vcr
