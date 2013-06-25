@@ -1,5 +1,5 @@
 - request:
-    body: '{"plan_slug": "unittest", "name": "Test Account", "expiration": null}'
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
     headers: !!python/object:requests.structures.CaseInsensitiveDict
       _store:
         accept: !!python/tuple [accept, application/json]
@@ -15,6 +15,6 @@
     body: {string: '"ServiceAccount for service identity_client and account ''Test
         Account'' already exists and is active. Conflict"'}
     headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '110',
-      content-type: application/json, date: 'Mon, 24 Jun 2013 19:59:12 GMT', p3p: CP="NON
+      content-type: application/json, date: 'Tue, 25 Jun 2013 23:28:05 GMT', p3p: CP="NON
         DSP COR CURa TIA", server: nginx/0.7.67, vary: 'Authenticate, Accept'}
     status: {code: 409, message: CONFLICT}

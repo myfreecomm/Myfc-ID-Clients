@@ -11,8 +11,6 @@ __all__ = ['APIClient']
 
 # TODO: 
 # - operacoes que o ecommerce precisa
-#   - ler dados de uma conta
-#   - create_user_account usando uuid
 #   - listar membros de uma conta
 #   - adicionar membro a uma conta
 #   - alterar papeis de um membro de uma conta
@@ -172,14 +170,20 @@ class APIClient(object):
 
     @classmethod
     @handle_api_exceptions
-    def create_user_account(cls, uuid, name, plan_slug, expiration=None):
+    def create_user_account(cls, uuid, plan_slug, account_uuid=None, account_name=None, expiration=None):
+
+        account_data = {'plan_slug': plan_slug, 'expiration': expiration}
+        if account_uuid:
+            account_data['uuid'] = account_uuid
+        elif account_name:
+            account_data['name'] = account_name
+        else:
+            raise ValueError("Either 'account_uuid' or 'account_name' must be given")
+
+        account_data = json.dumps(account_data)
 
         url = '{0}/organizations/api/identities/{1}/accounts/'.format(cls.api_host, uuid)
-
         logging.info('create_user_account: Making request to %s', url)
-
-        account_data = {'name': name, 'plan_slug': plan_slug, 'expiration': expiration}
-        account_data = json.dumps(account_data)
 
         response = cls.pweb.post(
             url,

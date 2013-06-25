@@ -1,5 +1,5 @@
 - request:
-    body: '{"plan_slug": "unittest", "name": "Test Account", "expiration": null}'
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
     headers: !!python/object:requests.structures.CaseInsensitiveDict
       _store:
         accept: !!python/tuple [accept, application/json]

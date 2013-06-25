@@ -13,14 +13,15 @@ __all__ = [
     'FetchIdentityData', 'FetchIdentityDataWithEmail',
     'UpdateUserApi',
     'FetchAssociationData', 'UpdateAssociationData',
-    'FetchUserAccounts', 'CreateUserAccount',
-    'FetchAccountData',
+    'FetchUserAccounts', 'FetchAccountData',
+    'CreateUserAccount', 'CreateUserAccountWithUUID',
 ]
 
 test_user_email = 'identity_client@disposableinbox.com'
 test_user_password = '*SudN7%r$MiYRa!E'
 test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
 test_account_uuid = 'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+second_account_uuid = 'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
 
 
 class InvokeRegistrationApi(TestCase):
@@ -872,7 +873,7 @@ class CreateUserAccount(TestCase):
 
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
-        response = APIClient.create_user_account(uuid=test_user_uuid, name='Test Account', plan_slug='unittest')
+        response = APIClient.create_user_account(uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest')
         status_code, accounts, error = response
 
         self.assertEquals(status_code, 500)
@@ -883,7 +884,7 @@ class CreateUserAccount(TestCase):
         APIClient.pweb.auth = ('?????', 'XXXXXX')
 
         with vcr.use_cassette('cassettes/api_client/create_user_account/wrong_credentials'):
-            response = APIClient.create_user_account(uuid=test_user_uuid, name='Test Account', plan_slug='unittest')
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest')
             status_code, accounts, error = response
 
         APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
@@ -897,7 +898,7 @@ class CreateUserAccount(TestCase):
 
     def test_request_with_application_without_permissions(self):
         with vcr.use_cassette('cassettes/api_client/create_user_account/application_without_permissions'):
-            response = APIClient.create_user_account(uuid=test_user_uuid, name='Test Account', plan_slug='unittest')
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest')
             status_code, accounts, error = response
 
         self.assertEquals(status_code, 403)
@@ -910,7 +911,7 @@ class CreateUserAccount(TestCase):
     def test_request_with_uuid_which_does_not_exist(self):
         with vcr.use_cassette('cassettes/api_client/create_user_account/uuid_which_does_not_exist'):
             response = APIClient.create_user_account(
-                uuid='00000000-0000-0000-0000-000000000000', name='Test Account', plan_slug='unittest'
+                uuid='00000000-0000-0000-0000-000000000000', account_name='Test Account', plan_slug='unittest'
             )
             status_code, accounts, error = response
 
@@ -922,20 +923,24 @@ class CreateUserAccount(TestCase):
         })
 
     def test_request_with_empty_name(self):
+        # Este teste não faz mais requisição para a api, porem se fizer esta será a resposta
         with vcr.use_cassette('cassettes/api_client/create_user_account/with_empty_name'):
             response = APIClient.create_user_account(
-                uuid=test_user_uuid, name='', plan_slug='unittest'
+                uuid=test_user_uuid, account_name='', plan_slug='unittest'
             )
             status_code, accounts, error = response
 
-        self.assertEquals(status_code, 400)
+        self.assertEquals(status_code, 500)
         self.assertEquals(accounts, None)
-        self.assertEquals(error, {'status': 400, 'message': u'{"errors": ["Either name or uuid must be supplied."]}'})
+        self.assertEquals(error, {
+            'status': None,
+            'message': u"Unexpected error: Either 'account_uuid' or 'account_name' must be given <<type 'exceptions.ValueError'>>",
+        })
 
     def test_request_with_invalid_expiration(self):
         with vcr.use_cassette('cassettes/api_client/create_user_account/with_invalid_expiration'):
             response = APIClient.create_user_account(
-                uuid=test_user_uuid, name='Test Account', plan_slug='unittest', expiration='ABC'
+                uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest', expiration='ABC'
             )
             status_code, accounts, error = response
 
@@ -949,7 +954,7 @@ class CreateUserAccount(TestCase):
     def test_request_with_expiration_in_the_past(self):
         with vcr.use_cassette('cassettes/api_client/create_user_account/with_expiration_in_the_past'):
             response = APIClient.create_user_account(
-                uuid=test_user_uuid, name='Test Account', plan_slug='unittest', expiration='0000-01-01'
+                uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest', expiration='0000-01-01'
             )
             status_code, accounts, error = response
 
@@ -963,7 +968,7 @@ class CreateUserAccount(TestCase):
     def test_request_with_expiration_after_max_date(self):
         with vcr.use_cassette('cassettes/api_client/create_user_account/with_expiration_after_max_date'):
             response = APIClient.create_user_account(
-                uuid=test_user_uuid, name='Test Account', plan_slug='unittest', expiration='10000-01-01'
+                uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest', expiration='10000-01-01'
             )
             status_code, accounts, error = response
 
@@ -977,7 +982,7 @@ class CreateUserAccount(TestCase):
     def test_success_request(self):
         with vcr.use_cassette('cassettes/api_client/create_user_account/success'):
             response = APIClient.create_user_account(
-                uuid=test_user_uuid, name='Test Account', plan_slug='unittest'
+                uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest'
             )
             status_code, accounts, error = response
 
@@ -997,7 +1002,7 @@ class CreateUserAccount(TestCase):
     def test_duplicated_account(self):
         with vcr.use_cassette('cassettes/api_client/create_user_account/duplicated_account'):
             response = APIClient.create_user_account(
-                uuid=test_user_uuid, name='Test Account', plan_slug='unittest'
+                uuid=test_user_uuid, account_name='Test Account', plan_slug='unittest'
             )
             status_code, accounts, error = response
 
@@ -1006,6 +1011,161 @@ class CreateUserAccount(TestCase):
         self.assertEquals(error, {
             'status': 409,
             'message': u'"ServiceAccount for service identity_client and account \'Test Account\' already exists and is active. Conflict"'
+        })
+
+
+class CreateUserAccountWithUUID(TestCase):
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.create_user_account(uuid=test_user_uuid, account_uuid=test_account_uuid, plan_slug='unittest')
+        status_code, accounts, error = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/wrong_credentials'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_uuid=test_account_uuid, plan_slug='unittest')
+            status_code, accounts, error = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 401,
+            'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_application_without_permissions(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/application_without_permissions'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_uuid=test_account_uuid, plan_slug='unittest')
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_user_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/uuid_which_does_not_exist'):
+            response = APIClient.create_user_account(
+                uuid='00000000-0000-0000-0000-000000000000', account_name='Test Account', plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Identity with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
+        })
+
+    def test_request_with_account_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/account_uuid_which_does_not_exist'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, account_uuid='00000000-0000-0000-0000-000000000000', plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 400,
+            'message': u'{"field_errors": {"uuid": ["This UUID does not match any account."]}, "errors": ["Either name or uuid must be supplied."]}'
+        })
+
+    def test_request_with_empty_account_uuid(self):
+        # Este teste não faz mais requisição para a api, porem se fizer esta será a resposta
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/with_empty_name'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid, account_uuid='', plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': None,
+            'message': u"Unexpected error: Either 'account_uuid' or 'account_name' must be given <<type 'exceptions.ValueError'>>",
+        })
+
+    def test_request_with_invalid_expiration(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/with_invalid_expiration'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_uuid=test_account_uuid, plan_slug='unittest', expiration='ABC')
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 400,
+            'message': u'{"field_errors": {"expiration": ["Informe uma data v\\u00e1lida."]}}'
+        })
+
+    def test_request_with_expiration_in_the_past(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/with_expiration_in_the_past'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_uuid=test_account_uuid, plan_slug='unittest', expiration='0000-01-01')
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 400,
+            'message': u'{"field_errors": {"expiration": ["Informe uma data v\\u00e1lida."]}}'
+        })
+
+    def test_request_with_expiration_after_max_date(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/with_expiration_after_max_date'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_uuid=test_account_uuid, plan_slug='unittest', expiration='10000-01-01')
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 400)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 400,
+            'message': u'{"field_errors": {"expiration": ["Informe uma data v\\u00e1lida."]}}'
+        })
+
+    def test_success_request(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/success'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid,
+                account_uuid=second_account_uuid,
+                plan_slug='unittest'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 201)
+        self.assertEquals(accounts, {
+            u'membership_details_url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/members/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'plan_slug': u'unittest',
+            u'roles': [u'owner'],
+            u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/',
+            u'expiration': None,
+            u'service_data': {u'name': u'Identity Client',
+            u'slug': u'identity_client'},
+            u'account_data': {u'name': u'My Other Applications',
+            u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'},
+            u'add_member_url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/members/'
+        })
+        self.assertEquals(error, None)
+
+    def test_duplicated_account(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/duplicated_account'):
+            response = APIClient.create_user_account(uuid=test_user_uuid, account_uuid=test_account_uuid, plan_slug='unittest')
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 409)
+        self.assertEquals(accounts, None)
+        self.assertEquals(error, {
+            'status': 409,
+            'message': u'"ServiceAccount for service identity_client and account \'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba\' already exists and is active. Conflict"'
         })
 
 
