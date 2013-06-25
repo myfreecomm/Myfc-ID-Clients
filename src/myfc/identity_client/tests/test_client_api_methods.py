@@ -268,6 +268,43 @@ class FetchIdentityData(TestCase):
         })
         self.assertEquals(error, None)
 
+    def test_success_request_with_accounts(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_accounts'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'is_active': True,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57',
+            u'accounts': [{
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'}],u'accounts': [{u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }],
+        })
+        self.assertEquals(error, None)
+
 
 class FetchIdentityDataWithEmail(TestCase):
 
@@ -334,6 +371,43 @@ class FetchIdentityDataWithEmail(TestCase):
             u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
             u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
             u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+        })
+        self.assertEquals(error, None)
+
+    def test_success_request_with_accounts(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success_with_accounts'):
+            response = APIClient.fetch_identity_data(email=test_user_email)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'is_active': True,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57',
+            u'accounts': [{
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'}],u'accounts': [{u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }],
         })
         self.assertEquals(error, None)
 

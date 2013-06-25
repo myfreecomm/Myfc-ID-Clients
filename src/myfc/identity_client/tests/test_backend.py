@@ -11,6 +11,7 @@ from identity_client.models import Identity
 from identity_client.backend import MyfcidAPIBackend, get_user
 from identity_client.utils import get_account_module
 from identity_client.tests.helpers import MyfcIDTestCase as TestCase
+from identity_client.client_api_methods import APIClient
 
 __all__ = ['TestMyfcidApiBackend', 'TestGetUser', 'TestFetchUserData']
 
@@ -77,42 +78,44 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(identity.uuid, test_user_uuid)
 
 
-    #@patch.object(MyfcidAPIBackend, 'fetch_user_data', fetch_user_data_corrupted)
-    #def test_corrupted_api_response(self):
-    #    # Autenticar um usuário
-    #    identity = MyfcidAPIBackend().authenticate('user@valid.com', 's3nH4')
-
-    #    # Garantir que o usuario não foi autenticado
-    #    self.assertEquals(identity, None)
-
-
     @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
-    def test_auth_creates_user_accounts(self):
-        # Autenticar um usuário
-        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
-            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
+    def test_create_local_identity_creates_user_accounts(self):
+        # Obter dados do usuário
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_accounts'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content, error = response
 
-        # O usuário deve ser membro de uma conta
-        serviceAccountModel = get_account_module()
-        accounts = serviceAccountModel.for_identity(identity)
-        self.assertEquals(accounts.count(), 1)
-
-
-    @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
-    def test_auth_removes_user_from_old_accounts(self):
-        # Autenticar usuário com accounts
-        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
-            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
+        # Criar usuário local
+        identity = MyfcidAPIBackend().create_local_identity(content)
 
         # 1 conta deve ter sido criada
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 1)
 
-        raise NotImplementedError
-        # Autenticar o mesmo usuário, desta vez sem accounts
-        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success_without_accounts'):
-            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
+
+    @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
+    def test_create_local_identity_removes_user_from_old_accounts(self):
+        # Obter dados do usuário
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_accounts'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content, error = response
+
+        # Criar usuário local
+        identity = MyfcidAPIBackend().create_local_identity(content)
+
+        # 1 conta deve ter sido criada
+        serviceAccountModel = get_account_module()
+        accounts = serviceAccountModel.for_identity(identity)
+        self.assertEquals(accounts.count(), 1)
+
+        # Obter os dados do usuário, desta vez sem accounts
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content, error = response
+
+        # Criar usuário local
+        identity = MyfcidAPIBackend().create_local_identity(content)
 
         # O usuário deve ter sido dissociado da account
         serviceAccountModel = get_account_module()
@@ -120,32 +123,65 @@ class TestMyfcidApiBackend(TestCase):
         self.assertEquals(accounts.count(), 0)
 
 
-    def test_auth_user_accounts_creation_fails_if_settings_are_wrong(self):
-        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'unknown_app.UnknownModel'):
-            with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
-                identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
+    def test_accounts_creation_fails_if_settings_are_wrong(self):
+        # Obter dados do usuário
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_accounts'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content, error = response
 
-        # A autenticação ocorreu com sucesso
+        # Criar usuário local
+        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'unknown_app.UnknownModel'):
+            identity = MyfcidAPIBackend().create_local_identity(content)
+
         self.assertTrue(identity is not None)
 
-        # Nenhuma conta deve ter sido criada
+        # Nenhuma conta foi criada
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 0)
 
 
     def test_auth_user_accounts_creation_fails_if_settings_are_missing(self):
-        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', None):
-            with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
-                identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
+        # Obter dados do usuário
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_accounts'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content, error = response
 
-        # A autenticação ocorreu com sucesso
+        # Criar usuário local
+        with patch.object(settings, 'SERVICE_ACCOUNT_MODULE', None):
+            identity = MyfcidAPIBackend().create_local_identity(content)
+
         self.assertTrue(identity is not None)
 
-        # Nenhuma conta deve ter sido criada
+        # Nenhuma conta foi criada
         serviceAccountModel = get_account_module()
         accounts = serviceAccountModel.for_identity(identity)
         self.assertEquals(accounts.count(), 0)
+
+
+    @patch.object(settings, 'SERVICE_ACCOUNT_MODULE', 'identity_client.ServiceAccount')
+    def test_authentication_should_not_remove_user_accounts(self):
+        # Obter dados do usuário
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_accounts'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid)
+            status_code, content, error = response
+
+        # Criar usuário local
+        identity = MyfcidAPIBackend().create_local_identity(content)
+
+        # 1 conta deve ter sido criada
+        serviceAccountModel = get_account_module()
+        accounts = serviceAccountModel.for_identity(identity)
+        self.assertEquals(accounts.count(), 1)
+
+        # Autenticar o usuário
+        with vcr.use_cassette('cassettes/api_client/myfcid_api_backend/success'):
+            identity = MyfcidAPIBackend().authenticate(test_user_email, test_user_password)
+
+        # A conta deve continuar existindo
+        serviceAccountModel = get_account_module()
+        accounts = serviceAccountModel.for_identity(identity)
+        self.assertEquals(accounts.count(), 1)
 
 
 class TestGetUser(TestCase):
