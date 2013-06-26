@@ -1598,6 +1598,48 @@ class UpdateMemberRoles(TestCase):
         })
         self.assertEquals(error, None)
 
+    def test_request_with_user_uuid_which_is_not_a_member(self):
+        with vcr.use_cassette('cassettes/api_client/update_member_roles/user_uuid_not_a_member'):
+            response = APIClient.remove_account_member(
+                api_path=self.member_data['membership_details_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Identity bedcd531-c741-4d32-90d7-a7f7432f3f15 is not member of service identity_client for account a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"'
+        })
+
+    def test_request_with_account_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/update_member_roles/account_uuid_which_does_not_exist'):
+            response = APIClient.update_member_roles(
+                roles=[],
+                api_path=self.member_data['membership_details_url'].replace(test_account_uuid, '00000000-0000-0000-0000-000000000000')
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
+            'status': 404, 'message': u'"Account with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
+        })
+
+    def test_request_with_user_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/update_member_roles/user_uuid_which_does_not_exist'):
+            response = APIClient.update_member_roles(
+                roles=[],
+                api_path=self.member_data['membership_details_url'].replace(second_user_uuid, '00000000-0000-0000-0000-000000000000')
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
+            'status': 404, 'message': u'"Identity with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
+        })
+
     # TODO: implementar teste
     def test_updating_members_of_an_expired_account(self):
         return
@@ -1693,7 +1735,7 @@ class RemoveAccountMember(TestCase):
         self.assertEquals(content, None)
         self.assertEquals(error, {'status': 406, 'message': u'"Service owner cannot be removed from members list"'})
 
-    def test_user_uuid_which_is_not_a_member(self):
+    def test_request_with_user_uuid_which_is_not_a_member(self):
         with vcr.use_cassette('cassettes/api_client/remove_account_member/user_uuid_not_a_member'):
             response = APIClient.remove_account_member(
                 api_path=self.member_data['membership_details_url']

@@ -12,7 +12,6 @@ __all__ = ['APIClient']
 # TODO: 
 # - fetch_application_accounts
 # - atualizar informações de uma conta
-# - remover membro de uma conta
 
 
 class APIClient(object):
