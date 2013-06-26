@@ -266,3 +266,23 @@ class APIClient(object):
             raise requests.exceptions.HTTPError('Unexpected response', response=response)
 
         return response.status_code, response.json()
+
+
+    @classmethod
+    @handle_api_exceptions
+    def remove_account_member(cls, api_path):
+
+        if api_path.startswith(cls.api_host):
+            url = api_path
+        else:
+            url = "{0}{1}".format(cls.api_host, api_path)
+
+        logging.info('remove_account_member: Making request to %s', url)
+
+        response = cls.pweb.delete(url)
+
+        if response.status_code != 204:
+            response.raise_for_status()
+            raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        return response.status_code, response.text
