@@ -11,8 +11,6 @@ __all__ = ['APIClient']
 
 # TODO: 
 # - operacoes que o ecommerce precisa
-#   - listar membros de uma conta
-#   - adicionar membro a uma conta
 #   - alterar papeis de um membro de uma conta
 #
 # - fetch_application_accounts
@@ -208,6 +206,35 @@ class APIClient(object):
         response = cls.pweb.get(url)
 
         if response.status_code != 200:
+            response.raise_for_status()
+            raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        return response.status_code, response.json()
+
+
+    @classmethod
+    @handle_api_exceptions
+    def add_account_member(cls, user_uuid, roles, api_path):
+
+        if not isinstance(roles, list):
+            raise TypeError(u"roles must be a list")
+
+        member_data = json.dumps({'identity': user_uuid, 'roles': roles})
+
+        if api_path.startswith(cls.api_host):
+            url = api_path
+        else:
+            url = "{0}{1}".format(cls.api_host, api_path)
+
+        logging.info('add_account_member: Making request to %s', url)
+
+        response = cls.pweb.post(
+            url,
+            headers={'content-length': str(len(member_data))},
+            data=member_data
+        )
+
+        if response.status_code not in (200, 201):
             response.raise_for_status()
             raise requests.exceptions.HTTPError('Unexpected response', response=response)
 

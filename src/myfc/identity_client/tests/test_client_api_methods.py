@@ -15,6 +15,7 @@ __all__ = [
     'FetchAssociationData', 'UpdateAssociationData',
     'FetchUserAccounts', 'FetchAccountData',
     'CreateUserAccount', 'CreateUserAccountWithUUID',
+    'AddAccountMember',
 ]
 
 test_user_email = 'identity_client@disposableinbox.com'
@@ -22,6 +23,8 @@ test_user_password = '*SudN7%r$MiYRa!E'
 test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
 test_account_uuid = 'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
 second_account_uuid = 'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
+second_user_email = 'identity_client_2@disposableinbox.com'
+second_user_uuid = 'bedcd531-c741-4d32-90d7-a7f7432f3f15'
 
 
 class InvokeRegistrationApi(TestCase):
@@ -1254,4 +1257,217 @@ class FetchAccountData(TestCase):
 
         self.assertEquals(status_code, 200)
         self.assertEquals(account, None)
+        self.assertEquals(error, None)
+
+
+class AddAccountMember(TestCase):
+
+    def setUp(self):
+        with vcr.use_cassette('cassettes/api_client/fetch_account_data/success'):
+            response = APIClient.fetch_account_data(account_uuid=test_account_uuid)
+            status_code, account, error = response
+
+        self.account_data = account
+
+    @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
+    def test_request_with_wrong_api_host(self):
+        response = APIClient.add_account_member(
+            user_uuid=test_user_uuid, roles=['user'], api_path=self.account_data['add_member_url']
+        )
+        status_code, content, error = response
+
+        self.assertEquals(status_code, 500)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {'status': None, 'message': 'Error connecting to PassaporteWeb'})
+
+    def test_request_with_wrong_credentials(self):
+        APIClient.pweb.auth = ('?????', 'XXXXXX')
+
+        with vcr.use_cassette('cassettes/api_client/add_account_member/wrong_credentials'):
+            response = APIClient.add_account_member(
+                user_uuid=test_user_uuid, roles=['user'], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        APIClient.pweb.auth = (settings.MYFC_ID['CONSUMER_TOKEN'], settings.MYFC_ID['CONSUMER_SECRET'])
+
+        self.assertEquals(status_code, 401)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
+            'status': 401,
+            'message': u'{"detail": "You need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_application_without_permissions(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/application_without_permissions'):
+            response = APIClient.add_account_member(
+                user_uuid=test_user_uuid, roles=['user'], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 403)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
+            'status': 403,
+            'message': u'{"detail": "You do not have permission to access this resource. You may need to login or otherwise authenticate the request."}'
+        })
+
+    def test_request_with_uuid_which_does_not_exist(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/uuid_which_does_not_exist'):
+            response = APIClient.add_account_member(
+                user_uuid='00000000-0000-0000-0000-000000000000', roles=['user'], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 404)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Identity with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
+        })
+
+    def test_request_with_user_which_is_already_a_member(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/already_a_member'):
+            response = APIClient.add_account_member(
+                user_uuid=test_user_uuid, roles=['user'], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 409)
+        self.assertEquals(content, None)
+        self.assertEquals(error, {
+            'status': 409,
+            'message': u'"Identity with uuid=c3769912-baa9-4a0c-9856-395a706c7d57 is already in members list of service identity_client at account a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"'
+        })
+
+    def test_request_with_empty_roles_list_gives_user_role(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/empty_roles_list'):
+            response = APIClient.add_account_member(
+                user_uuid=second_user_uuid, roles=[], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/bedcd531-c741-4d32-90d7-a7f7432f3f15/',
+            u'identity': {
+                u'first_name': u'Identity',
+                u'last_name': u'Client',
+                u'send_partner_news': True,
+                u'uuid': u'bedcd531-c741-4d32-90d7-a7f7432f3f15',
+                u'is_active': True,
+                u'send_myfreecomm_news': True,
+                u'email': u'identity_client_2@disposableinbox.com'
+            },
+            u'roles': [u'user']
+        })
+        self.assertEquals(error, None)
+
+    def test_request_with_empty_roles_list_gives_user_role(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/empty_roles_list'):
+            response = APIClient.add_account_member(
+                user_uuid=second_user_uuid, roles=[], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/bedcd531-c741-4d32-90d7-a7f7432f3f15/',
+            u'identity': {
+                u'first_name': u'Identity',
+                u'last_name': u'Client',
+                u'send_partner_news': True,
+                u'uuid': u'bedcd531-c741-4d32-90d7-a7f7432f3f15',
+                u'is_active': True,
+                u'send_myfreecomm_news': True,
+                u'email': u'identity_client_2@disposableinbox.com'
+            },
+            u'roles': [u'user']
+        })
+        self.assertEquals(error, None)
+
+    def test_success_with_user_role(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/success_with_user_role'):
+            response = APIClient.add_account_member(
+                user_uuid=second_user_uuid, roles=['user'], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/bedcd531-c741-4d32-90d7-a7f7432f3f15/',
+            u'identity': {
+                u'first_name': u'Identity',
+                u'last_name': u'Client',
+                u'send_partner_news': True,
+                u'uuid': u'bedcd531-c741-4d32-90d7-a7f7432f3f15',
+                u'is_active': True,
+                u'send_myfreecomm_news': True,
+                u'email': u'identity_client_2@disposableinbox.com'
+            },
+            u'roles': [u'user']
+        })
+        self.assertEquals(error, None)
+
+    def test_success_with_owner_role(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/success_with_owner_role'):
+            response = APIClient.add_account_member(
+                user_uuid=second_user_uuid, roles=['owner'], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/bedcd531-c741-4d32-90d7-a7f7432f3f15/',
+            u'identity': {
+                u'first_name': u'Identity',
+                u'last_name': u'Client',
+                u'send_partner_news': True,
+                u'uuid': u'bedcd531-c741-4d32-90d7-a7f7432f3f15',
+                u'is_active': True,
+                u'send_myfreecomm_news': True,
+                u'email': u'identity_client_2@disposableinbox.com'
+            },
+            u'roles': [u'owner']
+        })
+        self.assertEquals(error, None)
+
+    def test_success_with_list_of_roles(self):
+        with vcr.use_cassette('cassettes/api_client/add_account_member/success_with_list_of_roles'):
+            response = APIClient.add_account_member(
+                user_uuid=second_user_uuid,
+                roles=['owner', 'user', range(5), 12345, 01234, {'a': 'A'}, 'test-user', u'çãéê®©þ«»'],
+                api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.maxDiff =None
+        self.assertEquals(content, {
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/bedcd531-c741-4d32-90d7-a7f7432f3f15/',
+            u'identity': {
+                u'first_name': u'Identity',
+                u'last_name': u'Client',
+                u'send_partner_news': True,
+                u'uuid': u'bedcd531-c741-4d32-90d7-a7f7432f3f15',
+                u'is_active': True,
+                u'send_myfreecomm_news': True,
+                u'email': u'identity_client_2@disposableinbox.com'
+            },
+            u'roles': [u'[0, 1, 2, 3, 4]', u'çãéê®©þ«»', u'test-user', u'668', u'user', u"{'a': 'a'}", u'owner', u'12345']
+        })
+        self.assertEquals(error, None)
+
+    # TODO: implementar teste
+    def test_adding_members_to_an_expired_account(self):
+        return
+        raise NotImplementedError
+        with vcr.use_cassette('cassettes/api_client/add_account_member/expired_account'):
+            response = APIClient.add_account_member(
+                user_uuid=test_user_uuid, roles=[], api_path=self.account_data['add_member_url']
+            )
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, None)
         self.assertEquals(error, None)
