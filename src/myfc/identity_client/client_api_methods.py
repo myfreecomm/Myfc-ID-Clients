@@ -10,10 +10,8 @@ from identity_client.decorators import handle_api_exceptions, handle_api_excepti
 __all__ = ['APIClient']
 
 # TODO: 
-# - operacoes que o ecommerce precisa
-#   - alterar papeis de um membro de uma conta
-#
 # - fetch_application_accounts
+# - atualizar informações de uma conta
 # - remover membro de uma conta
 
 
@@ -235,6 +233,35 @@ class APIClient(object):
         )
 
         if response.status_code not in (200, 201):
+            response.raise_for_status()
+            raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        return response.status_code, response.json()
+
+
+    @classmethod
+    @handle_api_exceptions
+    def update_member_roles(cls, roles, api_path):
+
+        if not isinstance(roles, list):
+            raise TypeError(u"roles must be a list")
+
+        member_data = json.dumps({'roles': roles})
+
+        if api_path.startswith(cls.api_host):
+            url = api_path
+        else:
+            url = "{0}{1}".format(cls.api_host, api_path)
+
+        logging.info('update_member_roles: Making request to %s', url)
+
+        response = cls.pweb.put(
+            url,
+            headers={'content-length': str(len(member_data))},
+            data=member_data
+        )
+
+        if response.status_code != 200:
             response.raise_for_status()
             raise requests.exceptions.HTTPError('Unexpected response', response=response)
 
