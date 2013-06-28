@@ -1585,7 +1585,6 @@ class UpdateAccountData(TestCase):
         })
         self.assertEquals(error, None)
 
-    # TODO: implementar teste
     def test_expired_accounts_can_have_plan_changed(self):
         with vcr.use_cassette('cassettes/api_client/update_account_data/expired_accounts_can_have_plan_changed'):
             response = APIClient.update_account_data(

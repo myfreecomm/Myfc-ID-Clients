@@ -12,6 +12,8 @@ __all__ = ['APIClient']
 
 # TODO: 
 # - fetch_application_accounts
+# - perfil
+# - notificações
 #   - como tratar a paginação?
 
 
