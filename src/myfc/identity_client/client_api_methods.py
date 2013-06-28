@@ -57,18 +57,23 @@ class APIClient(object):
 
     @classmethod
     @handle_api_exceptions
-    def fetch_identity_data(cls, uuid=None, email=None):
+    def fetch_identity_data(cls, uuid=None, email=None, include_expired_accounts=False):
 
+        params = {}
         if not any((uuid, email)):
             raise ValueError("Either 'uuid' or 'email' must be given")
         elif uuid:
             url = "{0}/{1}/{2}/".format(cls.api_host, cls.profile_api, uuid)
         else:
-            url = "{0}/{1}/?email={2}".format(cls.api_host, cls.profile_api, email)
+            url = "{0}/{1}/".format(cls.api_host, cls.profile_api)
+            params['email'] = email
+
+        if include_expired_accounts:
+            params['include_expired_accounts'] = True
 
         logging.info('fetch_identity_data: Making request to %s', url)
 
-        response = cls.pweb.get(url)
+        response = cls.pweb.get(url, params=params)
 
         if response.status_code != 200:
             response.raise_for_status()

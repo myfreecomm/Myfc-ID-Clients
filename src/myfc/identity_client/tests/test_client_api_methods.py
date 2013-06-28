@@ -314,6 +314,45 @@ class FetchIdentityData(TestCase):
         })
         self.assertEquals(error, None)
 
+    def test_request_with_expired_accounts(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_expired_accounts'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid, include_expired_accounts=True)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'is_active': True,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57',
+            u'accounts': [{
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'My Other Applications',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/',
+                u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
+            }, {
+                u'expiration': u'1900-01-01 00:00:00',
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest-updated',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }],
+        })
+        self.assertEquals(error, None)
+
 
 class FetchIdentityDataWithEmail(TestCase):
 
@@ -413,6 +452,45 @@ class FetchIdentityDataWithEmail(TestCase):
                 u'external_id': None,
                 u'name': u'Test Account',
                 u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }],
+        })
+        self.assertEquals(error, None)
+
+    def test_request_with_expired_accounts(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success_with_expired_accounts'):
+            response = APIClient.fetch_identity_data(email=test_user_email, include_expired_accounts=True)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'Identity',
+            u'is_active': True,
+            u'last_name': u'Client',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': True,
+            u'send_partner_news': True,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57',
+            u'accounts': [{
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'My Other Applications',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/',
+                u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
+            }, {
+                u'expiration': u'1900-01-01 00:00:00',
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest-updated',
                 u'roles': [u'owner'],
                 u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
                 u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
@@ -862,16 +940,33 @@ class FetchUserAccounts(TestCase):
         }])
         self.assertEquals(error, None)
 
-    # TODO: implementar teste
     def test_success_with_expired_accounts(self):
-        return
-        raise NotImplementedError
         with vcr.use_cassette('cassettes/api_client/fetch_user_accounts/success_with_expired_accounts'):
             response = APIClient.fetch_user_accounts(test_user_uuid, include_expired_accounts=True)
             status_code, accounts, error = response
 
         self.assertEquals(status_code, 200)
-        self.assertEquals(accounts, None)
+        self.assertEquals(accounts, [{
+            u'account_data': {u'name': u'My Other Applications',
+            u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'},
+            u'add_member_url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/members/',
+            u'expiration': None,
+            u'membership_details_url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/members/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'plan_slug': u'unittest',
+            u'roles': [u'owner'],
+            u'service_data': {u'name': u'Identity Client', u'slug': u'identity_client'},
+            u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/'
+        }, {
+            u'account_data': {u'name': u'Test Account',
+            u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'},
+            u'add_member_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/',
+            u'expiration': u'0001-01-01 00:00:00',
+            u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'plan_slug': u'unittest-updated',
+            u'roles': [u'owner'],
+            u'service_data': {u'name': u'Identity Client', u'slug': u'identity_client'},
+            u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/'
+        }])
         self.assertEquals(error, None)
 
 
@@ -1174,6 +1269,28 @@ class CreateUserAccountWithUUID(TestCase):
             'message': u'"ServiceAccount for service identity_client and account \'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba\' already exists and is active. Conflict"'
         })
 
+    def test_creating_user_account_with_uuid_of_expired_account(self):
+        with vcr.use_cassette('cassettes/api_client/create_user_account_with_uuid/with_uuid_of_expired_account'):
+            response = APIClient.create_user_account(
+                uuid=test_user_uuid,
+                account_uuid=test_account_uuid,
+                plan_slug='unittest-expired'
+            )
+            status_code, accounts, error = response
+
+        self.assertEquals(status_code, 201)
+        self.assertEquals(accounts, {
+            u'account_data': {u'name': u'Test Account', u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'},
+            u'add_member_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/',
+            u'expiration': None,
+        u'membership_details_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'plan_slug': u'unittest-expired',
+            u'roles': [u'owner'],
+            u'service_data': {u'name': u'Identity Client', u'slug': u'identity_client'},
+            u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/'
+        })
+        self.assertEquals(error, None)
+
 
 class FetchAccountData(TestCase):
 
@@ -1250,17 +1367,17 @@ class FetchAccountData(TestCase):
         })
         self.assertEquals(error, None)
 
-    # TODO: implementar teste
-    def test_reading_expired_accounts(self):
-        return
-        raise NotImplementedError
+    def test_reading_expired_accounts_fails(self):
         with vcr.use_cassette('cassettes/api_client/fetch_account_data/expired_accounts'):
             response = APIClient.fetch_account_data(test_user_uuid)
             status_code, account, error = response
 
-        self.assertEquals(status_code, 200)
+        self.assertEquals(status_code, 404)
         self.assertEquals(account, None)
-        self.assertEquals(error, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Account c3769912-baa9-4a0c-9856-395a706c7d57 has no relation with service identity_client"'
+        })
 
 
 class UpdateAccountData(TestCase):
@@ -1495,7 +1612,7 @@ class UpdateAccountData(TestCase):
     def test_expired_accounts_can_have_expiration_changed(self):
         with vcr.use_cassette('cassettes/api_client/update_account_data/expired_accounts_can_have_expiration_changed'):
             response = APIClient.update_account_data(
-                plan_slug=self.new_plan, expiration=None, api_path=self.account_data['url']
+                plan_slug=self.new_plan, expiration=date(1900, 1, 1), api_path=self.account_data['url']
             )
             status_code, account, error = response
 
@@ -1509,7 +1626,7 @@ class UpdateAccountData(TestCase):
                 u'identity': u'c3769912-baa9-4a0c-9856-395a706c7d57'
             }],
             u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
-            u'expiration': None,
+            u'expiration': '1900-01-01 00:00:00',
             u'service_data': {u'name': u'Identity Client', u'slug': u'identity_client'},
             u'plan_slug': u'unittest-updated',
             u'add_member_url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/members/'
@@ -1692,19 +1809,19 @@ class AddAccountMember(TestCase):
         })
         self.assertEquals(error, None)
 
-    # TODO: implementar teste
-    def test_adding_members_to_an_expired_account(self):
-        return
-        raise NotImplementedError
+    def test_adding_members_to_an_expired_account_fails(self):
         with vcr.use_cassette('cassettes/api_client/add_account_member/expired_account'):
             response = APIClient.add_account_member(
                 user_uuid=test_user_uuid, roles=[], api_path=self.account_data['add_member_url']
             )
             status_code, content, error = response
 
-        self.assertEquals(status_code, 200)
+        self.assertEquals(status_code, 404)
         self.assertEquals(content, None)
-        self.assertEquals(error, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Account a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba and service identity_client are not related"'
+        })
 
 
 class UpdateMemberRoles(TestCase):
@@ -1897,19 +2014,19 @@ class UpdateMemberRoles(TestCase):
             'status': 404, 'message': u'"Identity with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
         })
 
-    # TODO: implementar teste
-    def test_updating_members_of_an_expired_account(self):
-        return
-        raise NotImplementedError
+    def test_updating_members_of_an_expired_account_fails(self):
         with vcr.use_cassette('cassettes/api_client/update_member_roles/expired_account'):
             response = APIClient.update_member_roles(
                 roles=['owner'], api_path=self.member_data['membership_details_url']
             )
             status_code, content, error = response
 
-        self.assertEquals(status_code, 200)
+        self.assertEquals(status_code, 404)
         self.assertEquals(content, None)
-        self.assertEquals(error, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Account a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba and service identity_client are not related"'
+        })
 
 
 class RemoveAccountMember(TestCase):
@@ -2032,16 +2149,16 @@ class RemoveAccountMember(TestCase):
             'status': 404, 'message': u'"Identity with uuid=00000000-0000-0000-0000-000000000000 does not exist"'
         })
 
-    # TODO: implementar teste
-    def test_removing_members_of_an_expired_account(self):
-        return
-        raise NotImplementedError
+    def test_removing_members_of_an_expired_account_fails(self):
         with vcr.use_cassette('cassettes/api_client/remove_account_member/expired_account'):
             response = APIClient.remove_account_member(
-                roles=['owner'], api_path=self.member_data['membership_details_url']
+                api_path=self.member_data['membership_details_url']
             )
             status_code, content, error = response
 
-        self.assertEquals(status_code, 200)
+        self.assertEquals(status_code, 404)
         self.assertEquals(content, None)
-        self.assertEquals(error, None)
+        self.assertEquals(error, {
+            'status': 404,
+            'message': u'"Identity bedcd531-c741-4d32-90d7-a7f7432f3f15 is not member of service identity_client for account a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"'
+        })
