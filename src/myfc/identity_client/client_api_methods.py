@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import json
+from datetime import datetime, date
 
 import requests
 from django.conf import settings
@@ -11,7 +12,7 @@ __all__ = ['APIClient']
 
 # TODO: 
 # - fetch_application_accounts
-# - atualizar informações de uma conta
+#   - como tratar a paginação?
 
 
 class APIClient(object):
@@ -201,6 +202,38 @@ class APIClient(object):
 
         logging.info('fetch_account_data: Making request to %s', url)
         response = cls.pweb.get(url)
+
+        if response.status_code != 200:
+            response.raise_for_status()
+            raise requests.exceptions.HTTPError('Unexpected response', response=response)
+
+        return response.status_code, response.json()
+
+
+    @classmethod
+    @handle_api_exceptions
+    def update_account_data(cls, plan_slug, expiration, api_path):
+
+        if api_path.startswith(cls.api_host):
+            url = api_path
+        else:
+            url = "{0}{1}".format(cls.api_host, api_path)
+
+        if isinstance(expiration, datetime):
+            raise TypeError(u'expiration must be a date instance or None')
+        elif isinstance(expiration, date):
+            expiration = expiration.isoformat()
+        elif expiration is not None:
+            raise TypeError(u'expiration must be a date instance or None')
+
+        account_data = json.dumps({'plan_slug': plan_slug, 'expiration': expiration})
+
+        logging.info('update_account_data: Making request to %s', url)
+        response = cls.pweb.put(
+            url,
+            headers={'content-length': str(len(account_data))},
+            data=account_data
+        )
 
         if response.status_code != 200:
             response.raise_for_status()

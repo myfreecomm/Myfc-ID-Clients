@@ -1,0 +1,28 @@
+- request:
+    body: '{"plan_slug": "unittest-updated", "expiration": "0001-01-01"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '61']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: PUT
+    url: /organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/
+  response:
+    body:
+      string: !!binary |
+        H4sIACXbzVEC/61Ru27EIBD8FYs6yPh9XBelSp8uOllr2Lsg2djikZflfw/4UaW54iQKmJ2d3WFm
+        MvWgW9v7GzknxGvlHFpH/STBoSRPCRlw6NDYNgAQOO/zgXyoqZXoQPW29aaP/elobqDVLzg1apvC
+        pFIQYvTahUcpeCewpDmcBC2r/EoBs4IyYF3N5VWWHaS7dCqKpuY8y2kHwGkJTFB+qmpa8AoaVotG
+        Vk0at1MStVPuJ06/pyn2mLFHG62Q8UujIZflEtBHWYgT8HtSZlWIkoyxjK4nYey8nkiyaD6VwONj
+        Z6JhwMh/3T0lL70Kt5W7B3TYbcVWWkJtX++/zltIMnneqlHEeyUjfo+NTVnKdkvk4QGT5Q93pWdX
+        ewIAAA==
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', cache-control: no-cache, connection: keep-alive,
+      content-encoding: gzip, content-length: '289', content-type: application/json,
+      date: 'Fri, 28 Jun 2013 18:51:17 GMT', expires: 'Fri, 28 Jun 2013 18:51:16 GMT',
+      p3p: CP="NON DSP COR CURa TIA", server: nginx/0.7.67, vary: 'Authenticate, Accept,
+        Accept-Encoding'}
+    status: {code: 200, message: OK}
