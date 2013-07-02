@@ -169,7 +169,7 @@ class ServiceAccount(models.Model):
 
     @classmethod
     def pull_remote_accounts(cls, identity):
-        accounts, error = APIClient.fetch_user_accounts(identity.uuid)
+        status_code, accounts, error = APIClient.fetch_user_accounts(identity.uuid)
 
         if error:
             return []

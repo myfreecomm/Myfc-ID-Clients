@@ -154,7 +154,7 @@ class ServiceAccount(Document):
 
     @classmethod
     def pull_remote_accounts(cls, identity):
-        accounts, error = APIClient.fetch_user_accounts(identity.uuid)
+        status_code, accounts, error = APIClient.fetch_user_accounts(identity.uuid)
 
         return [dict(
             uuid = item['account_data']['uuid'],

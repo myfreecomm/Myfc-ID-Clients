@@ -268,7 +268,7 @@ class TestServiceAccountModel(TestCase):
 
     @patch.object(PERSISTENCE_MODULE.models.APIClient, 'fetch_user_accounts')
     def test_pull_remote_accounts_changes_response_format(self, mocked_accounts):
-        mocked_accounts.return_value = mocked_accounts_list, []
+        mocked_accounts.return_value = 200, mocked_accounts_list, []
         accounts = ServiceAccount.pull_remote_accounts(self.identity)
 
         expected = [
@@ -295,7 +295,7 @@ class TestServiceAccountModel(TestCase):
 
     @patch.object(PERSISTENCE_MODULE.models.APIClient, 'fetch_user_accounts')
     def test_update_user_accounts_creates_local_accounts(self, mocked_accounts):
-        mocked_accounts.return_value = mocked_accounts_list, []
+        mocked_accounts.return_value = 200, mocked_accounts_list, []
 
         self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 0)
 
@@ -307,7 +307,7 @@ class TestServiceAccountModel(TestCase):
 
     @patch.object(PERSISTENCE_MODULE.models.APIClient, 'fetch_user_accounts')
     def test_remove_stale_accounts(self, mocked_accounts):
-        mocked_accounts.return_value = mocked_accounts_list, []
+        mocked_accounts.return_value = 200, mocked_accounts_list, []
 
         self.account.add_member(self.identity, roles=['user'])
         self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 1)
@@ -324,7 +324,7 @@ class TestServiceAccountModel(TestCase):
         This method reads the remote user's accounts,
         updates them locally and purges the accounts which do not exist anymore.
         """
-        mocked_accounts.return_value = mocked_accounts_list, []
+        mocked_accounts.return_value = 200, mocked_accounts_list, []
 
         self.account.add_member(self.identity, roles=['user'])
         self.assertEquals(ServiceAccount.for_identity(self.identity).count(), 1)
