@@ -10,7 +10,7 @@
         content-type: !!python/tuple [content-type, application/json]
         user-agent: !!python/tuple [user-agent, myfc_id client]
     method: GET
-    url: /profile/api/info//?email=identity_client@disposableinbox.com
+    url: /profile/api/info//?email=identity_client%40disposableinbox.com
   response:
     body:
       string: !!binary |
