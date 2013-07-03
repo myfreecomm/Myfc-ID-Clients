@@ -105,7 +105,7 @@ class Identity(Document):
 
 
 class AccountMember(EmbeddedDocument):
-    identity = ReferenceField(Identity, required=True)
+    identity = ReferenceField(Identity, required=True, dbref=True)
     roles = ListField(StringField(max_length=36))
 
     def set_roles(self, roles):
