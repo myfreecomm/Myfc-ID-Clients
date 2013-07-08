@@ -91,7 +91,7 @@ def list_accounts(request):
     else:
         accounts = serviceAccount.for_identity(identity, include_expired=True)
 
-    remote_accounts, error = APIClient.fetch_user_accounts(identity.uuid)
+    status, remote_accounts, error = APIClient.fetch_user_accounts(identity.uuid)
     context = {
         'accounts': accounts,
         'remote_accounts': remote_accounts,
