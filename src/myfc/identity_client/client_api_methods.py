@@ -160,14 +160,27 @@ class APIClient(object):
 
     @classmethod
     @handle_api_exceptions
-    def fetch_user_accounts(cls, uuid, include_expired_accounts=False):
+    def fetch_user_accounts(cls, uuid, **kwargs):
 
         url = '{0}/organizations/api/identities/{1}/accounts/'.format(cls.api_host, uuid)
+        params = {}
 
-        logging.info('fetch_user_accounts: Making request to %s', url)
-        response = cls.pweb.get(url, params={
-            'include_expired_accounts': include_expired_accounts,
-        })
+        if kwargs.get('include_expired_accounts', False):
+            params['include_expired_accounts'] = True
+
+        if kwargs.get('include_other_services', False):
+            params['include_other_services'] = True
+
+        role = kwargs.get('role', None)
+        if role:
+            params['role'] = role
+
+        logging.info(
+            'fetch_user_accounts: Making request to %s with params %s',
+            url, params
+        )
+
+        response = cls.pweb.get(url, params=params)
 
         if response.status_code != 200:
             response.raise_for_status()
