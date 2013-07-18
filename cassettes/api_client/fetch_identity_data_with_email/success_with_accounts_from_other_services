@@ -1,0 +1,33 @@
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?include_other_services=True&email=identity_client%40disposableinbox.com
+  response:
+    body:
+      string: !!binary |
+        H4sIAPRS6FEC/61UTW/cIBT8KyvOpYtt8EdPzaHHqJfe2sh6hkeCxGILcJLtKv+94N2t0m0qWdtc
+        LJuHZ94MjzkQbXyIvYMdkk8bQj5siIWLhYBO9RP46ND3Dp9CKmiwAVNtno3K+2TV1F1XlHQA6CgH
+        JmnXippWnYCG1bJRoslYJvQgo3nM4NHPC8SkIGJvnB772duMtgUpx9nFsIXJbI1CF000GLZraLaZ
+        x43RaCMhmtHlfg9kAUxvLEs0IS48f2xbyMhLqp/p057vB3L24ta4BwgbmGz648fMGDb5qQUG8sqK
+        YpAKRaloo6ClvGWMDkp0VGmEru6qSiLPLAcyWXB9sPN9/i2gteiX3k98X+S426GXuLk59pOLfrS4
+        9EXGp3Qe5C4zn1wb/T048/OVmt8+Cl0I3QyCQqPrZFwlaCuaijIFolIVq7BoF+PweTJ+QUiQbrZ2
+        WYvoHdh+EXhaPMtdg/yGXDmHOO7+JRj+WzBvAbWuOC2ZTJPCqi6dQtdQ1RaClQzbgfPrBK9BfkPw
+        7EyMGOJrwbf7zdf4gH5zMy1DdZzW60WjgKHWpabAcaC8KgbaynRbOl4UWrXQNqW6TvQa5JWiv6Xv
+        d5ho4LIb0lWiJbSScpF7wyLNHbCh7pRWfIDrtK5BJi9352Tc7bVHzKN7GY4B/aOReMyfU4rte2kN
+        uvh3zJ120xyE64LuAvKYXbgDs5h3Uf2sTJjGAINF44bx+WPqONsz+VEbi+8TvSew1MkvL9dLtloG
+        AAA=
+    headers: {cache-control: no-cache, connection: keep-alive, content-encoding: gzip,
+      content-length: '572', content-type: application/json, date: 'Thu, 18 Jul 2013
+        20:41:24 GMT', expires: 'Thu, 18 Jul 2013 20:41:23 GMT', last-modified: 'Thu,
+        18 Jul 2013 20:41:24 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/0.7.67,
+      vary: Accept-Encoding}
+    status: {code: 200, message: OK}

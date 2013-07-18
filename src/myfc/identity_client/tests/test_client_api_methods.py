@@ -353,6 +353,139 @@ class FetchIdentityData(TestCase):
         })
         self.assertEquals(error, None)
 
+    def test_request_with_accounts_from_other_services(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_accounts_from_other_services'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid, include_other_services=True)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'accounts': [{
+                u'name': u'Minhas aplicações',
+                u'uuid': u'1bcde52d-7da8-4800-bd59-dfea96933ce4'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce Account',
+                u'plan_slug': u'seller',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/5f15f7b5-a7f6-4a35-8573-0da53d303e18/',
+                u'uuid': u'5f15f7b5-a7f6-4a35-8573-0da53d303e18'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce account',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/48aeff34-20c9-4039-bd97-d815020e8b44/',
+                u'uuid': u'48aeff34-20c9-4039-bd97-d815020e8b44'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'My Other Applications',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/',
+                u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'',
+            u'is_active': True,
+            u'last_name': u'',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': False,
+            u'send_partner_news': False,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+        })
+        self.assertEquals(error, None)
+
+    def test_request_with_expired_accounts_from_other_services(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data/success_with_expired_accounts_from_other_services'):
+            response = APIClient.fetch_identity_data(uuid=test_user_uuid, include_other_services=1, include_expired_accounts=1)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.maxDiff = None
+        self.assertEquals(content, {
+            u'accounts': [{
+                u'name': u'Minhas aplicações',
+                u'uuid': u'1bcde52d-7da8-4800-bd59-dfea96933ce4'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce Account',
+                u'plan_slug': u'seller',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/5f15f7b5-a7f6-4a35-8573-0da53d303e18/',
+                u'uuid': u'5f15f7b5-a7f6-4a35-8573-0da53d303e18'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce account',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/48aeff34-20c9-4039-bd97-d815020e8b44/',
+                u'uuid': u'48aeff34-20c9-4039-bd97-d815020e8b44'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'My Other Applications',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/',
+                u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }, {
+                u'expiration': u'2013-03-01 00:00:00',
+                u'external_id': None,
+                u'name': u' ',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/678abf63-eb1e-433d-9f0d-f46b44ab741d/',
+                u'uuid': u'678abf63-eb1e-433d-9f0d-f46b44ab741d'
+            }, {
+                u'expiration': u'2013-03-01 00:00:00',
+                u'external_id': None,
+                u'name': u'Test Acount',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/7002ca9a-1d15-4005-b4e3-81adada2bc68/',
+                u'uuid': u'7002ca9a-1d15-4005-b4e3-81adada2bc68'
+            }],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'',
+            u'is_active': True,
+            u'last_name': u'',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': False,
+            u'send_partner_news': False,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+        })
+        self.assertEquals(error, None)
+
 
 class FetchIdentityDataWithEmail(TestCase):
 
@@ -495,6 +628,138 @@ class FetchIdentityDataWithEmail(TestCase):
                 u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
                 u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
             }],
+        })
+        self.assertEquals(error, None)
+
+    def test_request_with_accounts_from_other_services(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success_with_accounts_from_other_services'):
+            response = APIClient.fetch_identity_data(email=test_user_email, include_other_services=True)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'accounts': [{
+                u'name': u'Minhas aplicações',
+                u'uuid': u'1bcde52d-7da8-4800-bd59-dfea96933ce4'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce Account',
+                u'plan_slug': u'seller',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/5f15f7b5-a7f6-4a35-8573-0da53d303e18/',
+                u'uuid': u'5f15f7b5-a7f6-4a35-8573-0da53d303e18'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce account',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/48aeff34-20c9-4039-bd97-d815020e8b44/',
+                u'uuid': u'48aeff34-20c9-4039-bd97-d815020e8b44'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'My Other Applications',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/',
+                u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'',
+            u'is_active': True,
+            u'last_name': u'',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': False,
+            u'send_partner_news': False,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
+        })
+        self.assertEquals(error, None)
+
+    def test_request_with_expired_accounts_from_other_services(self):
+
+        with vcr.use_cassette('cassettes/api_client/fetch_identity_data_with_email/success_with_expired_accounts_from_other_services'):
+            response = APIClient.fetch_identity_data(email=test_user_email, include_other_services=1, include_expired_accounts=1)
+            status_code, content, error = response
+
+        self.assertEquals(status_code, 200)
+        self.assertEquals(content, {
+            u'accounts': [{
+                u'name': u'Minhas aplicações',
+                u'uuid': u'1bcde52d-7da8-4800-bd59-dfea96933ce4'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce Account',
+                u'plan_slug': u'seller',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/5f15f7b5-a7f6-4a35-8573-0da53d303e18/',
+                u'uuid': u'5f15f7b5-a7f6-4a35-8573-0da53d303e18'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Ecommerce account',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/48aeff34-20c9-4039-bd97-d815020e8b44/',
+                u'uuid': u'48aeff34-20c9-4039-bd97-d815020e8b44'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'My Other Applications',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/e5ab6f2f-a4eb-431b-8c12-9411fd8a872d/',
+                u'uuid': u'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
+            }, {
+                u'expiration': None,
+                u'external_id': None,
+                u'name': u'Test Account',
+                u'plan_slug': u'unittest',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/',
+                u'uuid': u'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
+            }, {
+                u'expiration': u'2013-03-01 00:00:00',
+                u'external_id': None,
+                u'name': u' ',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/678abf63-eb1e-433d-9f0d-f46b44ab741d/',
+                u'uuid': u'678abf63-eb1e-433d-9f0d-f46b44ab741d'
+            }, {
+                u'expiration': u'2013-03-01 00:00:00',
+                u'external_id': None,
+                u'name': u'Test Acount',
+                u'plan_slug': u'customer',
+                u'roles': [u'owner'],
+                u'url': u'/organizations/api/accounts/7002ca9a-1d15-4005-b4e3-81adada2bc68/',
+                u'uuid': u'7002ca9a-1d15-4005-b4e3-81adada2bc68'
+            }],
+            u'email': u'identity_client@disposableinbox.com',
+            u'first_name': u'',
+            u'is_active': True,
+            u'last_name': u'',
+            u'notifications': {u'count': 0, u'list': u'/notifications/api/'},
+            u'profile_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/profile/',
+            u'send_myfreecomm_news': False,
+            u'send_partner_news': False,
+            u'services': {u'identity_client': u'/accounts/api/service-info/c3769912-baa9-4a0c-9856-395a706c7d57/identity_client/'},
+            u'update_info_url': u'/accounts/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/',
+            u'uuid': u'c3769912-baa9-4a0c-9856-395a706c7d57'
         })
         self.assertEquals(error, None)
 
@@ -1513,7 +1778,6 @@ class UpdateAccountData(TestCase):
             status_code, account, error = response
 
         self.assertEquals(status_code, 200)
-        self.maxDiff = None
         self.assertEquals(account, {
             u'account_data': {
                 u'name': u'Test Account',

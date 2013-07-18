@@ -10,7 +10,7 @@
         content-type: !!python/tuple [content-type, application/json]
         user-agent: !!python/tuple [user-agent, myfc_id client]
     method: GET
-    url: /organizations/api/identities/00000000-0000-0000-0000-000000000000/accounts/?include_expired_accounts=False
+    url: /organizations/api/identities/00000000-0000-0000-0000-000000000000/accounts/
   response:
     body: {string: '"Identity with uuid=00000000-0000-0000-0000-000000000000 does
         not exist"'}

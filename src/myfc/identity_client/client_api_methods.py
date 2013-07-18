@@ -59,8 +59,7 @@ class APIClient(object):
 
     @classmethod
     @handle_api_exceptions
-    def fetch_identity_data(cls, uuid=None, email=None, include_expired_accounts=False):
-
+    def fetch_identity_data(cls, uuid=None, email=None, **kwargs):
         params = {}
         if not any((uuid, email)):
             raise ValueError("Either 'uuid' or 'email' must be given")
@@ -70,10 +69,16 @@ class APIClient(object):
             url = "{0}/{1}/".format(cls.api_host, cls.profile_api)
             params['email'] = email
 
-        if include_expired_accounts:
+        if kwargs.get('include_expired_accounts', False):
             params['include_expired_accounts'] = True
 
-        logging.info('fetch_identity_data: Making request to %s', url)
+        if kwargs.get('include_other_services', False):
+            params['include_other_services'] = True
+
+        logging.info(
+            'fetch_identity_data: Making request to %s with params %s',
+            url, params
+        )
 
         response = cls.pweb.get(url, params=params)
 
