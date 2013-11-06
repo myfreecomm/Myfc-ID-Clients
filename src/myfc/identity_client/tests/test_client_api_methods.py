@@ -40,11 +40,13 @@ class InvokeRegistrationApi(TestCase):
             'password': test_user_password,
             'password2': test_user_password,
             'tos': True,
+            'next': 'anything. will be ignored',
         }
 
     @patch.object(APIClient, 'api_host', 'http://127.0.0.1:23')
     def test_request_with_wrong_api_host(self):
         form = RegistrationForm(self.registration_data)
+        self.assertTrue(form.is_valid())
         response = APIClient.invoke_registration_api(form)
         status_code, content, new_form = response
 
@@ -56,6 +58,7 @@ class InvokeRegistrationApi(TestCase):
 
     def test_request_with_wrong_credentials(self):
         form = RegistrationForm(self.registration_data)
+        self.assertTrue(form.is_valid())
         APIClient.pweb.auth = ('?????', 'XXXXXX')
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/wrong_credentials'):
@@ -72,6 +75,7 @@ class InvokeRegistrationApi(TestCase):
 
     def test_request_with_application_without_permissions(self):
         form = RegistrationForm(self.registration_data)
+        self.assertTrue(form.is_valid())
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/application_without_permissions'):
             response = APIClient.invoke_registration_api(form)
@@ -85,7 +89,8 @@ class InvokeRegistrationApi(TestCase):
 
     def test_request_without_tos_set(self):
         form = RegistrationForm(self.registration_data)
-        del(form.data['tos'])
+        self.assertTrue(form.is_valid())
+        del(form.cleaned_data['tos'])
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/without_tos_set'):
             response = APIClient.invoke_registration_api(form)
@@ -99,7 +104,8 @@ class InvokeRegistrationApi(TestCase):
 
     def test_request_with_password_only_once(self):
         form = RegistrationForm(self.registration_data)
-        del(form.data['password2'])
+        self.assertTrue(form.is_valid())
+        del(form.cleaned_data['password2'])
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/with_password_only_once'):
             response = APIClient.invoke_registration_api(form)
@@ -113,7 +119,8 @@ class InvokeRegistrationApi(TestCase):
 
     def test_request_with_passwords_not_matching(self):
         form = RegistrationForm(self.registration_data)
-        form.data['password2'] = 'will not match'
+        self.assertTrue(form.is_valid())
+        form.cleaned_data['password2'] = 'will not match'
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/with_passwords_not_matching'):
             response = APIClient.invoke_registration_api(form)
@@ -127,6 +134,7 @@ class InvokeRegistrationApi(TestCase):
 
     def test_registration_success(self):
         form = RegistrationForm(self.registration_data)
+        self.assertTrue(form.is_valid())
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/registration_success'):
             response = APIClient.invoke_registration_api(form)
@@ -150,8 +158,23 @@ class InvokeRegistrationApi(TestCase):
         })
         self.assertEquals(form.errors, {})
 
+    def test_only_cleaned_data_is_sent(self):
+        form = RegistrationForm(self.registration_data)
+        self.assertTrue(form.is_valid())
+
+        with patch.object(APIClient, 'pweb'):
+            response = APIClient.invoke_registration_api(form)
+            self.assertTrue(APIClient.pweb.post.called)
+            self.assertEquals(APIClient.pweb.post.call_args, (
+                ('https://sandbox.app.passaporteweb.com.br/accounts/api/create/',), {
+                    'headers': { 'content-length': '186' },
+                    'data': '{"first_name": "Myfc ID", "last_name": "Clients", "tos": true, "password2": "*SudN7%r$MiYRa!E", "cpf": "", "password": "*SudN7%r$MiYRa!E", "email": "identity_client@disposableinbox.com"}'
+                }
+            ))
+
     def test_email_already_registered(self):
         form = RegistrationForm(self.registration_data)
+        self.assertTrue(form.is_valid())
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/email_already_registered'):
             response = APIClient.invoke_registration_api(form)
@@ -165,8 +188,9 @@ class InvokeRegistrationApi(TestCase):
 
     def test_cpf_already_registered(self):
         form = RegistrationForm(self.registration_data)
-        form.data['email'] = 'identity_client+1@disposableinbox.com'
-        form.data['cpf'] = '11111111111'
+        self.assertTrue(form.is_valid())
+        form.clenaed_data['email'] = 'identity_client+1@disposableinbox.com'
+        form.clenaed_data['cpf'] = '11111111111'
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/cpf_already_registered'):
             response = APIClient.invoke_registration_api(form)
@@ -180,8 +204,9 @@ class InvokeRegistrationApi(TestCase):
 
     def test_invalid_cpf_pt1(self):
         form = RegistrationForm(self.registration_data)
-        form.data['email'] = 'identity_client+1@disposableinbox.com'
-        form.data['cpf'] = '1111111111122222222'
+        self.assertTrue(form.is_valid())
+        form.cleaned_data['email'] = 'identity_client+1@disposableinbox.com'
+        form.cleaned_data['cpf'] = '1111111111122222222'
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/invalid_cpf_pt1'):
             response = APIClient.invoke_registration_api(form)
@@ -195,8 +220,9 @@ class InvokeRegistrationApi(TestCase):
 
     def test_invalid_cpf_pt2(self):
         form = RegistrationForm(self.registration_data)
-        form.data['email'] = 'identity_client+1@disposableinbox.com'
-        form.data['cpf'] = 'asdfgqwertzxcvb'
+        self.assertTrue(form.is_valid())
+        form.cleaned_data['email'] = 'identity_client+1@disposableinbox.com'
+        form.cleaned_data['cpf'] = 'asdfgqwertzxcvb'
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/invalid_cpf_pt2'):
             response = APIClient.invoke_registration_api(form)

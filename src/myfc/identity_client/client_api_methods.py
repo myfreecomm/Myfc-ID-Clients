@@ -43,7 +43,7 @@ class APIClient(object):
 
         logging.info('invoke_registration_api: Making request to %s', url)
 
-        registration_data = json.dumps(form.data)
+        registration_data = json.dumps(form.cleaned_data)
         response = cls.pweb.post(
             url,
             headers={'content-length': str(len(registration_data))},
