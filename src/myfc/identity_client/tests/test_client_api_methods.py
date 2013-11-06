@@ -189,8 +189,8 @@ class InvokeRegistrationApi(TestCase):
     def test_cpf_already_registered(self):
         form = RegistrationForm(self.registration_data)
         self.assertTrue(form.is_valid())
-        form.clenaed_data['email'] = 'identity_client+1@disposableinbox.com'
-        form.clenaed_data['cpf'] = '11111111111'
+        form.cleaned_data['email'] = 'identity_client+1@disposableinbox.com'
+        form.cleaned_data['cpf'] = '11111111111'
 
         with vcr.use_cassette('cassettes/api_client/invoke_registration_api/cpf_already_registered'):
             response = APIClient.invoke_registration_api(form)
