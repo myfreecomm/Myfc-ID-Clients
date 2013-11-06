@@ -40,7 +40,7 @@ def register(request, template_name='registration_form.html',
     if form.is_valid():
         # Registro
         status, content, form = APIClient.invoke_registration_api(form)
-        if status == 200:
+        if status in (200, 201):
             user = MyfcidAPIBackend().create_local_identity(content)
             login_user(request, user)
             return redirect_logged_user(request, redirect_field_name)
