@@ -123,3 +123,4 @@ class MyfcIDAPITestCase(MyfcIDTestCase):
         )
 
         self.assertEqual(response.status_code, 403)
+

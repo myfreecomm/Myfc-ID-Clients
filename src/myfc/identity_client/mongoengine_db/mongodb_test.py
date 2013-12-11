@@ -1,5 +1,5 @@
 #coding: utf-8
-from django.test.simple import *
+from django.test import *
 
 from mongoengine import connection
 

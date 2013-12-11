@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import vcr
 from httplib2 import HttpLib2Error
 from oauth2 import Token
 from datetime import datetime as dt, timedelta

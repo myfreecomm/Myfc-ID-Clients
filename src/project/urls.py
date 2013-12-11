@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 from django.conf import settings
+from django.views.generic import TemplateView
 
-urlpatterns = patterns('django.views.generic.simple',
+urlpatterns = patterns('',
     url(r'^$',
-        'direct_to_template', {'template': 'index.html'},
+        TemplateView.as_view(template_name = 'index.html'),
         name='index'
     ),
 )

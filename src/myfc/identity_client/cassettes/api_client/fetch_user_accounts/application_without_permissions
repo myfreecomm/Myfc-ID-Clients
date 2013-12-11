@@ -1,0 +1,959 @@
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/
+  response:
+    body:
+      string: !!binary |
+        H4sIAPytblIC/82TS28CIRSF/8qEtThvx3HXdNV9d42ZXB6jJAwQYKrW+N8LjsY2blzZ7uCe3Mv5
+        4HBEW+G8todutBKtErT13qzS1IFiRO/nYMzcgHNgtPV8x8mc6mFObKrtBpT4Ai+0cikYkQKlelQ+
+        bCraEsorXMCS4qouegw8L3EGGVm0rGcVgfRybIpmCTISVOfkuIkGRiW8585HYTQMPGcdOQRFjVKG
+        2sAHwq3rggKh+nG8VrbCdIx7ENI9G+biIKVls2jbvMAEoMUVZBS3y3qBy7aGJlvQhtXNmVgwrrzw
+        EQs90hR7rJbcRWKkd4pbtD7Nkv8ETzijrC5zTJsqxxUrC9xmrMHQ9E1VFn3Z5/Ud/CNNv+FHd2Zf
+        /4gH+Fs8ngwfvfG9EfY84WYjmPwUlF9TekQKBh6NvV3gk1cpwir2X5N/vZeOTlJ4X3Rxcz/nPXyR
+        5GVSz19lFCzWH3E9TWasm57urwKDTt/gQpCwfgQAAA==
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '373', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:32 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '69']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '"ServiceAccount for service identity_client and account ''Test
+        Account'' already exists and is active. Conflict"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '110',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:33 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 409, message: CONFLICT}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '69']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '"ServiceAccount for service identity_client and account ''Test
+        Account'' already exists and is active. Conflict"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '110',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:33 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 409, message: CONFLICT}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": "10000-01-01", "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '78']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"field_errors": {"expiration": ["Informe uma data v\u00e1lida."]}}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '67',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:34 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 400, message: BAD REQUEST}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": "0000-01-01", "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '77']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"field_errors": {"expiration": ["Informe uma data v\u00e1lida."]}}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '67',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:34 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 400, message: BAD REQUEST}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": "ABC", "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '70']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"field_errors": {"expiration": ["Informe uma data v\u00e1lida."]}}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '67',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:35 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 400, message: BAD REQUEST}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '69']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/00000000-0000-0000-0000-000000000000/accounts/
+  response:
+    body: {string: '"Identity with uuid=00000000-0000-0000-0000-000000000000 does
+        not exist"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '72',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:35 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 404, message: NOT FOUND}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic Pz8/Pz86WFhYWFhY']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '69']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"detail": "You need to login or otherwise authenticate the request."}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '70',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:35 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 401, message: UNAUTHORIZED}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '69']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '"ServiceAccount for service identity_client and account ''Test
+        Account'' already exists and is active. Conflict"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '110',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:36 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 409, message: CONFLICT}
+- request:
+    body: '{"plan_slug": "unittest-expired", "expiration": null, "uuid": "a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '101']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '"ServiceAccount for service identity_client and account ''a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba''
+        already exists and is active. Conflict"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '134',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:37 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 409, message: CONFLICT}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "uuid": "a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '93']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '"ServiceAccount for service identity_client and account ''a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba''
+        already exists and is active. Conflict"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '134',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:37 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 409, message: CONFLICT}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "uuid": "00000000-0000-0000-0000-000000000000"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '93']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"field_errors": {"uuid": ["This UUID does not match any account."]},
+        "errors": ["Either name or uuid must be supplied."]}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '122',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:38 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 400, message: BAD REQUEST}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "uuid": "a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '93']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '"ServiceAccount for service identity_client and account ''a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba''
+        already exists and is active. Conflict"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '134',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:38 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 409, message: CONFLICT}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": "10000-01-01", "uuid": "a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '102']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"field_errors": {"expiration": ["Informe uma data v\u00e1lida."]}}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '67',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:39 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 400, message: BAD REQUEST}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": "0000-01-01", "uuid": "a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '101']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"field_errors": {"expiration": ["Informe uma data v\u00e1lida."]}}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '67',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:40 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 400, message: BAD REQUEST}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": "ABC", "uuid": "a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '94']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"field_errors": {"expiration": ["Informe uma data v\u00e1lida."]}}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '67',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:41 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 400, message: BAD REQUEST}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "name": "Test Account"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '69']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/00000000-0000-0000-0000-000000000000/accounts/
+  response:
+    body: {string: '"Identity with uuid=00000000-0000-0000-0000-000000000000 does
+        not exist"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '72',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:41 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 404, message: NOT FOUND}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "uuid": "a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic Pz8/Pz86WFhYWFhY']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '93']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '{"detail": "You need to login or otherwise authenticate the request."}'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '70',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:42 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 401, message: UNAUTHORIZED}
+- request:
+    body: '{"plan_slug": "unittest", "expiration": null, "uuid": "e5ab6f2f-a4eb-431b-8c12-9411fd8a872d"}'
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [Content-Length, !!python/unicode '93']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: POST
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body: {string: '"ServiceAccount for service identity_client and account ''e5ab6f2f-a4eb-431b-8c12-9411fd8a872d''
+        already exists and is active. Conflict"'}
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-length: '134',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:43 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 409, message: CONFLICT}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /organizations/api/accounts/c3769912-baa9-4a0c-9856-395a706c7d57/
+  response:
+    body: {string: '"Account c3769912-baa9-4a0c-9856-395a706c7d57 has no relation
+        with service identity_client"'}
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-length: '91',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:43 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 404, message: NOT FOUND}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/
+  response:
+    body:
+      string: !!binary |
+        H4sIAAiublIC/82TS28CIRSF/8qEtThvx3HXdNV9d42ZXB6jJAwQYKrW+N8LjsY2blzZ7uCe3Mv5
+        4HBEW+G8todutBKtErT13qzS1IFiRO/nYMzcgHNgtPV8x8mc6mFObKrtBpT4Ai+0cikYkQKlelQ+
+        bCraEsorXMCS4qouegw8L3EGGVm0rGcVgfRybIpmCTISVOfkuIkGRiW8585HYTQMPGcdOQRFjVKG
+        2sAHwq3rggKh+nG8VrbCdIx7ENI9G+biIKVls2jbvMAEoMUVZBS3y3qBy7aGJlvQhtXNmVgwrrzw
+        EQs90hR7rJbcRWKkd4pbtD7Nkv8ETzijrC5zTJsqxxUrC9xmrMHQ9E1VFn3Z5/Ud/CNNv+FHd2Zf
+        /4gH+Fs8ngwfvfG9EfY84WYjmPwUlF9TekQKBh6NvV3gk1cpwir2X5N/vZeOTlJ4X3Rxcz/nPXyR
+        5GVSz19lFCzWH3E9TWasm57urwKDTt/gQpCwfgQAAA==
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '373', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:44 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /organizations/api/accounts/00000000-0000-0000-0000-000000000000/
+  response:
+    body: {string: '"Account 00000000-0000-0000-0000-000000000000 has no relation
+        with service identity_client"'}
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-length: '91',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:45 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 404, message: NOT FOUND}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic Pz8/Pz86WFhYWFhY']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /organizations/api/accounts/a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba/
+  response:
+    body: {string: '{"detail": "You need to login or otherwise authenticate the request."}'}
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-length: '70',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:46 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 401, message: UNAUTHORIZED}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?email=identity_client%40disposableinbox.com
+  response:
+    body:
+      string: !!binary |
+        H4sIAAuublIC/72VQW/jIBCF/0rk8xLbsR3bPW0Pe1ztZW+ryhpgaJEwIMBNs1X/+4KTVG3USk60
+        6s1mzOPxMTw/Z0I6HwYNI2Y3qyz7tsoUnA141Hyw4IJGN2jc+VgQoDzG2jRJnr5jVbvt+3JDKEBP
+        aigY6btmS6q+gbbYspY3bdKSfgAW5GMSD26aJSyHgIPUwgyTU0ntIQR7k+ceNKfmaQ3Wri14D9a4
+        gDuka2bGNXU5MGYmHXwOVuaSow4ySPT5Ejd5sqNNkEIyCNLotK3nbBaMT0UiIX24xM47tdlT9hJl
+        Ti6j1J/nzCrQg1fTfVL2qBS62ckR+I+oNaJjuLo9TEtFZxTO0zOzi4eQ3SVsl6Ey7h60/PvG2yu8
+        RpSNaGlDoBXbSKtqSNe0FSk4NBWvigrLbqaFT1a6WSGurCel5rGAToMa5j44Dp66YolyQnRGhU0+
+        mPEzLvBVXOoOUIiqJpuCxS4qqp5Q3reEd2VTbArsaF1fx2WJ8gdcJi1DQB/ecvm5X/0KD+hWt9aq
+        107+gE1qRD5K/Z8hYQN0KzaCQI2U1FVJScfizevrshS8g67d8OsgLVFeCOl3fP+6+wQ16ynDeLrQ
+        MVI3aQtYxq6Hgm57LnhN4TokS5Szl7tTZo974RDTxTmPbY/uUTI8RN4xOPcDUxL1RYn3LoCPoiQl
+        +bIIPlv5EJc4gpyP4qz6nUtvjQeqUOrkKnpIFK0zQir80n/Hcc1o+B/H7wlqQgcAAA==
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '562', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:47 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/?include_other_services=True
+  response:
+    body:
+      string: !!binary |
+        H4sIABCublIC/72VTW/cIBCG/8rK57LrL/yRU3PoMeqltzayBhgSJIwR4Hx0lf9e8O5WyWorOVGV
+        i2WDeeflGWbYZ1I5HwYDI2ZXmyz7ssk0nA14NGKw4IJBNxh89HFCgvYY5+ZZifQfr9qm74uSMICe
+        1JBz0ne0IVVPoc0b3graJi3lB+BBPSTx4OZFwgoIOCgjp2F2Oqndh2CvdjsPRrDpaQvWbi14D3Zy
+        AR+Rbfk0bpnbAefTbILfgVU7JdAEFRT63Ro3u2THTEFJxSGoyaRt7bNFML7liYTy4T123qgtnrKX
+        KHNyGaV+7rMT2Rtl7sFvwOq44tec59imp6Tos1dgC8YF0lKQVkBH6i7PCRO0J0Ii9E1fVRzrFGWf
+        WQ1m8Hq+S8s8ao1u2eIx3rdockTHcXN98JMm3aRx8ZVNjzG72W2K/L4cTO4OjPr9atN/s0JlQWXL
+        KIFWNjENFSUdbSuSC6CVqPIKi25JAz5Z5RaFGNnMWi9jAZ0BPSwcjoMnKmuUL1Dhsw/T+C8u8Flc
+        6g5QyqomZc7j8cyrPua0b4noCpqXOXasrj/GZY3yBS6zUSGgD6+53Dxvvod7dJtruxzRQ4lcYJNO
+        uBiV+c+QkAJrZCkJ1MhIXRWMdDyWdF8XhRQddG0pPgZpjfJKSD/i9+fVE9S8Z7HeSQkdJzVNW8Ai
+        nnrIWdMLKWoGH0OyRjl7uT1dBuOzdIipcM7vA4/uQXE89NJjR34euFZo3tVK33T2oyhJV8S63n4W
+        +dCHcQS1pOJs9qtQ3k4emEZlkqvoIVG0bpJK46deSseY0fAfdY/kq5sHAAA=
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '614', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:52 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/
+  response:
+    body:
+      string: !!binary |
+        H4sIABGublIC/72VQW/jIBCF/0rk8xLbsR3bPW0Pe1ztZW+ryhpgaJEwIMBNs1X/+4KTVG3USk60
+        6s1mzOPxMTw/Z0I6HwYNI2Y3qyz7tsoUnA141Hyw4IJGN2jc+VgQoDzG2jRJnr5jVbvt+3JDKEBP
+        aigY6btmS6q+gbbYspY3bdKSfgAW5GMSD26aJSyHgIPUwgyTU0ntIQR7k+ceNKfmaQ3Wri14D9a4
+        gDuka2bGNXU5MGYmHXwOVuaSow4ySPT5Ejd5sqNNkEIyCNLotK3nbBaMT0UiIX24xM47tdlT9hJl
+        Ti6j1J/nzCrQg1fTfVL2qBS62ckR+I+oNaJjuLo9TEtFZxTO0zOzi4eQ3SVsl6Ey7h60/PvG2yu8
+        RpSNaGlDoBXbSKtqSNe0FSk4NBWvigrLbqaFT1a6WSGurCel5rGAToMa5j44Dp66YolyQnRGhU0+
+        mPEzLvBVXOoOUIiqJpuCxS4qqp5Q3reEd2VTbArsaF1fx2WJ8gdcJi1DQB/ecvm5X/0KD+hWt9aq
+        107+gE1qRD5K/Z8hYQN0KzaCQI2U1FVJScfizevrshS8g67d8OsgLVFeCOl3fP+6+wQ16ynDeLrQ
+        MVI3aQtYxq6Hgm57LnhN4TokS5Szl7tTZo974RDTxTmPbY/uUTI8RN4xOPcDUxL1RYn3LoCPoiQl
+        +bIIPlv5EJc4gpyP4qz6nUtvjQeqUOrkKnpIFK0zQir80n/Hcc1o+B/H7wlqQgcAAA==
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '562', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:53 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/?include_expired_accounts=True
+  response:
+    body:
+      string: !!binary |
+        H4sIABKublIC/72WS2/cIBSF/4rldRnjt51Vs+iy6qa7KrIucEmQMLYA59Eo/73gTKJkNFGdUTsa
+        L8ZgHw4fB64fU6ms84OBEdOLJE2/JKmGgwaHRgwzWG/QDgbvXOiQoB2GvmVRIj7Hy7bp+7wgDKAn
+        FVBO+q5uSNnX0NKGt6Juo5ZyA3CvbqO4t8sqMQvwOCgjp2GxOqrdeD9fZJkDI9h0v4N53s3gHMyT
+        9XiHbMenccdsBpxPi/Eug1llSqDxyit02RY3WbRjJq+k4uDVZOK0HtNVMPyjkYRy/jN23qmtntKn
+        IPPiMkj9ekxnDWZwermOyg61Rrs62QP/FrRGtByTy+fXYqedNK6vp9NdWIT0KmL7HKrJXoNRv994
+        e4VXy7yWLasJtLIJtMqadHVbEiqgLkVJS8y7lRbez8quCmFks2i9tnm0BvSw5mDf+JKKLcoR0QEV
+        vjg/jR9xgXNxqTpAKcuKFJSHFNGyJ0z0LRFdXtOCYseq6jQuW5SPcFmM8h6df8vl+0Pyw9+gTS7n
+        Wb8m+QibGEQxKvOPIWENrJGFJFAhI1WZM9LxsPP6Ks+l6KBrC3EapC3KGyH9DPfn209Q8Z5xDKsL
+        HSdVHaeAeUg9UNb0QoqKwWlItihv3E/J/+fQtB0w2ZQEWY5hAUtBekkFkVUT8g2srfIj0UgLGmcU
+        rjyh9GK90r+B2TLURjD7rJwnKi2lBYceSC7yOhwEtCaswpJ0OYjwKxhvjhy9JyHaMlT6dPVS78cH
+        aRHjoXtY8h3aW8XxuVzui+7DwLVC86lq+a5470VJ/ArYVr4PRn4utTiCWtfmoPerUG6eHDCNykRX
+        wUMkNttJKo1n/e7YjxkM/wFgsUbrfgkAAA==
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '652', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:54 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/?include_other_services=True&include_expired_accounts=True
+  response:
+    body:
+      string: !!binary |
+        H4sIABOublIC/72WTY/bIBCG/0rkc0mwDf7YU/fQ46qX3tqVNcCwi+RgC/B+NNr/XnCSaneVqt6o
+        jWJFibHfeXlmgNll2jgfOgtbzK5WWfZplfXw7oZHq7oRXLDoOouPPg5o6D3GsWkyKj0ny7pq27wg
+        AqAlDKgkbcMrUrYcalrJWvE6aRnfgQzmIYkHN80So4KAnbF66CbXJ7X7EMarzcaDVWJ4WsM4rkfw
+        HsbBBXxEsZbDdi3cBqQcJhv8BkazMQptMMGg3yxxs0l27BCMNhKCGWya1i6bBeMvmkgYHz5i543a
+        7Cl7iTJHl1Hq+y47kr0x9h78CsY+vvFjohTr9K05+uwV2FxIhbxQpFbQENZQSoTiLVEaoa3aspTI
+        UpRdNvZgO99Pd+k1j32Pbp7iId6XaHKLTuLqeu8nDbqhx9lXNjzG7Ga3KfLHcjC4O7Dm56tJ/84K
+        1znXteAEal3FNJScNLwuCVXAS1XSEvNmTgM+jcbNCjGynfp+vhfQWei7mcPh5pHKEuUTVOTkw7D9
+        Exe4FBfWAGpdMlJQGcuTlm3MaVsT1eScFhQbwdh5XJYon+AyWRMC+vCay83z6mu4R7e6HucS3S+R
+        E2xShautsf8YEnIQlS40AYaCsDIXpJFxSbcsz7VqoKkLdR6kJcoLIX2L/y+3noDJVsT1TgpoJGE8
+        TQHzWPVARdUqrZiA85AsUV64nlb/n0NVNyB0VRIUOcYEloq0miqiWRXrG0TN8hOlkRU0zShe+YrS
+        q/nK/gZmSaiFYA61cplSqSktJLRAcpXzuBFQTgTDkjQ5qPgphKxObL1nIVoSKnu5PTYS22ftENOm
+        +76X8OgejMT9OXw4zZ872Ru0HzqG33QFB1GS2otlfcG7yPszHLdg5ty8G/2sjB8HD6JHY5Or6CER
+        G92gTY8XbWgOMaPhXx/VwpHXCQAA
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '705', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:55 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//00000000-0000-0000-0000-000000000000/
+  response:
+    body: {string: '"Identity with uuid=00000000-0000-0000-0000-000000000000 does
+        not exist"'}
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-length: '72',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:55 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 404, message: NOT FOUND}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic Pz8/Pz86WFhYWFhY']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/
+  response:
+    body: {string: '{"detail": "You need to login or otherwise authenticate the request."}'}
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-length: '70',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:33:56 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 401, message: UNAUTHORIZED}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/
+  response:
+    body:
+      string: !!binary |
+        H4sIABWublIC/72VQW/jIBCF/0rk8xLbsR3bPW0Pe1ztZW+ryhpgaJEwIMBNs1X/+4KTVG3USk60
+        6s1mzOPxMTw/Z0I6HwYNI2Y3qyz7tsoUnA141Hyw4IJGN2jc+VgQoDzG2jRJnr5jVbvt+3JDKEBP
+        aigY6btmS6q+gbbYspY3bdKSfgAW5GMSD26aJSyHgIPUwgyTU0ntIQR7k+ceNKfmaQ3Wri14D9a4
+        gDuka2bGNXU5MGYmHXwOVuaSow4ySPT5Ejd5sqNNkEIyCNLotK3nbBaMT0UiIX24xM47tdlT9hJl
+        Ti6j1J/nzCrQg1fTfVL2qBS62ckR+I+oNaJjuLo9TEtFZxTO0zOzi4eQ3SVsl6Ey7h60/PvG2yu8
+        RpSNaGlDoBXbSKtqSNe0FSk4NBWvigrLbqaFT1a6WSGurCel5rGAToMa5j44Dp66YolyQnRGhU0+
+        mPEzLvBVXOoOUIiqJpuCxS4qqp5Q3reEd2VTbArsaF1fx2WJ8gdcJi1DQB/ecvm5X/0KD+hWt9aq
+        107+gE1qRD5K/Z8hYQN0KzaCQI2U1FVJScfizevrshS8g67d8OsgLVFeCOl3fP+6+wQ16ynDeLrQ
+        MVI3aQtYxq6Hgm57LnhN4TokS5Szl7tTZo974RDTxTmPbY/uUTI8RN4xOPcDUxL1RYn3LoCPoiQl
+        +bIIPlv5EJc4gpyP4qz6nUtvjQeqUOrkKnpIFK0zQir80n/Hcc1o+B/H7wlqQgcAAA==
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '562', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:57 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/
+  response:
+    body:
+      string: !!binary |
+        H4sIABaublIC/72VQW/jIBCF/0rk8xLbsR3bPW0Pe1ztZW+ryhpgaJEwIMBNs1X/+4KTVG3USk60
+        6s1mzOPxMTw/Z0I6HwYNI2Y3qyz7tsoUnA141Hyw4IJGN2jc+VgQoDzG2jRJnr5jVbvt+3JDKEBP
+        aigY6btmS6q+gbbYspY3bdKSfgAW5GMSD26aJSyHgIPUwgyTU0ntIQR7k+ceNKfmaQ3Wri14D9a4
+        gDuka2bGNXU5MGYmHXwOVuaSow4ySPT5Ejd5sqNNkEIyCNLotK3nbBaMT0UiIX24xM47tdlT9hJl
+        Ti6j1J/nzCrQg1fTfVL2qBS62ckR+I+oNaJjuLo9TEtFZxTO0zOzi4eQ3SVsl6Ey7h60/PvG2yu8
+        RpSNaGlDoBXbSKtqSNe0FSk4NBWvigrLbqaFT1a6WSGurCel5rGAToMa5j44Dp66YolyQnRGhU0+
+        mPEzLvBVXOoOUIiqJpuCxS4qqp5Q3reEd2VTbArsaF1fx2WJ8gdcJi1DQB/ecvm5X/0KD+hWt9aq
+        107+gE1qRD5K/Z8hYQN0KzaCQI2U1FVJScfizevrshS8g67d8OsgLVFeCOl3fP+6+wQ16ynDeLrQ
+        MVI3aQtYxq6Hgm57LnhN4TokS5Szl7tTZo974RDTxTmPbY/uUTI8RN4xOPcDUxL1RYn3LoCPoiQl
+        +bIIPlv5EJc4gpyP4qz6nUtvjQeqUOrkKnpIFK0zQir80n/Hcc1o+B/H7wlqQgcAAA==
+    headers: {allow: 'GET, PUT, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '562', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:58 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?include_other_services=True&email=identity_client%40disposableinbox.com
+  response:
+    body:
+      string: !!binary |
+        H4sIABeublIC/72VTW/cIBCG/8rK57LrL/yRU3PoMeqltzayBhgSJIwR4Hx0lf9e8O5WyWorOVGV
+        i2WDeeflGWbYZ1I5HwYDI2ZXmyz7ssk0nA14NGKw4IJBNxh89HFCgvYY5+ZZifQfr9qm74uSMICe
+        1JBz0ne0IVVPoc0b3graJi3lB+BBPSTx4OZFwgoIOCgjp2F2Oqndh2CvdjsPRrDpaQvWbi14D3Zy
+        AR+Rbfk0bpnbAefTbILfgVU7JdAEFRT63Ro3u2THTEFJxSGoyaRt7bNFML7liYTy4T123qgtnrKX
+        KHNyGaV+7rMT2Rtl7sFvwOq44tec59imp6Tos1dgC8YF0lKQVkBH6i7PCRO0J0Ii9E1fVRzrFGWf
+        WQ1m8Hq+S8s8ao1u2eIx3rdockTHcXN98JMm3aRx8ZVNjzG72W2K/L4cTO4OjPr9atN/s0JlQWXL
+        KIFWNjENFSUdbSuSC6CVqPIKi25JAz5Z5RaFGNnMWi9jAZ0BPSwcjoMnKmuUL1Dhsw/T+C8u8Flc
+        6g5QyqomZc7j8cyrPua0b4noCpqXOXasrj/GZY3yBS6zUSGgD6+53Dxvvod7dJtruxzRQ4lcYJNO
+        uBiV+c+QkAJrZCkJ1MhIXRWMdDyWdF8XhRQddG0pPgZpjfJKSD/i9+fVE9S8Z7HeSQkdJzVNW8Ai
+        nnrIWdMLKWoGH0OyRjl7uT1dBuOzdIipcM7vA4/uQXE89NJjR34euFZo3tVK33T2oyhJV8S63n4W
+        +dCHcQS1pOJs9qtQ3k4emEZlkqvoIVG0bpJK46deSseY0fAfdY/kq5sHAAA=
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '614', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:33:59 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?email=identity_client%40disposableinbox.com
+  response:
+    body:
+      string: !!binary |
+        H4sIABiublIC/72VQW/jIBCF/0rk8xLbsR3bPW0Pe1ztZW+ryhpgaJEwIMBNs1X/+4KTVG3USk60
+        6s1mzOPxMTw/Z0I6HwYNI2Y3qyz7tsoUnA141Hyw4IJGN2jc+VgQoDzG2jRJnr5jVbvt+3JDKEBP
+        aigY6btmS6q+gbbYspY3bdKSfgAW5GMSD26aJSyHgIPUwgyTU0ntIQR7k+ceNKfmaQ3Wri14D9a4
+        gDuka2bGNXU5MGYmHXwOVuaSow4ySPT5Ejd5sqNNkEIyCNLotK3nbBaMT0UiIX24xM47tdlT9hJl
+        Ti6j1J/nzCrQg1fTfVL2qBS62ckR+I+oNaJjuLo9TEtFZxTO0zOzi4eQ3SVsl6Ey7h60/PvG2yu8
+        RpSNaGlDoBXbSKtqSNe0FSk4NBWvigrLbqaFT1a6WSGurCel5rGAToMa5j44Dp66YolyQnRGhU0+
+        mPEzLvBVXOoOUIiqJpuCxS4qqp5Q3reEd2VTbArsaF1fx2WJ8gdcJi1DQB/ecvm5X/0KD+hWt9aq
+        107+gE1qRD5K/Z8hYQN0KzaCQI2U1FVJScfizevrshS8g67d8OsgLVFeCOl3fP+6+wQ16ynDeLrQ
+        MVI3aQtYxq6Hgm57LnhN4TokS5Szl7tTZo974RDTxTmPbY/uUTI8RN4xOPcDUxL1RYn3LoCPoiQl
+        +bIIPlv5EJc4gpyP4qz6nUtvjQeqUOrkKnpIFK0zQir80n/Hcc1o+B/H7wlqQgcAAA==
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '562', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:34:00 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?email=nao_registrado%40email.test
+  response:
+    body: {string: '"Identity with email=nao_registrado@email.test does not exist"'}
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-length: '62',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:34:01 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 404, message: NOT FOUND}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?email=identity_client%40disposableinbox.com&include_expired_accounts=True
+  response:
+    body:
+      string: !!binary |
+        H4sIABqublIC/72WS2/cIBSF/4rldRnjt51Vs+iy6qa7KrIucEmQMLYA59Eo/73gTKJkNFGdUTsa
+        L8ZgHw4fB64fU6ms84OBEdOLJE2/JKmGgwaHRgwzWG/QDgbvXOiQoB2GvmVRIj7Hy7bp+7wgDKAn
+        FVBO+q5uSNnX0NKGt6Juo5ZyA3CvbqO4t8sqMQvwOCgjp2GxOqrdeD9fZJkDI9h0v4N53s3gHMyT
+        9XiHbMenccdsBpxPi/Eug1llSqDxyit02RY3WbRjJq+k4uDVZOK0HtNVMPyjkYRy/jN23qmtntKn
+        IPPiMkj9ekxnDWZwermOyg61Rrs62QP/FrRGtByTy+fXYqedNK6vp9NdWIT0KmL7HKrJXoNRv994
+        e4VXy7yWLasJtLIJtMqadHVbEiqgLkVJS8y7lRbez8quCmFks2i9tnm0BvSw5mDf+JKKLcoR0QEV
+        vjg/jR9xgXNxqTpAKcuKFJSHFNGyJ0z0LRFdXtOCYseq6jQuW5SPcFmM8h6df8vl+0Pyw9+gTS7n
+        Wb8m+QibGEQxKvOPIWENrJGFJFAhI1WZM9LxsPP6Ks+l6KBrC3EapC3KGyH9DPfn209Q8Z5xDKsL
+        HSdVHaeAeUg9UNb0QoqKwWlItihv3E/J/+fQtB0w2ZQEWY5hAUtBekkFkVUT8g2srfIj0UgLGmcU
+        rjyh9GK90r+B2TLURjD7rJwnKi2lBYceSC7yOhwEtCaswpJ0OYjwKxhvjhy9JyHaMlT6dPVS78cH
+        aRHjoXtY8h3aW8XxuVzui+7DwLVC86lq+a5470VJ/ArYVr4PRn4utTiCWtfmoPerUG6eHDCNykRX
+        wUMkNttJKo1n/e7YjxkM/wFgsUbrfgkAAA==
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '652', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:34:02 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?include_other_services=True&email=identity_client%40disposableinbox.com&include_expired_accounts=True
+  response:
+    body:
+      string: !!binary |
+        H4sIAByublIC/72WTY/bIBCG/0rkc0mwDf7YU/fQ46qX3tqVNcCwi+RgC/B+NNr/XnCSaneVqt6o
+        jWJFibHfeXlmgNll2jgfOgtbzK5WWfZplfXw7oZHq7oRXLDoOouPPg5o6D3GsWkyKj0ny7pq27wg
+        AqAlDKgkbcMrUrYcalrJWvE6aRnfgQzmIYkHN80So4KAnbF66CbXJ7X7EMarzcaDVWJ4WsM4rkfw
+        HsbBBXxEsZbDdi3cBqQcJhv8BkazMQptMMGg3yxxs0l27BCMNhKCGWya1i6bBeMvmkgYHz5i543a
+        7Cl7iTJHl1Hq+y47kr0x9h78CsY+vvFjohTr9K05+uwV2FxIhbxQpFbQENZQSoTiLVEaoa3aspTI
+        UpRdNvZgO99Pd+k1j32Pbp7iId6XaHKLTuLqeu8nDbqhx9lXNjzG7Ga3KfLHcjC4O7Dm56tJ/84K
+        1znXteAEal3FNJScNLwuCVXAS1XSEvNmTgM+jcbNCjGynfp+vhfQWei7mcPh5pHKEuUTVOTkw7D9
+        Exe4FBfWAGpdMlJQGcuTlm3MaVsT1eScFhQbwdh5XJYon+AyWRMC+vCay83z6mu4R7e6HucS3S+R
+        E2xShautsf8YEnIQlS40AYaCsDIXpJFxSbcsz7VqoKkLdR6kJcoLIX2L/y+3noDJVsT1TgpoJGE8
+        TQHzWPVARdUqrZiA85AsUV64nlb/n0NVNyB0VRIUOcYEloq0miqiWRXrG0TN8hOlkRU0zShe+YrS
+        q/nK/gZmSaiFYA61cplSqSktJLRAcpXzuBFQTgTDkjQ5qPgphKxObL1nIVoSKnu5PTYS22ftENOm
+        +76X8OgejMT9OXw4zZ872Ru0HzqG33QFB1GS2otlfcG7yPszHLdg5ty8G/2sjB8HD6JHY5Or6CER
+        G92gTY8XbWgOMaPhXx/VwpHXCQAA
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '705', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:34:04 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic Pz8/Pz86WFhYWFhY']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?email=identity_client%40disposableinbox.com
+  response:
+    body: {string: '{"detail": "You need to login or otherwise authenticate the request."}'}
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-length: '70',
+      content-type: application/json, date: 'Mon, 28 Oct 2013 18:34:05 GMT', p3p: CP="NON
+        DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate, Accept'}
+    status: {code: 401, message: UNAUTHORIZED}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /profile/api/info//?email=identity_client%40disposableinbox.com
+  response:
+    body:
+      string: !!binary |
+        H4sIAB6ublIC/72VQW/jIBCF/0rk8xLbsR3bPW0Pe1ztZW+ryhpgaJEwIMBNs1X/+4KTVG3USk60
+        6s1mzOPxMTw/Z0I6HwYNI2Y3qyz7tsoUnA141Hyw4IJGN2jc+VgQoDzG2jRJnr5jVbvt+3JDKEBP
+        aigY6btmS6q+gbbYspY3bdKSfgAW5GMSD26aJSyHgIPUwgyTU0ntIQR7k+ceNKfmaQ3Wri14D9a4
+        gDuka2bGNXU5MGYmHXwOVuaSow4ySPT5Ejd5sqNNkEIyCNLotK3nbBaMT0UiIX24xM47tdlT9hJl
+        Ti6j1J/nzCrQg1fTfVL2qBS62ckR+I+oNaJjuLo9TEtFZxTO0zOzi4eQ3SVsl6Ey7h60/PvG2yu8
+        RpSNaGlDoBXbSKtqSNe0FSk4NBWvigrLbqaFT1a6WSGurCel5rGAToMa5j44Dp66YolyQnRGhU0+
+        mPEzLvBVXOoOUIiqJpuCxS4qqp5Q3reEd2VTbArsaF1fx2WJ8gdcJi1DQB/ecvm5X/0KD+hWt9aq
+        107+gE1qRD5K/Z8hYQN0KzaCQI2U1FVJScfizevrshS8g67d8OsgLVFeCOl3fP+6+wQ16ynDeLrQ
+        MVI3aQtYxq6Hgm57LnhN4TokS5Szl7tTZo974RDTxTmPbY/uUTI8RN4xOPcDUxL1RYn3LoCPoiQl
+        +bIIPlv5EJc4gpyP4qz6nUtvjQeqUOrkKnpIFK0zQir80n/Hcc1o+B/H7wlqQgcAAA==
+    headers: {allow: 'GET, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '562', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:34:06 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [accept, application/json]
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-length: !!python/tuple [content-length, '0']
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /organizations/api/identities/c3769912-baa9-4a0c-9856-395a706c7d57/accounts/
+  response:
+    body:
+      string: !!binary |
+        H4sIACCublIC/82VzW6cMBRGXwWxrgcYbH6yi6ouuqi66S6K0LV9yVgyxsKmyTTKu9cMUyVSumCU
+        QLIDX2Ofz9wj3zzGB+V8PxybcdDxVRQfvLdXSeLASN4/7MDanQXnwPaDx3vkO9F3Oz4k/XAHRv0B
+        r3rjErAqASH60XiXIANetPuWAEVOaJ5xUolsT2qaZa2soCr3Mjlvm8RforjDjuPgDso2Ej0o7bam
+        ORMkIi+Lug5VDlATCqkgdcUKktcMyrQQpWTlCdlqMI3T491EORrlPTo/FUYrwaNs+DFUzKh1GBt6
+        jS683sT9vcFhmgayUya+nT7YNulLRvDPjPhg1XBa9XnM4fBbCWzCbAijj7GBDifY7xKNV/4YfdUq
+        PE1r/jsLdS41Yi49TWFnwtfr/DhGP/0Bh+jaWq3EHOpEOCo5TVgSad5Cymb+iR/VOhPGGjYBFTUX
+        SMkeKkEom3Awy0kKKS9q2UrKYTubFtFsa9P7SrQo4KeS6Fc4q+h6rr50Z0mS9dy5qFHWcodWgG2b
+        B4hUhAZM85pwWZdEVhlL9ylWnNLt3FlE8zZ3xBiydPMVs707iwJ+Kne+hVDhuARG8FqgJXHWE+ii
+        bllLINZmrC05I1C2RejCnJGKlcFiCSyXeZpjVm0n0CKatwnkUOuP0mdRvE+qz3/unyVx1tPnol6J
+        n27/AriG33wKDQAA
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '525', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:34:08 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}

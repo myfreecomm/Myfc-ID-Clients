@@ -73,12 +73,12 @@
 
       <ul class="tabs">
       {% block navigation %}
-        <li><a href="{% url index %}">Inicio</a></li>
-        <li><a href="{% url registration_register %}">Criação de usuários</a></li>
-        <li><a href="{% url auth_login %}">Login via API</a></li>
+        <li><a href="{% url 'index' %}">Inicio</a></li>
+        <li><a href="{% url 'registration_register' %}">Criação de usuários</a></li>
+        <li><a href="{% url 'auth_login' %}">Login via API</a></li>
         <li><a href="#">Login via SSO</a></li>
         <li><a href="#">Perfil</a></li>
-        <li><a href={% url list_accounts %}>Contas</a></li>
+        <li><a href={% url 'list_accounts' %}>Contas</a></li>
         <li><a href="#">Notificações</a></li>
       {% endblock navigation %}
       </ul>
@@ -112,5 +112,5 @@
     </div> <!-- /container -->
 
   </body>
-    <script type="text/javascript" src="{{ MYFC_ID_HOST }}/navbar/identity_client.js?login_url={% url sso_consumer:request_token %}&logout_url={{ APPLICATION_HOST }}{% url auth_logout %}&push_it=false"></script>
+    <script type="text/javascript" src="{{ MYFC_ID_HOST }}/navbar/identity_client.js?login_url={% url 'sso_consumer:request_token' %}&logout_url={{ APPLICATION_HOST }}{% url 'auth_logout' %}&push_it=false"></script>
 </html>
