@@ -2,7 +2,7 @@
 import json
 
 from mock import Mock, patch
-import vcr
+import vcr as vcrpy
 import requests
 
 from django.core.urlresolvers import reverse
@@ -17,6 +17,10 @@ __all__ = ["IdentityRegistrationTest", "IdentityLoginTest"]
 test_user_email = 'identity_client@disposableinbox.com'
 test_user_password = '*SudN7%r$MiYRa!E'
 test_user_uuid = 'c3769912-baa9-4a0c-9856-395a706c7d57'
+
+vcr = vcrpy.VCR(
+    match_on = ['url', 'method', 'headers', 'body']
+)
 
 
 class IdentityRegistrationTest(TestCase):
