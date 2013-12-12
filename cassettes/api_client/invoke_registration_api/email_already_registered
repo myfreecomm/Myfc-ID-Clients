@@ -1,17 +1,19 @@
-- request:
+- request: !!python/object:vcr.request.Request
     body: '{"first_name": "Myfc ID", "last_name": "Clients", "tos": "True", "password2":
       "*SudN7%r$MiYRa!E", "password": "*SudN7%r$MiYRa!E", "email": "identity_client@disposableinbox.com"}'
-    headers: !!python/object:requests.structures.CaseInsensitiveDict
-      _store:
-        accept: !!python/tuple [accept, application/json]
-        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
-        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
-        cache-control: !!python/tuple [cache-control, no-cache]
-        content-length: !!python/tuple [Content-Length, !!python/unicode '177']
-        content-type: !!python/tuple [content-type, application/json]
-        user-agent: !!python/tuple [user-agent, myfc_id client]
+    headers: !!python/object/apply:__builtin__.frozenset
+    - - !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+      - !!python/tuple [accept, application/json]
+      - !!python/tuple [user-agent, myfc_id client]
+      - !!python/tuple [cache-control, no-cache]
+      - !!python/tuple [content-type, application/json]
+      - !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+      - !!python/tuple [Content-Length, !!python/unicode '177']
+    host: sandbox.app.passaporteweb.com.br
     method: POST
-    url: /accounts/api/create/
+    path: /accounts/api/create/
+    port: 80
+    protocol: http
   response:
     body: {string: !!python/str "{ \"email\": [\"Este email j\xE1 est\xE1 cadastrado.\
         \ Por favor insira outro email\"] }"}
@@ -19,20 +21,22 @@
         charset=utf-8, date: 'Fri, 21 Jun 2013 21:51:39 GMT', p3p: CP="NON DSP COR
         CURa TIA", server: nginx/0.7.67}
     status: {code: 409, message: CONFLICT}
-- request:
+- request: !!python/object:vcr.request.Request
     body: '{"first_name": "Myfc ID", "last_name": "Clients", "tos": true, "password2":
       "*SudN7%r$MiYRa!E", "password": "*SudN7%r$MiYRa!E", "email": "identity_client@disposableinbox.com"}'
-    headers: !!python/object:requests.structures.CaseInsensitiveDict
-      _store:
-        accept: !!python/tuple [accept, application/json]
-        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
-        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
-        cache-control: !!python/tuple [cache-control, no-cache]
-        content-length: !!python/tuple [Content-Length, !!python/unicode '175']
-        content-type: !!python/tuple [content-type, application/json]
-        user-agent: !!python/tuple [user-agent, myfc_id client]
+    headers: !!python/object/apply:__builtin__.frozenset
+    - - !!python/tuple [cache-control, no-cache]
+      - !!python/tuple [user-agent, myfc_id client]
+      - !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+      - !!python/tuple [accept, application/json]
+      - !!python/tuple [content-type, application/json]
+      - !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+      - !!python/tuple [Content-Length, !!python/unicode '175']
+    host: sandbox.app.passaporteweb.com.br
     method: POST
-    url: /accounts/api/create/
+    path: /accounts/api/create/
+    port: 80
+    protocol: http
   response:
     body: {string: !!python/str "{ \"email\": [\"Este email j\xE1 est\xE1 cadastrado.\
         \ Por favor insira outro email\"] }"}

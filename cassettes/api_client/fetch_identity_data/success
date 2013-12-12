@@ -1,35 +1,18 @@
-- request:
+- request: !!python/object:vcr.request.Request
     body: null
-    headers: !!python/object:requests.structures.CaseInsensitiveDict
-      _store:
-        accept: !!python/tuple [accept, application/json]
-        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
-        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic Pz8/Pz86WFhYWFhY']
-        cache-control: !!python/tuple [cache-control, no-cache]
-        content-length: !!python/tuple [content-length, '0']
-        content-type: !!python/tuple [content-type, application/json]
-        user-agent: !!python/tuple [user-agent, myfc_id client]
+    headers: !!python/object/apply:__builtin__.frozenset
+    - - !!python/tuple [cache-control, no-cache]
+      - !!python/tuple [user-agent, myfc_id client]
+      - !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+      - !!python/tuple [accept, application/json]
+      - !!python/tuple [content-type, application/json]
+      - !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+      - !!python/tuple [content-length, '0']
+    host: sandbox.app.passaporteweb.com.br
     method: GET
-    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/
-  response:
-    body: {string: ''}
-    headers: {connection: keep-alive, content-length: '0', content-type: text/html;
-        charset=utf-8, date: 'Mon, 24 Jun 2013 15:34:55 GMT', p3p: CP="NON DSP COR
-        CURa TIA", server: nginx/0.7.67, www-authenticate: Basic realm="Myfc ID"}
-    status: {code: 401, message: UNAUTHORIZED}
-- request:
-    body: null
-    headers: !!python/object:requests.structures.CaseInsensitiveDict
-      _store:
-        accept: !!python/tuple [accept, application/json]
-        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
-        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
-        cache-control: !!python/tuple [cache-control, no-cache]
-        content-length: !!python/tuple [content-length, '0']
-        content-type: !!python/tuple [content-type, application/json]
-        user-agent: !!python/tuple [user-agent, myfc_id client]
-    method: GET
-    url: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/
+    path: /profile/api/info//c3769912-baa9-4a0c-9856-395a706c7d57/
+    port: 80
+    protocol: http
   response:
     body:
       string: !!binary |
