@@ -1,18 +1,20 @@
-- request:
+- request: !!python/object:vcr.request.Request
     body: '{"first_name": "Myfc ID", "last_name": "Clients", "tos": true, "password2":
       "*SudN7%r$MiYRa!E", "cpf": "1111111111122222222", "password": "*SudN7%r$MiYRa!E",
       "email": "identity_client+1@disposableinbox.com"}'
-    headers: !!python/object:requests.structures.CaseInsensitiveDict
-      _store:
-        accept: !!python/tuple [accept, application/json]
-        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
-        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
-        cache-control: !!python/tuple [cache-control, no-cache]
-        content-length: !!python/tuple [Content-Length, !!python/unicode '207']
-        content-type: !!python/tuple [content-type, application/json]
-        user-agent: !!python/tuple [user-agent, myfc_id client]
+    headers: !!python/object/apply:__builtin__.frozenset
+    - - !!python/tuple [cache-control, no-cache]
+      - !!python/tuple [Content-Length, !!python/unicode '207']
+      - !!python/tuple [user-agent, myfc_id client]
+      - !!python/tuple [Authorization, !!python/unicode 'Basic cXhSU05jSWRlQToxZjBBVkNaUEpiUm5kRjlGTlNHTU9XTWZIOUtNVURhWA==']
+      - !!python/tuple [accept, application/json]
+      - !!python/tuple [content-type, application/json]
+      - !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+    host: sandbox.app.passaporteweb.com.br
     method: POST
-    url: /accounts/api/create/
+    path: /accounts/api/create/
+    port: 80
+    protocol: http
   response:
     body: {string: '{"cpf": ["Certifique-se de que o valor tenha no m\u00e1ximo 14
         caracteres (ele possui 19)."]}'}

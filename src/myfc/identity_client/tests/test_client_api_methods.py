@@ -3,7 +3,7 @@ from datetime import datetime, date
 import time
 
 from mock import patch
-import vcr
+import vcr as vcrpy
 
 from django.conf import settings
 from django.test import TestCase
@@ -28,6 +28,10 @@ test_account_uuid = 'a4c9bce4-2a8c-452f-ae13-0a0b69dfd4ba'
 second_account_uuid = 'e5ab6f2f-a4eb-431b-8c12-9411fd8a872d'
 second_user_email = 'identity_client_2@disposableinbox.com'
 second_user_uuid = 'bedcd531-c741-4d32-90d7-a7f7432f3f15'
+
+vcr = vcrpy.VCR(
+    match_on = ['url', 'method', 'headers', 'body']
+)
 
 
 class InvokeRegistrationApi(TestCase):
@@ -166,7 +170,7 @@ class InvokeRegistrationApi(TestCase):
             response = APIClient.invoke_registration_api(form)
             self.assertTrue(APIClient.pweb.post.called)
             self.assertEquals(APIClient.pweb.post.call_args, (
-                ('https://sandbox.app.passaporteweb.com.br/accounts/api/create/',), {
+                ('http://sandbox.app.passaporteweb.com.br/accounts/api/create/',), {
                     'headers': { 'content-length': '186' },
                     'data': '{"first_name": "Myfc ID", "last_name": "Clients", "tos": true, "password2": "*SudN7%r$MiYRa!E", "cpf": "", "password": "*SudN7%r$MiYRa!E", "email": "identity_client@disposableinbox.com"}'
                 }

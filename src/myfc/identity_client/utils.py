@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 def prepare_form_errors(error_dict):
+    if 'field_errors' in error_dict:
+        error_dict.update(**error_dict['field_errors'])
     return ErrorDict((k, ErrorList(v)) for (k, v) in error_dict.items())
 
 
