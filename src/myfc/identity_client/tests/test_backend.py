@@ -77,7 +77,7 @@ class TestMyfcidApiBackend(TestCase):
 
         # Checar se os dados do usuário foram atualizados
         self.assertEquals(identity.first_name, 'Identity')
-        self.assertEquals(identity.last_name, 'Client') 
+        self.assertEquals(identity.last_name, 'Client')
         self.assertEquals(identity.email, test_user_email)
         self.assertEquals(identity.uuid, test_user_uuid)
 

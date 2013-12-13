@@ -85,7 +85,7 @@ def requires_plan(plan_slug):
                 return http.HttpResponseForbidden()
 
         return check_user_plan
-        
+
     return decorator
 
 
@@ -98,7 +98,7 @@ def with_403_page(view):
         response = view(request, *args, **kwargs)
 
         if isinstance(response, http.HttpResponseForbidden):
-            t = loader.get_template(template_name) 
+            t = loader.get_template(template_name)
             response = http.HttpResponseForbidden(
                 t.render(
                     Context({'MEDIA_URL': settings.MEDIA_URL})

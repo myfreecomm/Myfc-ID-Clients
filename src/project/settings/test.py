@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '(gy8ie&gl+0^a62hw$q#+zj+uff1o$zmm!n#)t9c4*%0v8&c)&'
 
-APPLICATION_HOST = 'http://172.16.1.1:8000'
+APPLICATION_HOST = 'http://testserver'
 LOGIN_REDIRECT_URL = '/developer/profile/'
 
 MYFC_ID['HOST'] = 'http://sandbox.app.passaporteweb.com.br'

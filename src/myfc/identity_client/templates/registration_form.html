@@ -2,12 +2,12 @@
 {% block title %}Criação de usuários{% endblock %}
 
 {% block navigation %}
-    <li><a href="{% url index %}">Inicio</a></li>
+    <li><a href="{% url 'index' %}">Inicio</a></li>
     <li class="active"><a href="#">Criação de usuários</a></li>
-    <li><a href="{% url auth_login %}">Login via API</a></li>
-    <li><a href="{% url sso_consumer:iframe %}">Login via SSO</a></li>
-    <li><a href="{% url user_profile %}">Perfil</a></li>
-    <li><a href="{% url list_accounts %}">Contas</a></li>
+    <li><a href="{% url 'auth_login' %}">Login via API</a></li>
+    <li><a href="{% url 'sso_consumer:iframe' %}">Login via SSO</a></li>
+    <li><a href="{% url 'user_profile' %}">Perfil</a></li>
+    <li><a href="{% url 'list_accounts' %}">Contas</a></li>
     <li><a href="#">Notificações</a></li>
 {% endblock navigation %}
 
@@ -91,7 +91,7 @@
 
       <div class="actions">
         <input type="SUBMIT" class="btn primary" value="Criar meu Passaporte Web"/>
-        <a href="{% url auth_login %}" class="btn">Já tenho um passaporte Web</a>
+        <a href="{% url 'auth_login' %}" class="btn">Já tenho um passaporte Web</a>
       </div>
     </form>
 {% endblock content-inner %}

@@ -1,0 +1,27 @@
+- request:
+    body: null
+    headers: !!python/object:requests.structures.CaseInsensitiveDict
+      _store:
+        accept: !!python/tuple [Accept, '*/*']
+        accept-encoding: !!python/tuple [Accept-Encoding, 'gzip, deflate, compress']
+        authorization: !!python/tuple [Authorization, !!python/unicode 'Basic aWRlbnRpdHlfY2xpZW50QGRpc3Bvc2FibGVpbmJveC5jb206KlN1ZE43JXIkTWlZUmEhRQ==']
+        cache-control: !!python/tuple [cache-control, no-cache]
+        content-type: !!python/tuple [content-type, application/json]
+        user-agent: !!python/tuple [user-agent, myfc_id client]
+    method: GET
+    url: /accounts/api/auth/
+  response:
+    body:
+      string: !!binary |
+        H4sIADGublIC/72Ry07dMBCGXwVFZ9mT68nFrGjVLgpSaUEVEhtrYo97pklsYzvQCPHujVO6gFW7
+        YTeayz/f/POYKHI+cA0TJqcnSfLuJBnhVcKjltyCCxod1/jg14KC0eNam2eSsU9UbcNYUe57ALY/
+        QC72rKubfcVqaPNGtLJuoxZJHsyAOs60JZOygqIWKq+gy/PyIHPWNRIRGSArlJS17KqDgl41im3z
+        noMIdB/hgps3BCshICetDJ/dGJWPIdjTLPOgZW9+pWBtasF7sMYFfMA+FWZKe5eBEGbWwWdgKSOJ
+        OlAg9Nm/XJNFHG0CKRIQyOhoy2OyCa5RHp0kH/4H54XaxpQ8/fV/WpRDXBun1y+AORwj+Z85PuAS
+        d+5K2BXlTr+vQJZLDdcfxh9dfsFw6L/M9/rqsrj8XNx8v7hdzPndzafjkH79Zj92afNzuI6X4QS0
+        eflsy8LFSGt0Jslb46EfkXS8ZkWK/dYZRSO+6Qeed64u/QaFno56yAIAAA==
+    headers: {allow: 'GET, POST, HEAD, OPTIONS', connection: keep-alive, content-encoding: gzip,
+      content-length: '385', content-type: application/json, date: 'Mon, 28 Oct 2013
+        18:34:25 GMT', p3p: CP="NON DSP COR CURa TIA", server: nginx/1.4.3, vary: 'Authenticate,
+        Accept, Accept-Encoding'}
+    status: {code: 200, message: OK}

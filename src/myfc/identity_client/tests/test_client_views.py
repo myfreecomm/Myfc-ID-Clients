@@ -98,6 +98,7 @@ class IdentityLoginTest(TestCase):
                     'password': test_user_password,
                 }
             )
+
         self.assertEquals(self.client.session['user_data'], {
             u'authentication_key': u'$2a$12$nA3ad2y5aSBlg80K9ekbNuvnRO1OI1WUKZyoJqWEhk.PQpD8.6jkS',
             u'email': u'identity_client@disposableinbox.com',
