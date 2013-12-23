@@ -6,5 +6,5 @@ mongoengine==0.8.2
 requests==1.2.3
 pytz==2013b
 vcrpy==0.5.0
-git+git://github.com/myfreecomm/django-passaporte-web.git
+django-passaporte-web==1.0.0
 git+git://github.com/vitormazzi/django-rest-framework.git#egg=django-rest-framework # master = 0.3.3
