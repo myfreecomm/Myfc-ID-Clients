@@ -111,7 +111,7 @@ SERVICE_ACCOUNT_MODULE = 'identity_client.ServiceAccount'
 LOGIN_REDIRECT_URL = '/developer/profile/'
 APPLICATION_HOST = None
 
-MYFC_ID = {
+PASSAPORTE_WEB = {
     'HOST': None,
     'SLUG': None,
     'CONSUMER_TOKEN': None,
